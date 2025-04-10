@@ -5,7 +5,7 @@ import (
 	"github.com/alexisPerdomoD/stock-app-api/internal/shared"
 )
 
-type UserRepository interface {
-	Create(args entity.CreateUserArgs) (entity.User, shared.ApiErr)
-	Get(id int) (entity.User, shared.ApiErr)
+type BrokerageRepository interface {
+	Get(id int) (entity.Brokerage, shared.ApiErr)
+	Create(args entity.Brokerage) (entity.Brokerage, shared.ApiErr)
 }
