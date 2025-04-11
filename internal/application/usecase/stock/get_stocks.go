@@ -1,21 +1,20 @@
 package usecase
 
 import (
-	"github.com/alexisPerdomoD/stock-app-api/internal/domain/aggregate"
-	"github.com/alexisPerdomoD/stock-app-api/internal/domain/repository"
-	"github.com/alexisPerdomoD/stock-app-api/internal/shared"
+	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
+	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
 )
 
 type getStocksUseCase struct {
-	stockRepository repository.StockRepository
+	stockRepository domain.StockRepository
 }
 
-func (uc *getStocksUseCase) Execute(filters shared.PaginationFilter) (*shared.PaginationReponse[aggregate.PopulatedStock], error) {
+func (uc *getStocksUseCase) Execute(filters pkg.PaginationFilter) (*pkg.PaginationReponse[domain.PopulatedStock], error) {
 
 	panic("getStocksUseCase.Execute() not implemented")
 }
 
-func NewGetStocksUseCase(ur repository.StockRepository) *getStocksUseCase {
+func NewGetStocksUseCase(ur domain.StockRepository) *getStocksUseCase {
 
 	if ur == nil {
 		panic("stock repository is nil, stopping :b")

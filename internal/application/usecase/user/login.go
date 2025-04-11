@@ -1,12 +1,12 @@
 package usecase
 
 import (
-	r "github.com/alexisPerdomoD/stock-app-api/internal/domain/repository"
-	ss "github.com/alexisPerdomoD/stock-app-api/internal/shared/service"
+	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
+	pkgService "github.com/alexisPerdomoD/stock-app-api/internal/pkg/service"
 )
 
 type loginUseCase struct {
-	userRepository r.UserRepository
+	userRepository domain.UserRepository
 }
 
 func (uc *loginUseCase) Execute(username, password string) (session string, err error) {
@@ -16,11 +16,11 @@ func (uc *loginUseCase) Execute(username, password string) (session string, err 
 		return "", err
 	}
 
-	if err = ss.VerifyPassword(password, user.Password); err != nil {
+	if err = pkgService.VerifyPassword(password, user.Password); err != nil {
 		return "", err
 	}
 
-	session, err = ss.GenerateSessionToken(user)
+	session, err = pkgService.GenerateSessionToken(user)
 
 	if err != nil {
 		return "", err
@@ -29,7 +29,7 @@ func (uc *loginUseCase) Execute(username, password string) (session string, err 
 	return session, nil
 }
 
-func NewLoginUseCase(ur r.UserRepository) *loginUseCase {
+func NewLoginUseCase(ur domain.UserRepository) *loginUseCase {
 
 	if ur == nil {
 		panic("user repository is nil, stopping :b")

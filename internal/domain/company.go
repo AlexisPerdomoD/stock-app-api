@@ -1,4 +1,4 @@
-package entity
+package domain
 
 import "time"
 
@@ -12,4 +12,12 @@ type Company struct {
 	Name      string    `json:"name"`
 	ISIN      string    `json:"isin"`
 	CreatedAt time.Time `json:"created_at"`
+}
+
+type CompanyRepository interface {
+	Get(id int) (Company, error)
+
+	GetByMarketIDAndName(marketID int, name string) (Company, error)
+
+	Create(args Company) (Company, error)
 }

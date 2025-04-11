@@ -1,12 +1,12 @@
 package usecase
 
-import "github.com/alexisPerdomoD/stock-app-api/internal/domain/repository"
+import "github.com/alexisPerdomoD/stock-app-api/internal/domain"
 
 type registerStocksUseCase struct {
-	stockRepository     repository.StockRepository
-	companyRepository   repository.CompanyRepository
-	marketRepository    repository.MarketRepository
-	brokerageRepository repository.BrokerageRepository
+	stockRepository     domain.StockRepository
+	companyRepository   domain.CompanyRepository
+	marketRepository    domain.MarketRepository
+	brokerageRepository domain.BrokerageRepository
 }
 
 func (uc *registerStocksUseCase) Execute() {
@@ -14,10 +14,10 @@ func (uc *registerStocksUseCase) Execute() {
 }
 
 func NewRegisterStocksUseCase(
-	ur repository.StockRepository,
-	cr repository.CompanyRepository,
-	mr repository.MarketRepository,
-	br repository.BrokerageRepository,
+	ur domain.StockRepository,
+	cr domain.CompanyRepository,
+	mr domain.MarketRepository,
+	br domain.BrokerageRepository,
 ) *registerStocksUseCase {
 
 	if ur == nil {

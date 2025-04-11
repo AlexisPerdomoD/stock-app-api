@@ -1,4 +1,4 @@
-package shared
+package pkg
 
 type SortOrder string
 

@@ -1,10 +1,12 @@
 package usecase
 
-import "github.com/alexisPerdomoD/stock-app-api/internal/domain/repository"
+import (
+	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
+)
 
 type getRecommendationsByStockUseCase struct {
-	stockRepository          repository.StockRepository
-	recommendationRepository repository.RecommendationRepository
+	stockRepository          domain.StockRepository
+	recommendationRepository domain.RecommendationRepository
 }
 
 func (uc *getRecommendationsByStockUseCase) Execute() {
@@ -12,8 +14,8 @@ func (uc *getRecommendationsByStockUseCase) Execute() {
 }
 
 func NewGetRecommendationsByStockUseCase(
-	ur repository.StockRepository,
-	rr repository.RecommendationRepository,
+	ur domain.StockRepository,
+	rr domain.RecommendationRepository,
 ) *getRecommendationsByStockUseCase {
 
 	if ur == nil {
@@ -25,7 +27,7 @@ func NewGetRecommendationsByStockUseCase(
 	}
 
 	return &getRecommendationsByStockUseCase{
-		stockRepository: ur, 
+		stockRepository:          ur,
 		recommendationRepository: rr,
 	}
 }

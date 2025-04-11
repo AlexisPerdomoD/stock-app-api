@@ -1,6 +1,10 @@
-package entity
+package domain
 
-import "time"
+import (
+	"time"
+
+	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
+)
 
 type Tendency string
 
@@ -33,4 +37,22 @@ type Stock struct {
 	Tendency  Tendency  `json:"tendency"`
 	CreatedAt time.Time `json:"registered"`
 	UpdatedAt time.Time `json:"updated_at"`
+}
+
+type PopulatedStock struct {
+	Stock
+	CompanyName string `json:"company_name"`
+	Market      Market `json:"market"`
+}
+
+type StockRepository interface {
+	Get(id int) (*Stock, error)
+
+	GetByTicker(marketID int, ticker string) (*Stock, error)
+
+	GetAllPaginated(filter pkg.PaginationFilter) (*pkg.PaginationReponse[PopulatedStock], error)
+
+	Create(args *Stock) error
+
+	Update(stockID int, args *Stock) error
 }

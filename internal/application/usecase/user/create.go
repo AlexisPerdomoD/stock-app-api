@@ -1,22 +1,21 @@
 package usecase
 
 import (
-	"github.com/alexisPerdomoD/stock-app-api/internal/domain/entity"
-	r "github.com/alexisPerdomoD/stock-app-api/internal/domain/repository"
-	s "github.com/alexisPerdomoD/stock-app-api/internal/shared"
-	ss "github.com/alexisPerdomoD/stock-app-api/internal/shared/service"
+	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
+	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
+	pkgService "github.com/alexisPerdomoD/stock-app-api/internal/pkg/service"
 )
 
 type createUserUseCase struct {
-	userRepository r.UserRepository
+	userRepository domain.UserRepository
 }
 
-func (uc createUserUseCase) Execute(args *entity.User) error {
+func (uc createUserUseCase) Execute(args *domain.User) error {
 
-	hashed, err := ss.HashPassword(args.Password)
+	hashed, err := pkgService.HashPassword(args.Password)
 
 	if err != nil {
-		return s.InternalServerError("Error hashing password")
+		return pkg.InternalServerError("Error hashing password")
 	}
 
 	args.Password = hashed
@@ -28,7 +27,7 @@ func (uc createUserUseCase) Execute(args *entity.User) error {
 	return nil
 }
 
-func NewCreateUserUseCase(ur r.UserRepository) *createUserUseCase {
+func NewCreateUserUseCase(ur domain.UserRepository) *createUserUseCase {
 
 	if ur == nil {
 		panic("user repository is nil, stopping :b")

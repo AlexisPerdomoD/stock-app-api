@@ -1,6 +1,10 @@
-package entity
+package domain
 
-import "time"
+import (
+	"time"
+
+	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
+)
 
 /*
 Recommendation
@@ -15,4 +19,17 @@ type Recommendation struct {
 	TargetTo    float64   `json:"target_to"`
 	TargetFrom  float64   `json:"target_from"`
 	CreatedAt   time.Time `json:"created_at"`
+}
+
+type PopulatedRecommendation struct {
+	Recommendation
+	BrokerageName string `json:"brokerage_name"`
+}
+
+type RecommendationRepository interface {
+	Get(id int) (*Recommendation, error)
+
+	GetAllPaginated(filter pkg.PaginationFilter) (*pkg.PaginationReponse[PopulatedRecommendation], error)
+
+	Create(args *Recommendation) error
 }
