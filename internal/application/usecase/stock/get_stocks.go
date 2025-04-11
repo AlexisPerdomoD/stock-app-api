@@ -13,7 +13,7 @@ type getStocksUseCase struct {
 
 func (uc *getStocksUseCase) Execute(ctx context.Context, filters pkg.PaginationFilter) (*pkg.PaginationReponse[domain.PopulatedStock], error) {
 
-	panic("getStocksUseCase.Execute() not implemented")
+	return uc.stockRepository.GetAllPaginated(ctx, filters)
 }
 
 func NewGetStocksUseCase(ur domain.StockRepository) *getStocksUseCase {
