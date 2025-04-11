@@ -20,4 +20,6 @@ type UserRepository interface {
 	GetByUsername(ctx context.Context, username string) (*User, error)
 
 	Create(ctx context.Context, args *User) error
+
+	RegisterUserStock(ctx context.Context, userID int, stockID int) error
 }
