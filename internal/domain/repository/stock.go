@@ -7,8 +7,13 @@ import (
 )
 
 type StockRepository interface {
-	Get(id int) (entity.Stock, shared.ApiErr)
-	GetAllPaginated(filter shared.PaginationFilter) (shared.PaginationReponse[aggregate.PopulatedStock], shared.ApiErr)
-	Create(args entity.Stock) (entity.Stock, shared.ApiErr)
-	Update(args entity.Stock) (entity.Stock, shared.ApiErr)
+	Get(id int) (*entity.Stock, error)
+
+	GetByTicker(marketID int, ticker string) (*entity.Stock, error)
+
+	GetAllPaginated(filter shared.PaginationFilter) (*shared.PaginationReponse[aggregate.PopulatedStock], error)
+
+	Create(args *entity.Stock) error
+
+	Update(stockID int, args *entity.Stock) error
 }

@@ -7,8 +7,9 @@ import (
 )
 
 type RecommendationRepository interface {
-	Get(id int) (entity.Recommendation, shared.ApiErr)
-	GetAllPaginated(filter shared.PaginationFilter) (shared.PaginationReponse[aggregate.PopulatedRecommendation], shared.ApiErr)
+	Get(id int) (*entity.Recommendation, error)
 
-	Create(args entity.Recommendation) (entity.Recommendation, shared.ApiErr)
+	GetAllPaginated(filter shared.PaginationFilter) (*shared.PaginationReponse[aggregate.PopulatedRecommendation], error)
+
+	Create(args *entity.Recommendation) error
 }

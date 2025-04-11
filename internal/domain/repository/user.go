@@ -1,11 +1,11 @@
 package repository
 
-import (
-	"github.com/alexisPerdomoD/stock-app-api/internal/domain/entity"
-	"github.com/alexisPerdomoD/stock-app-api/internal/shared"
-)
+import "github.com/alexisPerdomoD/stock-app-api/internal/domain/entity"
 
 type UserRepository interface {
-	Create(args entity.CreateUserArgs) (entity.User, shared.ApiErr)
-	Get(id int) (entity.User, shared.ApiErr)
+	Get(id int) (*entity.User, error)
+
+	GetByUsername(username string) (*entity.User, error)
+
+	Create(args *entity.User) error
 }
