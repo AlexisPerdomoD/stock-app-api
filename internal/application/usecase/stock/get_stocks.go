@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"context"
+
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
 )
@@ -9,7 +11,7 @@ type getStocksUseCase struct {
 	stockRepository domain.StockRepository
 }
 
-func (uc *getStocksUseCase) Execute(filters pkg.PaginationFilter) (*pkg.PaginationReponse[domain.PopulatedStock], error) {
+func (uc *getStocksUseCase) Execute(ctx context.Context, filters pkg.PaginationFilter) (*pkg.PaginationReponse[domain.PopulatedStock], error) {
 
 	panic("getStocksUseCase.Execute() not implemented")
 }

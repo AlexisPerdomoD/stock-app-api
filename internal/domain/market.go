@@ -1,6 +1,9 @@
 package domain
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 /*
 Market
@@ -13,9 +16,9 @@ type Market struct {
 }
 
 type MarketRepository interface {
-	Get(id int) (*Market, error)
+	Get(ctx context.Context, id int) (*Market, error)
 
-	GetByName(name string) (*Market, error)
+	GetByName(ctx context.Context, name string) (*Market, error)
 
-	Create(args *Market) error
+	Create(ctx context.Context, args *Market) error
 }

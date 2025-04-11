@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"time"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
@@ -46,13 +47,13 @@ type PopulatedStock struct {
 }
 
 type StockRepository interface {
-	Get(id int) (*Stock, error)
+	Get(ctx context.Context, id int) (*Stock, error)
 
-	GetByTicker(marketID int, ticker string) (*Stock, error)
+	GetByTicker(ctx context.Context, marketID int, ticker string) (*Stock, error)
 
-	GetAllPaginated(filter pkg.PaginationFilter) (*pkg.PaginationReponse[PopulatedStock], error)
+	GetAllPaginated(ctx context.Context, filter pkg.PaginationFilter) (*pkg.PaginationReponse[PopulatedStock], error)
 
-	Create(args *Stock) error
+	Create(ctx context.Context, args *Stock) error
 
-	Update(stockID int, args *Stock) error
+	Update(ctx context.Context, stockID int, args *Stock) error
 }

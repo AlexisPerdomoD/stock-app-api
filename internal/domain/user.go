@@ -1,5 +1,7 @@
 package domain
 
+import "context"
+
 type User struct {
 	ID       int
 	UserName string
@@ -13,9 +15,9 @@ type CreateUserArgs struct {
 }
 
 type UserRepository interface {
-	Get(id int) (*User, error)
+	Get(ctx context.Context, id int) (*User, error)
 
-	GetByUsername(username string) (*User, error)
+	GetByUsername(ctx context.Context, username string) (*User, error)
 
-	Create(args *User) error
+	Create(ctx context.Context, args *User) error
 }

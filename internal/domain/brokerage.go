@@ -1,6 +1,9 @@
 package domain
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 /*
 Brokerage
@@ -13,9 +16,9 @@ type Brokerage struct {
 }
 
 type BrokerageRepository interface {
-	Get(id int) (*Brokerage, error)
+	Get(ctx context.Context, id int) (*Brokerage, error)
 
-	GetByName(name string) (*Brokerage, error)
+	GetByName(ctx context.Context, name string) (*Brokerage, error)
 
-	Create(args *Brokerage) error
+	Create(ctx context.Context, args *Brokerage) error
 }

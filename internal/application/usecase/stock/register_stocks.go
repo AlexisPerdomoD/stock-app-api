@@ -1,6 +1,10 @@
 package usecase
 
-import "github.com/alexisPerdomoD/stock-app-api/internal/domain"
+import (
+	"context"
+
+	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
+)
 
 type registerStocksUseCase struct {
 	stockRepository     domain.StockRepository
@@ -9,7 +13,7 @@ type registerStocksUseCase struct {
 	brokerageRepository domain.BrokerageRepository
 }
 
-func (uc *registerStocksUseCase) Execute() {
+func (uc *registerStocksUseCase) Execute(ctx context.Context) {
 	panic("registerStocksUseCase.Execute() not implemented")
 }
 

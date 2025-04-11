@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"context"
+
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 )
 
@@ -9,7 +11,7 @@ type getRecommendationsByStockUseCase struct {
 	recommendationRepository domain.RecommendationRepository
 }
 
-func (uc *getRecommendationsByStockUseCase) Execute() {
+func (uc *getRecommendationsByStockUseCase) Execute(ctx context.Context) {
 	panic("getRecommendationsUseCase.Execute() not implemented")
 }
 

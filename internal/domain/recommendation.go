@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"time"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
@@ -27,9 +28,9 @@ type PopulatedRecommendation struct {
 }
 
 type RecommendationRepository interface {
-	Get(id int) (*Recommendation, error)
+	Get(ctx context.Context, id int) (*Recommendation, error)
 
-	GetAllPaginated(filter pkg.PaginationFilter) (*pkg.PaginationReponse[PopulatedRecommendation], error)
+	GetAllPaginated(ctx context.Context, filter pkg.PaginationFilter) (*pkg.PaginationReponse[PopulatedRecommendation], error)
 
-	Create(args *Recommendation) error
+	Create(ctx context.Context, args *Recommendation) error
 }

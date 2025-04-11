@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"context"
+
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
 	pkgService "github.com/alexisPerdomoD/stock-app-api/internal/pkg/service"
@@ -10,7 +12,7 @@ type createUserUseCase struct {
 	userRepository domain.UserRepository
 }
 
-func (uc createUserUseCase) Execute(args *domain.User) error {
+func (uc createUserUseCase) Execute(ctx context.Context, args *domain.User) error {
 
 	hashed, err := pkgService.HashPassword(args.Password)
 
@@ -20,7 +22,7 @@ func (uc createUserUseCase) Execute(args *domain.User) error {
 
 	args.Password = hashed
 
-	if err := uc.userRepository.Create(args); err != nil {
+	if err := uc.userRepository.Create(ctx, args); err != nil {
 		return err
 	}
 

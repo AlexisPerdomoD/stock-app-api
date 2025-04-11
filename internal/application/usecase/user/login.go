@@ -1,7 +1,10 @@
 package usecase
 
 import (
+	"context"
+
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
+	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
 	pkgService "github.com/alexisPerdomoD/stock-app-api/internal/pkg/service"
 )
 
@@ -9,15 +12,15 @@ type loginUseCase struct {
 	userRepository domain.UserRepository
 }
 
-func (uc *loginUseCase) Execute(username, password string) (session string, err error) {
-	user, err := uc.userRepository.GetByUsername(username)
+func (uc *loginUseCase) Execute(ctx context.Context, username, password string) (session string, err error) {
+	user, err := uc.userRepository.GetByUsername(ctx, username)
 
 	if err != nil {
 		return "", err
 	}
 
 	if err = pkgService.VerifyPassword(password, user.Password); err != nil {
-		return "", err
+		return "", pkg.Unauthorized(err.Error())
 	}
 
 	session, err = pkgService.GenerateSessionToken(user)
