@@ -12,7 +12,7 @@ type getRecommendationsByStockUseCase struct {
 	recommendationRepository domain.RecommendationRepository
 }
 
-func (uc *getRecommendationsByStockUseCase) Execute(ctx context.Context, stockID int, filters pkg.PaginationFilter) (*pkg.PaginationReponse[domain.PopulatedRecommendation], error) {
+func (uc *getRecommendationsByStockUseCase) Execute(ctx context.Context, stockID uint, filters pkg.PaginationFilter) (*pkg.PaginationReponse[domain.PopulatedRecommendation], error) {
 
 	stock, err := uc.stockRepository.Get(ctx, stockID)
 

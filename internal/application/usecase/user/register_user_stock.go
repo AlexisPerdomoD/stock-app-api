@@ -10,7 +10,7 @@ type registerUserStockUseCase struct {
 	userRepository domain.UserRepository
 }
 
-func (uc *registerUserStockUseCase) Execute(ctx context.Context, userID int, stockID int) error {
+func (uc *registerUserStockUseCase) Execute(ctx context.Context, userID uint, stockID uint) error {
 
 	return uc.userRepository.RegisterUserStock(ctx, userID, stockID)
 
