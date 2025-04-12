@@ -30,8 +30,8 @@ Stock
 Represents a stock.
 */
 type Stock struct {
-	ID        int       `json:"id"`
-	CompanyID int       `json:"company_id"`
+	ID        uint      `json:"id"`
+	CompanyID uint      `json:"company_id"`
 	Ticker    string    `json:"ticker"`
 	Name      string    `json:"name,omitempty"`
 	Price     float64   `json:"price"`
@@ -47,13 +47,13 @@ type PopulatedStock struct {
 }
 
 type StockRepository interface {
-	Get(ctx context.Context, id int) (*Stock, error)
+	Get(ctx context.Context, id uint) (*Stock, error)
 
-	GetByTicker(ctx context.Context, marketID int, ticker string) (*Stock, error)
+	GetByTicker(ctx context.Context, marketID uint, ticker string) (*Stock, error)
 
 	GetAllPaginated(ctx context.Context, filter pkg.PaginationFilter) (*pkg.PaginationReponse[PopulatedStock], error)
 
 	Create(ctx context.Context, args *Stock) error
 
-	Update(ctx context.Context, stockID int, args *Stock) error
+	Update(ctx context.Context, stockID uint, args *Stock) error
 }

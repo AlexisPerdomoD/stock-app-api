@@ -10,15 +10,15 @@ Company
 Represents the company that owns the stock.
 */
 type Company struct {
-	ID        int       `json:"id"`
-	MarketID  int       `json:"market_id"`
+	ID        uint       `json:"id"`
+	MarketID  uint       `json:"market_id"`
 	Name      string    `json:"name"`
 	ISIN      string    `json:"isin"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
 type CompanyRepository interface {
-	Get(ctx context.Context, id int) (Company, error)
+	Get(ctx context.Context, id uint) (Company, error)
 
 	GetByMarketIDAndName(ctx context.Context, marketID int, name string) (Company, error)
 

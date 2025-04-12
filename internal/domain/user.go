@@ -3,7 +3,7 @@ package domain
 import "context"
 
 type User struct {
-	ID       int
+	ID       uint
 	UserName string
 	Password string
 	Active   bool
@@ -15,11 +15,11 @@ type CreateUserArgs struct {
 }
 
 type UserRepository interface {
-	Get(ctx context.Context, id int) (*User, error)
+	Get(ctx context.Context, id uint) (*User, error)
 
 	GetByUsername(ctx context.Context, username string) (*User, error)
 
 	Create(ctx context.Context, args *User) error
 
-	RegisterUserStock(ctx context.Context, userID int, stockID int) error
+	RegisterUserStock(ctx context.Context, userID uint, stockID uint) error
 }

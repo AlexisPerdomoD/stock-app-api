@@ -10,13 +10,13 @@ Brokerage
 Represents Analytics Brokerage teams that are responsible for the stocks recommendations.
 */
 type Brokerage struct {
-	ID        int       `json:"id"`
+	ID        uint       `json:"id"`
 	Name      string    `json:"name"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
 type BrokerageRepository interface {
-	Get(ctx context.Context, id int) (*Brokerage, error)
+	Get(ctx context.Context, id uint) (*Brokerage, error)
 
 	GetByName(ctx context.Context, name string) (*Brokerage, error)
 

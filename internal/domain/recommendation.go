@@ -12,9 +12,9 @@ Recommendation
 Represents a recommendation made by a brokerage team.
 */
 type Recommendation struct {
-	ID          int       `json:"id"`
-	StockID     int       `json:"stock_id"`
-	BrokerageID int       `json:"brokerage_id"`
+	ID          uint      `json:"id"`
+	StockID     uint      `json:"stock_id"`
+	BrokerageID uint      `json:"brokerage_id"`
 	RatingTo    Action    `json:"rating_to"`
 	RatingFrom  Action    `json:"rating_from"`
 	TargetTo    float64   `json:"target_to"`
@@ -28,7 +28,7 @@ type PopulatedRecommendation struct {
 }
 
 type RecommendationRepository interface {
-	Get(ctx context.Context, id int) (*Recommendation, error)
+	Get(ctx context.Context, id uint) (*Recommendation, error)
 
 	GetAllPaginated(ctx context.Context, filter pkg.PaginationFilter) (*pkg.PaginationReponse[PopulatedRecommendation], error)
 
