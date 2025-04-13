@@ -49,8 +49,36 @@ type userRecord struct {
 }
 
 type userStockRecord struct {
-	gorm.Model
-	UserID  uint `gorm:"uniqueIndex:idx_user_stock"`
-	StockID uint `gorm:"uniqueIndex:idx_user_stock"`
-	Count   uint `gorm:"default:1"`
+	UserID  uint `gorm:"primaryKey"`
+	StockID uint `gorm:"primaryKey"`
+}
+
+/* gorm struct table naming overide for conviniance */
+
+func (marketRecord) TableName() string {
+	return "markets"
+}
+
+func (companyRecord) TableName() string {
+	return "companies"
+}
+
+func (brokerageRecord) TableName() string {
+	return "brokerages"
+}
+
+func (stockRecord) TableName() string {
+	return "stocks"
+}
+
+func (recommendationRecord) TableName() string {
+	return "recommendations"
+}
+
+func (userRecord) TableName() string {
+	return "users"
+}
+
+func (userStockRecord) TableName() string {
+	return "user_stocks"
 }
