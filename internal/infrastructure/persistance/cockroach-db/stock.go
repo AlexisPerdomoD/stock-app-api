@@ -2,6 +2,7 @@ package cockroachdb
 
 import (
 	"context"
+	"errors"
 	"log"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
@@ -15,27 +16,123 @@ type stockRepository struct {
 
 func (r *stockRepository) Get(ctx context.Context, id uint) (*domain.Stock, error) {
 
-	panic("implement me")
+	record := &stockRecord{}
+
+	if err := r.db.WithContext(ctx).First(record, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+
+		return nil, err
+
+	}
+
+	return mapStockToDomain(record, nil), nil
 }
 
 func (r *stockRepository) GetByTicker(ctx context.Context, marketID uint, ticker string) (*domain.Stock, error) {
 
-	panic("implement me")
+	record := &stockRecord{}
+
+	if err := r.db.
+		WithContext(ctx).
+		Joins("JOIN companies on companies.id = stock.companies_id").
+		Where("companies.market_id = ? AND stock.ticker = ?", marketID, ticker).
+		First(record).Error; err != nil {
+
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+
+		return nil, err
+
+	}
+
+	return mapStockToDomain(record, nil), nil
 }
 
 func (r *stockRepository) GetAllPaginated(ctx context.Context, filter pkg.PaginationFilter) (*pkg.PaginationReponse[domain.Stock], error) {
 
-	panic("implement me")
+	allowedFilters := map[string]bool{
+		"name":       true,
+		"company_id": true,
+		"price":      true,
+		"ticker":     true,
+		"tendency":   true,
+		"user_id":    true,
+	}
+
+	allowedSorters := map[string]bool{
+		"tendency": true,
+		"price":    true,
+	}
+	var total int64
+	var records []stockRecord
+
+	query := r.db.WithContext(ctx).Model(&stockRecord{})
+
+	if err := query.Count(&total).Error; err != nil {
+		return nil, err
+	}
+
+	query = applyFilters(query, &filter, allowedFilters, allowedSorters)
+
+	if err := query.Find(&records).Error; err != nil {
+		return nil, err
+	}
+
+	stocks := []domain.Stock{}
+
+	for _, record := range records {
+		stock := domain.Stock{}
+		_ = mapStockToDomain(&record, &stock)
+		stocks = append(stocks, stock)
+	}
+
+	page := 1
+	if filter.Page > 1 {
+		page = filter.Page
+	}
+
+	result := pkg.PaginationReponse[domain.Stock]{
+		Items:     stocks,
+		Page:      page,
+		PageSize:  len(stocks),
+		TotalSize: int(total),
+	}
+
+	return &result, nil
 }
 
 func (r *stockRepository) Create(ctx context.Context, stock *domain.Stock) error {
 
-	panic("implement me")
+	if stock == nil {
+		return pkg.BadRequest("args to stock insertion were not provided")
+	}
+
+	record := mapStockInsert(stock)
+
+	if err := r.db.WithContext(ctx).Create(record).Error; err != nil {
+		return err
+	}
+	_ = mapStockToDomain(record, stock)
+
+	return nil
 }
 
-func (r *stockRepository) Update(ctx context.Context, stockID uint, stock *domain.Stock) error {
+func (r *stockRepository) Update(ctx context.Context, stockID uint, updates *domain.StockUpdates) error {
+	if updates == nil {
+		return pkg.BadRequest("args for stock update were not provided")
+	}
 
-	panic("implement me")
+	if updates.Name == nil && updates.Price == nil && updates.Tendency == nil {
+		return pkg.BadRequest("no fields to update")
+	}
+
+	return r.db.WithContext(ctx).
+		Model(&stockRecord{}).
+		Where("id = ?", stockID).
+		Updates(updates).Error
 }
 
 func NewStockRepository(db *gorm.DB) *stockRepository {

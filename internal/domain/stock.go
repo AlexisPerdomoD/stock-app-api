@@ -30,6 +30,12 @@ type Stock struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+type StockUpdates struct {
+	Name     *string
+	Price    *float64
+	Tendency *Tendency
+}
+
 type PopulatedStock struct {
 	Stock
 	CompanyName string `json:"company_name"`
@@ -45,5 +51,5 @@ type StockRepository interface {
 
 	Create(ctx context.Context, args *Stock) error
 
-	Update(ctx context.Context, stockID uint, args *Stock) error
+	Update(ctx context.Context, stockID uint, args *StockUpdates) error
 }
