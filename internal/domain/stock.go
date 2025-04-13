@@ -15,16 +15,6 @@ const (
 	Side Tendency = "side"
 )
 
-type Action string
-
-const (
-	Buy     Action = "buy"
-	Sell    Action = "sell"
-	Neutral Action = "neutral"
-	Hold    Action = "hold"
-	Unknown Action = "unknown"
-)
-
 /*
 Stock
 Represents a stock.
@@ -33,7 +23,7 @@ type Stock struct {
 	ID        uint      `json:"id"`
 	CompanyID uint      `json:"company_id"`
 	Ticker    string    `json:"ticker"`
-	Name      string    `json:"name,omitempty"`
+	Name      *string   `json:"name,omitempty"`
 	Price     float64   `json:"price"`
 	Tendency  Tendency  `json:"tendency"`
 	CreatedAt time.Time `json:"registered"`

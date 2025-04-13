@@ -7,6 +7,16 @@ import (
 	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
 )
 
+type Action string
+
+const (
+	Buy     Action = "buy"
+	Sell    Action = "sell"
+	Neutral Action = "neutral"
+	Hold    Action = "hold"
+	Unknown Action = "unknown"
+)
+
 /*
 Recommendation
 Represents a recommendation made by a brokerage team.
