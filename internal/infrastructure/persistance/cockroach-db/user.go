@@ -6,16 +6,18 @@ import (
 	"log"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
+	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
 	"gorm.io/gorm"
 )
 
 type userRepository struct {
 	db *gorm.DB
+	//stockr: stockRepository
 }
 
 func (r *userRepository) Get(ctx context.Context, id uint) (*domain.User, error) {
-	usr := &userTable{}
-	result := r.db.WithContext(ctx).First(usr, id)
+	record := &userRecord{}
+	result := r.db.WithContext(ctx).First(record, id)
 
 	if result.Error != nil {
 
@@ -26,24 +28,54 @@ func (r *userRepository) Get(ctx context.Context, id uint) (*domain.User, error)
 		return nil, result.Error
 	}
 
-	return usr.ToDomain(), nil
+	return mapUserToDomain(record, nil), nil
 
 }
 
 func (r *userRepository) GetByUsername(ctx context.Context, username string) (*domain.User, error) {
-	usr := &userTable{}
-	result := r.db.WithContext(ctx).Where("username = ?", username).First(usr)
+	record := &userRecord{}
+	result := r.db.WithContext(ctx).Where("username = ?", username).First(record)
 
 	if result.Error != nil {
-		
+
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
-		
+
 		return nil, result.Error
 	}
 
-	return usr.ToDomain(), nil
+	return mapUserToDomain(record, nil), nil
+
+}
+
+func (r *userRepository) Create(ctx context.Context, usr *domain.User) error {
+
+	if usr == nil {
+		return pkg.BadRequest("User args provided were nil")
+	}
+
+	record := mapUserInsert(usr)
+	result := r.db.WithContext(ctx).Create(record)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	_ = mapUserToDomain(record, usr)
+
+	return nil
+}
+
+func (r *userRepository) RegisterUserStock(ctx context.Context, userID uint, stockID uint) error {
+
+	panic("RegisterUserStock not implemented with cockroachdb")
+
+}
+
+func (r *userRepository) RemoveUserStock(ctx context.Context, userID uint, stockID uint) error {
+
+	panic("RemoveUserStock not implemented with cockroachdb")
 
 }
 
