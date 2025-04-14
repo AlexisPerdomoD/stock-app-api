@@ -2,11 +2,12 @@
 package main
 
 import (
-	"fmt"
 	"log"
+	"time"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/application/usecase"
 	cockroachdb "github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/persistance/cockroach-db"
+	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/scheduler"
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/service"
 	"github.com/joho/godotenv"
 )
@@ -51,17 +52,14 @@ func main() {
 	registerUserStockUC := usecase.NewRegisterUserStockUseCase(ur)
 	removeUserStockUC := usecase.NewRemoveUserStockUserCase(ur)
 
+	/* Controllers */
+	/* Start server */
 	/* StockSources */
-
-	mainStockSource := service.NewMainSourceStockData()
-
-	fmt.Printf("GetStocksUC: %+v\n", getStocksUC)
-	fmt.Printf("RegisterStocksUC: %+v\n", registerStocksUC)
-	fmt.Printf("GetRecommendationByStockUC: %+v\n", getRecommendationByStockUC)
-	fmt.Printf("LoginUserUC: %+v\n", loginUserUC)
-	fmt.Printf("RegisterUserUC: %+v\n", registerUserUC)
-	fmt.Printf("RegisterUserStockUC: %+v\n", registerUserStockUC)
-	fmt.Printf("RemoveUserStockUC: %+v\n", removeUserStockUC)
-	fmt.Printf("MainStockSource: %+v\n", mainStockSource)
-
+	mainSSource := service.NewMainSourceStockService()
+	/* Scheduler */
+	scheduler := scheduler.New()
+	interval := time.Hour * 24
+	timeout := time.Minute * 3
+	scheduler.AddStockSourceService(mainSSource, registerStocksUC, timeout, &interval)
+	scheduler.StartOnBackground()
 }
