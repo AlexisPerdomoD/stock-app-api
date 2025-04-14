@@ -2,17 +2,18 @@ package usecase
 
 import (
 	"context"
+	"log"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
 	pkgService "github.com/alexisPerdomoD/stock-app-api/internal/pkg/service"
 )
 
-type createUserUseCase struct {
+type registerUserUseCase struct {
 	userRepository domain.UserRepository
 }
 
-func (uc createUserUseCase) Execute(ctx context.Context, args *domain.User) error {
+func (uc registerUserUseCase) Execute(ctx context.Context, args *domain.User) error {
 
 	hashed, err := pkgService.HashPassword(args.Password)
 
@@ -29,11 +30,11 @@ func (uc createUserUseCase) Execute(ctx context.Context, args *domain.User) erro
 	return nil
 }
 
-func NewCreateUserUseCase(ur domain.UserRepository) *createUserUseCase {
+func NewRegisterUserUseCase(ur domain.UserRepository) *registerUserUseCase {
 
 	if ur == nil {
-		panic("user repository is nil, stopping :b")
+		log.Fatalln("user repository is nil, stopping :b")
 	}
 
-	return &createUserUseCase{userRepository: ur}
+	return &registerUserUseCase{userRepository: ur}
 }

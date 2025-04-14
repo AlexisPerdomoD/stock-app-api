@@ -11,16 +11,19 @@ type getStocksUseCase struct {
 	stockRepository domain.StockRepository
 }
 
-func (uc *getStocksUseCase) Execute(ctx context.Context, filters pkg.PaginationFilter) (*pkg.PaginationReponse[domain.PopulatedStock], error) {
+func (uc *getStocksUseCase) Execute(
+	ctx context.Context,
+	filters pkg.PaginationFilter,
+) (*pkg.PaginationReponse[domain.PopulatedStock], error) {
 
 	return uc.stockRepository.GetAllPaginated(ctx, filters)
 }
 
-func NewGetStocksUseCase(ur domain.StockRepository) *getStocksUseCase {
+func NewGetStocksUseCase(sr domain.StockRepository) *getStocksUseCase {
 
-	if ur == nil {
+	if sr == nil {
 		panic("stock repository is nil, stopping :b")
 	}
 
-	return &getStocksUseCase{stockRepository: ur}
+	return &getStocksUseCase{stockRepository: sr}
 }
