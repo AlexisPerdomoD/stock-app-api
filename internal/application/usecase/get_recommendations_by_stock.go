@@ -8,12 +8,12 @@ import (
 	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
 )
 
-type getRecommendationsByStockUseCase struct {
+type GetRecommendationsByStockUseCase struct {
 	sr domain.StockRepository
 	rr domain.RecommendationRepository
 }
 
-func (uc *getRecommendationsByStockUseCase) Execute(
+func (uc *GetRecommendationsByStockUseCase) Execute(
 	ctx context.Context,
 	stockID uint,
 	filters pkg.PaginationFilter,
@@ -38,7 +38,7 @@ func (uc *getRecommendationsByStockUseCase) Execute(
 func NewGetRecommendationsByStockUseCase(
 	sr domain.StockRepository,
 	rr domain.RecommendationRepository,
-) *getRecommendationsByStockUseCase {
+) *GetRecommendationsByStockUseCase {
 
 	if sr == nil {
 		log.Fatalln("bad impl: StockRepository was nil for NewGetRecommendationsByStockUseCase")
@@ -48,5 +48,5 @@ func NewGetRecommendationsByStockUseCase(
 		log.Fatalln("bad impl: RecommendationRepository was nil for NewGetRecommendationsByStockUseCase")
 	}
 
-	return &getRecommendationsByStockUseCase{sr, rr}
+	return &GetRecommendationsByStockUseCase{sr, rr}
 }

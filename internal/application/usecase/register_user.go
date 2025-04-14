@@ -9,11 +9,11 @@ import (
 	pkgService "github.com/alexisPerdomoD/stock-app-api/internal/pkg/service"
 )
 
-type registerUserUseCase struct {
-	userRepository domain.UserRepository
+type RegisterUserUseCase struct {
+	ur domain.UserRepository
 }
 
-func (uc registerUserUseCase) Execute(ctx context.Context, args *domain.User) error {
+func (uc RegisterUserUseCase) Execute(ctx context.Context, args *domain.User) error {
 
 	hashed, err := pkgService.HashPassword(args.Password)
 
@@ -23,18 +23,18 @@ func (uc registerUserUseCase) Execute(ctx context.Context, args *domain.User) er
 
 	args.Password = hashed
 
-	if err := uc.userRepository.Create(ctx, args); err != nil {
+	if err := uc.ur.Create(ctx, args); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func NewRegisterUserUseCase(ur domain.UserRepository) *registerUserUseCase {
+func NewRegisterUserUseCase(ur domain.UserRepository) *RegisterUserUseCase {
 
 	if ur == nil {
 		log.Fatalln("user repository is nil, stopping :b")
 	}
 
-	return &registerUserUseCase{userRepository: ur}
+	return &RegisterUserUseCase{ur}
 }

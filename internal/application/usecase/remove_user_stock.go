@@ -7,20 +7,20 @@ import (
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 )
 
-type removeUserStockUseCase struct {
+type RemoveUserStockUseCase struct {
 	ur domain.UserRepository
 }
 
-func (r *removeUserStockUseCase) Execute(ctx context.Context, userID uint, stockID uint) error {
+func (r *RemoveUserStockUseCase) Execute(ctx context.Context, userID uint, stockID uint) error {
 
 	panic("implement me")
 }
 
-func NewRemoveUserStockUserCase(ur domain.UserRepository) *removeUserStockUseCase {
+func NewRemoveUserStockUserCase(ur domain.UserRepository) *RemoveUserStockUseCase {
 	if ur == nil {
 		log.Println("bad impl: UserRepository was passed as nil for NewRemoveUserStockUserCase")
 	}
 
-	return &removeUserStockUseCase{ur}
+	return &RemoveUserStockUseCase{ur}
 
 }

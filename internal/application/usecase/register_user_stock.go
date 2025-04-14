@@ -2,25 +2,26 @@ package usecase
 
 import (
 	"context"
+	"log"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 )
 
-type registerUserStockUseCase struct {
-	userRepository domain.UserRepository
+type RegisterUserStockUseCase struct {
+	ur domain.UserRepository
 }
 
-func (uc *registerUserStockUseCase) Execute(ctx context.Context, userID uint, stockID uint) error {
+func (uc *RegisterUserStockUseCase) Execute(ctx context.Context, userID uint, stockID uint) error {
 
-	return uc.userRepository.RegisterUserStock(ctx, userID, stockID)
+	return uc.ur.RegisterUserStock(ctx, userID, stockID)
 
 }
 
-func NewRegisterUserStockUseCase(ur domain.UserRepository) *registerUserStockUseCase {
+func NewRegisterUserStockUseCase(ur domain.UserRepository) *RegisterUserStockUseCase {
 
 	if ur == nil {
-		panic("user repository is nil, stopping :b")
+		log.Fatalln("bad impl: UserRepository was nil for NewRegisterUserStockUseCase")
 	}
 
-	return &registerUserStockUseCase{userRepository: ur}
+	return &RegisterUserStockUseCase{ur: ur}
 }

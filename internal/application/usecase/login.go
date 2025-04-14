@@ -2,18 +2,19 @@ package usecase
 
 import (
 	"context"
+	"log"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
 	pkgService "github.com/alexisPerdomoD/stock-app-api/internal/pkg/service"
 )
 
-type loginUseCase struct {
-	userRepository domain.UserRepository
+type LoginUseCase struct {
+	ur domain.UserRepository
 }
 
-func (uc *loginUseCase) Execute(ctx context.Context, username, password string) (session string, err error) {
-	user, err := uc.userRepository.GetByUsername(ctx, username)
+func (uc *LoginUseCase) Execute(ctx context.Context, username, password string) (session string, err error) {
+	user, err := uc.ur.GetByUsername(ctx, username)
 
 	if err != nil {
 		return "", err
@@ -32,11 +33,11 @@ func (uc *loginUseCase) Execute(ctx context.Context, username, password string) 
 	return session, nil
 }
 
-func NewLoginUseCase(ur domain.UserRepository) *loginUseCase {
+func NewLoginUseCase(ur domain.UserRepository) *LoginUseCase {
 
 	if ur == nil {
-		panic("user repository is nil, stopping :b")
+		log.Fatalln("bad impl: UserRepository was nil for NewLoginUseCase")
 	}
 
-	return &loginUseCase{userRepository: ur}
+	return &LoginUseCase{ur}
 }
