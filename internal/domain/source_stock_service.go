@@ -32,5 +32,6 @@ type SourceStockData struct {
 }
 
 type SourceStockService interface {
+	Name() string
 	Get(ctx context.Context, limitDate *time.Time) ([]SourceStockData, error)
 }
