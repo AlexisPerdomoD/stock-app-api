@@ -7,12 +7,23 @@ import (
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 )
 
-type mainSourceStockData struct{}
-
-func (s *mainSourceStockData) Get(ctx context.Context, limitDate *time.Time) ([]domain.SourceStockData, error) {
-	panic("Implement mainSourceStockData.Get()")
+type MainSourceStockService struct {
+	name string
 }
 
-func NewMainSourceStockData() *mainSourceStockData {
-	return &mainSourceStockData{}
+func (s *MainSourceStockService) Get(ctx context.Context, limitDate *time.Time) ([]domain.SourceStockData, error) {
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	default:
+		panic("Implement mainSourceStockData.Get()")
+	}
+}
+
+func (s *MainSourceStockService) Name() string {
+	return s.name
+}
+
+func NewMainSourceStockService() *MainSourceStockService {
+	return &MainSourceStockService{name: "main"}
 }
