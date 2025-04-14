@@ -132,6 +132,34 @@ func mapStockToDomain(record *stockRecord, target *domain.Stock) *domain.Stock {
 	return target
 }
 
+/* mapRecommendationToDomain assumes that the record is not nil */
+func mapRecommendationToDomain(record *recommendationRecord, target *domain.Recommendation) *domain.Recommendation {
+	if target == nil {
+		return &domain.Recommendation{
+			ID:          record.ID,
+			StockID:     record.StockID,
+			BrokerageID: record.BrokerageID,
+			RatingTo:    record.RatingTo,
+			RatingFrom:  record.RatingFrom,
+			TargetTo:    record.TargetTo,
+			TargetFrom:  record.TargetFrom,
+			CreatedAt:   record.CreatedAt,
+		}
+
+	}
+
+	target.ID = record.ID
+	target.StockID = record.StockID
+	target.BrokerageID = record.BrokerageID
+	target.RatingFrom = record.RatingFrom
+	target.RatingTo = record.RatingTo
+	target.TargetFrom = record.TargetFrom
+	target.TargetTo = record.TargetTo
+	target.CreatedAt = record.CreatedAt
+
+	return target
+}
+
 /* mapUserToDomain assumes that the record is not nil */
 func mapUserToDomain(record *userRecord, target *domain.User) *domain.User {
 

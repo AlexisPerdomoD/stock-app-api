@@ -69,15 +69,15 @@ func (r *stockRepository) GetAllPaginated(ctx context.Context, filter pkg.Pagina
 	var total int64
 	var records []stockRecord
 
-	query := r.db.WithContext(ctx).Model(&stockRecord{})
+	query := r.db.WithContext(ctx).Model(stockRecord{})
+	query = applyFilters(query, filter.FilterBy, allowedFilters)
 
 	if err := query.Count(&total).Error; err != nil {
 		return nil, err
 	}
 
-	query = applyFilters(query, &filter, allowedFilters, allowedSorters)
-
-	if err := query.Find(&records).Error; err != nil {
+	if err := applyPagination(query, &filter, allowedSorters).
+		Find(&records).Error; err != nil {
 		return nil, err
 	}
 
