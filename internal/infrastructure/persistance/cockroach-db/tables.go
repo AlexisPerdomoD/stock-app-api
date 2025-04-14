@@ -13,6 +13,7 @@ type marketRecord struct {
 type companyRecord struct {
 	gorm.Model
 	MarketID uint
+	Market   marketRecord
 	Name     string
 	ISIN     *string `gorm:"unique"`
 }
@@ -25,7 +26,8 @@ type brokerageRecord struct {
 type stockRecord struct {
 	gorm.Model
 	Name      *string
-	CompanyID uint   `gorm:"uniqueIndex:idx_ticker_company"`
+	CompanyID uint `gorm:"uniqueIndex:idx_ticker_company"`
+	Company   companyRecord
 	Ticker    string `gorm:"uniqueIndex:idx_ticker_company"`
 	Price     float64
 	Tendency  domain.Tendency
@@ -34,7 +36,9 @@ type stockRecord struct {
 type recommendationRecord struct {
 	gorm.Model
 	StockID     uint
+	Stock       stockRecord
 	BrokerageID uint
+	Brokerage   brokerageRecord
 	RatingTo    domain.Action
 	RatingFrom  domain.Action
 	TargetTo    float64
@@ -50,7 +54,9 @@ type userRecord struct {
 
 type userStockRecord struct {
 	UserID  uint `gorm:"primaryKey"`
+	User    userRecord
 	StockID uint `gorm:"primaryKey"`
+	Stock   stockRecord
 }
 
 /* gorm struct table naming overide for conviniance */

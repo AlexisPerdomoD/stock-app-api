@@ -30,7 +30,10 @@ func (r *recommendationRepository) Get(ctx context.Context, id uint) (*domain.Re
 	return mapRecommendationToDomain(record, nil), nil
 }
 
-func (r *recommendationRepository) GetAllPaginated(ctx context.Context, filter pkg.PaginationFilter) (*pkg.PaginationReponse[domain.Recommendation], error) {
+func (r *recommendationRepository) GetAllPaginated(
+	ctx context.Context,
+	filter pkg.PaginationFilter,
+) (*pkg.PaginationReponse[domain.PopulatedRecommendation], error) {
 
 	var records []recommendationRecord
 	var total int64
@@ -59,12 +62,17 @@ func (r *recommendationRepository) GetAllPaginated(ctx context.Context, filter p
 		return nil, err
 	}
 
-	recommendations := []domain.Recommendation{}
+	recommendations := []domain.PopulatedRecommendation{}
 
 	for _, record := range records {
 		recommendation := domain.Recommendation{}
 		_ = mapRecommendationToDomain(&record, &recommendation)
-		recommendations = append(recommendations, recommendation)
+		populated := domain.PopulatedRecommendation{
+			Recommendation: recommendation,
+			// TODO: RESOLVE THIS
+			BrokerageName: "",
+		}
+		recommendations = append(recommendations, populated)
 	}
 
 	page := 1
@@ -72,7 +80,7 @@ func (r *recommendationRepository) GetAllPaginated(ctx context.Context, filter p
 		page = filter.Page
 	}
 
-	result := &pkg.PaginationReponse[domain.Recommendation]{
+	result := &pkg.PaginationReponse[domain.PopulatedRecommendation]{
 		Items:     recommendations,
 		Page:      page,
 		PageSize:  len(recommendations),

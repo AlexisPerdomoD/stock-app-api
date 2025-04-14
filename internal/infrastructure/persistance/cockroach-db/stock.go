@@ -51,7 +51,7 @@ func (r *stockRepository) GetByTicker(ctx context.Context, marketID uint, ticker
 	return mapStockToDomain(record, nil), nil
 }
 
-func (r *stockRepository) GetAllPaginated(ctx context.Context, filter pkg.PaginationFilter) (*pkg.PaginationReponse[domain.Stock], error) {
+func (r *stockRepository) GetAllPaginated(ctx context.Context, filter pkg.PaginationFilter) (*pkg.PaginationReponse[domain.PopulatedStock], error) {
 
 	allowedFilters := map[string]bool{
 		"name":       true,
@@ -81,12 +81,19 @@ func (r *stockRepository) GetAllPaginated(ctx context.Context, filter pkg.Pagina
 		return nil, err
 	}
 
-	stocks := []domain.Stock{}
+	stocks := []domain.PopulatedStock{}
 
 	for _, record := range records {
 		stock := domain.Stock{}
 		_ = mapStockToDomain(&record, &stock)
-		stocks = append(stocks, stock)
+		populated := domain.PopulatedStock{
+			Stock: stock,
+			// TODO: RESOLVE THIS
+			CompanyName: "",
+			Market:      domain.Market{},
+		}
+
+		stocks = append(stocks, populated)
 	}
 
 	page := 1
@@ -94,7 +101,7 @@ func (r *stockRepository) GetAllPaginated(ctx context.Context, filter pkg.Pagina
 		page = filter.Page
 	}
 
-	result := pkg.PaginationReponse[domain.Stock]{
+	result := pkg.PaginationReponse[domain.PopulatedStock]{
 		Items:     stocks,
 		Page:      page,
 		PageSize:  len(stocks),

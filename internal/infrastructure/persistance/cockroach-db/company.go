@@ -29,7 +29,7 @@ func (r *companyRepository) Get(ctx context.Context, id uint) (*domain.Company, 
 	return mapCompanyToDomain(record, nil), nil
 }
 
-func (r *companyRepository) GetByMarketIdAndName(ctx context.Context, marketID uint, name string) (*domain.Company, error) {
+func (r *companyRepository) GetByMarketIDAndName(ctx context.Context, marketID uint, name string) (*domain.Company, error) {
 
 	record := &companyRecord{}
 	err := r.db.WithContext(ctx).First(record).Where("'Name'= ? AND 'MarketID'= ?", name, marketID).Error
