@@ -99,106 +99,102 @@ func (s *MainSourceStockService) setRating(rating string) domain.Action {
 }
 
 func (s *MainSourceStockService) Get(ctx context.Context, limitDate *time.Time) ([]domain.SourceStockData, error) {
-	select {
-	case <-ctx.Done():
-		return nil, ctx.Err()
-	default:
-		var doUntil time.Time
-		response := []domain.SourceStockData{}
-		nextPage := ""
 
-		if limitDate != nil {
-			doUntil = *limitDate
-		} else {
-			doUntil = time.Now().AddDate(0, 0, -1)
+	doUntil := limitDate
+	response := []domain.SourceStockData{}
+	nextPage := ""
+
+	if doUntil != nil && doUntil.After(time.Now()) {
+		yesterday := time.Now().AddDate(0, 0, -1)
+		doUntil = &yesterday
+	}
+
+	for {
+		payload, err := s.doRequest(ctx, nextPage)
+		if err != nil {
+			return nil, err
 		}
 
-		for {
-			payload, err := s.doRequest(ctx, nextPage)
+		mkt := domain.MarketArgs{Name: "main source stock"}
+
+		for i, item := range payload.Items {
+
+			/* Stop if the date is before the limit date */
+			if doUntil != nil && item.Time.Before(*doUntil) {
+				break
+			}
+
+			companyName := strings.ToLower(strings.TrimSpace(item.Company))
+			if companyName == "" {
+				return nil, pkg.InternalServerError(fmt.Sprintf("company is empty in payload at index %d", i))
+			}
+
+			brokerageName := strings.ToLower(strings.TrimSpace(item.Brokerage))
+			if brokerageName == "" {
+				return nil, pkg.InternalServerError(fmt.Sprintf("brokerage is empty in payload at index %d", i))
+			}
+
+			ticker := strings.ToLower(strings.TrimSpace(item.Ticker))
+			if ticker == "" {
+				return nil, pkg.InternalServerError(fmt.Sprintf("ticker is empty in payload at index %d", i))
+			}
+
+			previusPrice, err := s.getPrice(item.TargetFrom)
+			if err != nil {
+				return nil, err
+			}
+			currentPrice, err := s.getPrice(item.TargetTo)
 			if err != nil {
 				return nil, err
 			}
 
-			mkt := domain.MarketArgs{Name: "main source stock"}
+			tendency := s.getTendency(currentPrice, previusPrice)
+			ratingFrom := s.setRating(item.RatingFrom)
+			ratingTo := s.setRating(item.RatingTo)
 
-			for i, item := range payload.Items {
-				/* Stop if the date is before the limit date */
-				if item.Time.Before(doUntil) {
-					break
-				}
+			args := domain.SourceStockData{Time: item.Time}
 
-				companyName := strings.ToLower(strings.TrimSpace(item.Company))
-				if companyName == "" {
-					return nil, pkg.InternalServerError(fmt.Sprintf("company is empty in payload at index %d", i))
-				}
+			args.Market = mkt
 
-				brokerageName := strings.ToLower(strings.TrimSpace(item.Brokerage))
-				if brokerageName == "" {
-					return nil, pkg.InternalServerError(fmt.Sprintf("brokerage is empty in payload at index %d", i))
-				}
+			args.Company = domain.CompanyArgs{Name: companyName}
 
-				ticker := strings.ToLower(strings.TrimSpace(item.Ticker))
-				if ticker == "" {
-					return nil, pkg.InternalServerError(fmt.Sprintf("ticker is empty in payload at index %d", i))
-				}
-
-				previusPrice, err := s.getPrice(item.TargetFrom)
-				if err != nil {
-					return nil, err
-				}
-				currentPrice, err := s.getPrice(item.TargetTo)
-				if err != nil {
-					return nil, err
-				}
-
-				tendency := s.getTendency(currentPrice, previusPrice)
-				ratingFrom := s.setRating(item.RatingFrom)
-				ratingTo := s.setRating(item.RatingTo)
-
-				args := domain.SourceStockData{Time: item.Time}
-
-				args.Market = mkt
-
-				args.Company = domain.CompanyArgs{Name: companyName}
-
-				args.Recomendation = &domain.RecommendationArgs{
-					RatingTo:   ratingTo,
-					RatingFrom: ratingFrom,
-					TargetTo:   currentPrice,
-					TargetFrom: previusPrice,
-					Brokerage: domain.BrokerageArgs{
-						Name: brokerageName,
-					},
-				}
-
-				args.Stock = domain.StockArgs{
-					Ticker:   ticker,
-					Price:    currentPrice,
-					Tendency: tendency,
-				}
-
-				response = append(response, args)
+			args.Recomendation = &domain.RecommendationArgs{
+				RatingTo:   ratingTo,
+				RatingFrom: ratingFrom,
+				TargetTo:   currentPrice,
+				TargetFrom: previusPrice,
+				Brokerage: domain.BrokerageArgs{
+					Name: brokerageName,
+				},
 			}
 
-			if payload.NextPage == nil || *payload.NextPage == "" {
-				break
+			args.Stock = domain.StockArgs{
+				Ticker:   ticker,
+				Price:    currentPrice,
+				Tendency: tendency,
 			}
 
-			nextPage = *payload.NextPage
+			response = append(response, args)
 		}
 
-		slices.SortFunc(response, func(a, b domain.SourceStockData) int {
-			if a.Time.After(b.Time) {
-				return 1
-			}
-			if a.Time.Before(b.Time) {
-				return -1
-			}
-			return 0
-		})
+		if payload.NextPage == nil || *payload.NextPage == "" {
+			break
+		}
 
-		return response, nil
+		nextPage = *payload.NextPage
 	}
+
+	slices.SortFunc(response, func(a, b domain.SourceStockData) int {
+		if a.Time.After(b.Time) {
+			return 1
+		}
+		if a.Time.Before(b.Time) {
+			return -1
+		}
+		return 0
+	})
+
+	return response, nil
 }
 
 func NewMainSourceStockService() *MainSourceStockService {
@@ -210,6 +206,10 @@ func NewMainSourceStockService() *MainSourceStockService {
 	}
 
 	name := "main source stock"
-	cl := &http.Client{}
+	
+	cl := &http.Client{
+		Timeout: time.Second * 10,
+	}
+
 	return &MainSourceStockService{name, cl, uri, key}
 }

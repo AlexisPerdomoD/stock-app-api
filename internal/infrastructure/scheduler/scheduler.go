@@ -36,7 +36,7 @@ func (sc *Scheduler) AddStockSourceService(
 	}
 
 	interval := "@every 24h"
-	limitDate := time.Now().Add(-24 * time.Hour)
+	limitDate := time.Now().AddDate(0, 0, 1)
 	if itv != nil {
 		interval = fmt.Sprintf("@every %s", itv.String())
 		limitDate = time.Now().Add(-*itv)

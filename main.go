@@ -56,7 +56,8 @@ func main() {
 	/* Start server */
 	/* StockSources */
 	mainSSource := service.NewMainSourceStockService()
-	/* Scheduler */
+	
+	/* Scheduler jobs */
 	scheduler := scheduler.New()
 	interval := time.Hour * 24
 	timeout := time.Minute * 3
