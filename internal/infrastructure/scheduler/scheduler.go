@@ -48,14 +48,17 @@ func (sc *Scheduler) AddStockSourceService(
 
 		log.Println("[CRON] starting stock source service ", s.Name())
 
-		if err := uc.Execute(ctx, s, &limitDate); err != nil {
+		inserts, err := uc.Execute(ctx, s, &limitDate) 
+		if err != nil {
 			log.Println("[CRON] error executing stock source service ", s.Name())
 			log.Println("[CRON] error: ", err)
 			return
 		}
 
+		log.Println("[CRON] inserted rows:", inserts)
+
 		delete(sc.jobs, s.Name())
-		log.Println("[CRON] finished stock source service ", s.Name())
+		log.Println("[CRON] finished stock source service:", s.Name())
 	})
 
 	if err != nil {

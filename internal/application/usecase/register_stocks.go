@@ -11,53 +11,34 @@ import (
 
 type RegisterStocksUseCase struct {
 	sr domain.StockRepository
-	rr domain.RecommendationRepository
-	cr domain.CompanyRepository
-	mr domain.MarketRepository
-	br domain.BrokerageRepository
 }
 
-func (uc *RegisterStocksUseCase) Execute(ctx context.Context, s domain.SourceStockService, limitDate *time.Time) error {
+func (uc *RegisterStocksUseCase) Execute(ctx context.Context, s domain.SourceStockService, limitDate *time.Time) (int, error) {
 	if s == nil {
-		return pkg.InternalServerError("bad impl: SourceStockService was nil on registerStocksUseCase.Execute()")
+		return 0, pkg.InternalServerError("bad impl: SourceStockService was nil on registerStocksUseCase.Execute()")
 	}
 
-	panic("registerStocksUseCase.Execute() not implemented")
+	data, err := s.Get(ctx, limitDate)
+	if err != nil {
+		return 0, err
+	}
+
+	if len(data) == 0 {
+		return 0, nil
+	}
+
+	if err := uc.sr.Register(ctx, data); err != nil {
+		return 0, err
+	}
+
+	return len(data), nil
 }
 
-func NewRegisterStocksUseCase(
-	sr domain.StockRepository,
-	cr domain.CompanyRepository,
-	mr domain.MarketRepository,
-	br domain.BrokerageRepository,
-	rr domain.RecommendationRepository,
-) *RegisterStocksUseCase {
+func NewRegisterStocksUseCase(sr domain.StockRepository) *RegisterStocksUseCase {
 
 	if sr == nil {
 		log.Fatalln("bad impl: StockRepository is nil when creating register stock use case")
 	}
 
-	if cr == nil {
-		log.Fatalln("bad impl: CompanyRepository is nil when creating register stock use case")
-	}
-
-	if mr == nil {
-		log.Fatalln("bad impl: MarketRepository is nil when creating register stock use case")
-	}
-
-	if br == nil {
-		log.Fatalln("bad impl: BrokerageRepository is nil when creating register stock use case")
-	}
-
-	if rr == nil {
-		log.Fatalln("bad impl:RecommendationRepository is nil when creating register stock use case")
-	}
-
-	return &RegisterStocksUseCase{
-		sr: sr,
-		cr: cr,
-		mr: mr,
-		br: br,
-		rr: rr,
-	}
+	return &RegisterStocksUseCase{sr}
 }

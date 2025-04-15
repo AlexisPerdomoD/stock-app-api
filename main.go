@@ -33,30 +33,30 @@ func main() {
 	}
 	/* Repositories */
 
-	mr := cockroachdb.NewMarketRepository(db)
-	cr := cockroachdb.NewCompanyRepository(db)
-	br := cockroachdb.NewBrokerageRepository(db)
+	// mr := cockroachdb.NewMarketRepository(db)
+	// cr := cockroachdb.NewCompanyRepository(db)
+	// br := cockroachdb.NewBrokerageRepository(db)
 	sr := cockroachdb.NewStockRepository(db)
-	rr := cockroachdb.NewRecommendationRepository(db)
-	ur := cockroachdb.NewUserRepository(db)
+	// rr := cockroachdb.NewRecommendationRepository(db)
+	//ur := cockroachdb.NewUserRepository(db)
 
 	/* Usecases */
 
-	getStocksUC := usecase.NewGetStocksUseCase(sr)
-	registerStocksUC := usecase.NewRegisterStocksUseCase(sr, cr, mr, br, rr)
+	//getStocksUC := usecase.NewGetStocksUseCase(sr)
+	registerStocksUC := usecase.NewRegisterStocksUseCase(sr)
 
-	getRecommendationByStockUC := usecase.NewGetRecommendationsByStockUseCase(sr, rr)
+	// getRecommendationByStockUC := usecase.NewGetRecommendationsByStockUseCase(sr, rr)
 
-	loginUserUC := usecase.NewLoginUseCase(ur)
-	registerUserUC := usecase.NewRegisterUserUseCase(ur)
-	registerUserStockUC := usecase.NewRegisterUserStockUseCase(ur)
-	removeUserStockUC := usecase.NewRemoveUserStockUserCase(ur)
+	// loginUserUC := usecase.NewLoginUseCase(ur)
+	// registerUserUC := usecase.NewRegisterUserUseCase(ur)
+	// registerUserStockUC := usecase.NewRegisterUserStockUseCase(ur)
+	// removeUserStockUC := usecase.NewRemoveUserStockUserCase(ur)
 
 	/* Controllers */
 	/* Start server */
 	/* StockSources */
 	mainSSource := service.NewMainSourceStockService()
-	
+
 	/* Scheduler jobs */
 	scheduler := scheduler.New()
 	interval := time.Hour * 24

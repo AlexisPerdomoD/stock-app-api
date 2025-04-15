@@ -111,7 +111,11 @@ func (r *stockRepository) GetAllPaginated(ctx context.Context, filter pkg.Pagina
 	return &result, nil
 }
 
-func (r *stockRepository) Create(ctx context.Context, stock *domain.Stock) error {
+func (r *stockRepository) Register(ctx context.Context, data []domain.SourceStockData) error {
+	panic("Implement me")
+}
+
+func (r *stockRepository) create(ctx context.Context, stock *domain.Stock) error {
 
 	if stock == nil {
 		return pkg.BadRequest("args to stock insertion were not provided")
@@ -127,7 +131,7 @@ func (r *stockRepository) Create(ctx context.Context, stock *domain.Stock) error
 	return nil
 }
 
-func (r *stockRepository) Update(ctx context.Context, stockID uint, updates *domain.StockUpdates) error {
+func (r *stockRepository) update(ctx context.Context, stockID uint, updates *domain.StockUpdates) error {
 	if updates == nil {
 		return pkg.BadRequest("args for stock update were not provided")
 	}

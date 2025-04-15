@@ -49,7 +49,5 @@ type StockRepository interface {
 
 	GetAllPaginated(ctx context.Context, filter pkg.PaginationFilter) (*pkg.PaginationReponse[PopulatedStock], error)
 
-	Create(ctx context.Context, args *Stock) error
-
-	Update(ctx context.Context, stockID uint, args *StockUpdates) error
+	Register(ctx context.Context, stock []SourceStockData) error
 }
