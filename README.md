@@ -28,6 +28,7 @@ Este proyecto usa Go 1.23 y depende de:
 - `gorm.io/gorm` + `gorm.io/driver/postgres`: ORM para CockroachDB.
 - `github.com/robfig/cron/v3`: tareas programadas (cron).
 - `github.com/joho/godotenv`: carga de variables de entorno desde `.env`.
+- `github.com/stretchr/testify` : utilidades para tests.
 
 Dependencias adicionales incluyen utilidades para fechas, sincronización, y soporte para PostgreSQL (`pgx`, `puddle`, etc.).
 

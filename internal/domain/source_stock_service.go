@@ -5,30 +5,43 @@ import (
 	"time"
 )
 
+type MarketArgs struct {
+	Name string
+}
+
+type CompanyArgs struct {
+	Name string
+}
+
+type BrokerageArgs struct {
+	Name string
+}
+
+type RecommendationArgs struct {
+	RatingTo   Action
+	RatingFrom Action
+	TargetTo   float64
+	TargetFrom float64
+	Brokerage  BrokerageArgs
+}
+
+type StockArgs struct {
+	Ticker   string
+	Name     string
+	Price    float64
+	Tendency Tendency
+}
+
 type SourceStockData struct {
-	Market struct {
-		Name string `json:"name"`
-	} `json:"market"`
+	Market MarketArgs
 
-	Company struct {
-		Name string `json:"name"`
-	} `json:"company"`
+	Company CompanyArgs
 
-	Recomendation *struct {
-		Action    Action `json:"action"`
-		Brokerage struct {
-			Name string `json:"name"`
-		} `json:"brokerage"`
-	} `json:"recomendation"`
+	Recomendation *RecommendationArgs
 
-	Stock struct {
-		Ticker   string   `json:"ticker"`
-		Name     string   `json:"name"`
-		Price    float64  `json:"price"`
-		Tendency Tendency `json:"tendency"`
-	} `json:"stock"`
+	Stock StockArgs
 
-	Time time.Time `json:"time"`
+	Time time.Time
 }
 
 type SourceStockService interface {
