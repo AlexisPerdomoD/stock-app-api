@@ -51,30 +51,21 @@ func applyPagination(query *gorm.DB,
 ) *gorm.DB {
 
 	if query == nil {
-		log.Fatalln("bad impl: db not provided when calling ApplyFilters helper")
+		log.Fatalln("applyPagination: db is nil")
 	}
 
 	size := 20
 	page := 1
-	sortBy := "created_at"
-	sortOrder := pkg.Desc
+	defaultOrder := clause.OrderByColumn{
+		Column: clause.Column{Name: "created_at"},
+		Desc:   true,
+	}
 
 	if filters == nil {
 		return query.
 			Limit(size).
 			Offset(size * (page - 1)).
-			Order(clause.OrderByColumn{
-				Column: clause.Column{Name: sortBy},
-				Desc:   true,
-			})
-	}
-
-	if allowedSorters[filters.SortBy] {
-		sortBy = filters.SortBy
-	}
-
-	if filters.SortOrder == pkg.Asc {
-		sortOrder = pkg.Asc
+			Order(defaultOrder)
 	}
 
 	if filters.Size > 0 {
@@ -85,10 +76,24 @@ func applyPagination(query *gorm.DB,
 		page = filters.Page
 	}
 
-	return query.Limit(size).
-		Offset(size * (page - 1)).
-		Order(clause.OrderByColumn{
+	query = query.Limit(size).Offset(size * (page - 1))
+
+	if len(filters.SortBy) == 0 {
+		return query.Order(defaultOrder)
+	}
+
+	order := []clause.OrderByColumn{}
+
+	for sortBy, orderBy := range filters.SortBy {
+		if !allowedSorters[sortBy] {
+			continue
+		}
+
+		order = append(order, clause.OrderByColumn{
 			Column: clause.Column{Name: sortBy},
-			Desc:   sortOrder == pkg.Desc,
+			Desc:   orderBy == pkg.Desc,
 		})
+	}
+
+	return query.Order(order)
 }

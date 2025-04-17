@@ -30,9 +30,8 @@ type PaginationPage struct {
 }
 
 type PaginationFilter struct {
-	SortOrder SortOrder      `json:"sort_order"`
-	SortBy    string         `json:"sort_by"`
-	FilterBy  []FilterByItem `json:"filter_by"`
+	SortBy    map[string]SortOrder `json:"sort_by"`
+	FilterBy  []FilterByItem       `json:"filter_by"`
 	PaginationPage
 }
 

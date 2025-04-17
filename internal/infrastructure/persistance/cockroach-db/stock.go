@@ -65,6 +65,7 @@ func (r *stockRepository) GetAllPaginated(ctx context.Context, filter pkg.Pagina
 	allowedSorters := map[string]bool{
 		"tendency": true,
 		"price":    true,
+		"created_at": true,
 	}
 	var total int64
 	var records []stockRecord
