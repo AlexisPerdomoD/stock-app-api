@@ -61,10 +61,9 @@ func (r *stockRepository) GetAllPaginated(ctx context.Context, filter pkg.Pagina
 		"tendency":   true,
 		"user_id":    true,
 	}
-
 	allowedSorters := map[string]bool{
-		"tendency": true,
-		"price":    true,
+		"tendency":   true,
+		"price":      true,
 		"created_at": true,
 	}
 	var total int64
@@ -113,38 +112,127 @@ func (r *stockRepository) GetAllPaginated(ctx context.Context, filter pkg.Pagina
 }
 
 func (r *stockRepository) Register(ctx context.Context, data []domain.SourceStockData) error {
-	panic("Implement me")
-}
 
-func (r *stockRepository) create(ctx context.Context, stock *domain.Stock) error {
+	markets := map[string]marketRecord{}
+	companies := map[string]companyRecord{}
+	brokerages := map[string]brokerageRecord{}
 
-	if stock == nil {
-		return pkg.BadRequest("args to stock insertion were not provided")
+	tx := r.db.WithContext(ctx).Begin()
+	for _, args := range data {
+
+		market, ok := markets[args.Market.Name]
+		if !ok {
+			market = marketRecord{}
+			if err := tx.First(&market, "name = ?", args.Market.Name).Error; err != nil {
+				if !errors.Is(err, gorm.ErrRecordNotFound) {
+					tx.Rollback()
+					return err
+				}
+
+				market = marketRecord{Name: args.Market.Name}
+				if err := tx.Create(&market).Error; err != nil {
+					tx.Rollback()
+					return err
+				}
+				markets[args.Market.Name] = market
+			}
+		}
+
+		company, ok := companies[args.Company.Name]
+		if !ok {
+			company = companyRecord{}
+			if err := tx.First(&company, "name = ? AND market_id = ?", args.Company.Name, market.ID).
+				Error; err != nil {
+				if !errors.Is(err, gorm.ErrRecordNotFound) {
+					tx.Rollback()
+					return err
+				}
+
+				company = companyRecord{
+					MarketID: market.ID,
+					ISIN:     args.Company.ISIN,
+					Name:     args.Company.Name,
+				}
+				if err := tx.Create(&company).Error; err != nil {
+					tx.Rollback()
+					return err
+				}
+				companies[args.Company.Name] = company
+			}
+		}
+
+		stock := stockRecord{}
+		stock.CompanyID = company.ID
+		if err := tx.First(&stock, "ticker = ? AND company_id = ?", args.Stock.Ticker, company.ID).
+			Error; err != nil {
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
+				tx.Rollback()
+				return err
+			}
+			stock.Ticker = args.Stock.Ticker
+			stock.Name = &args.Stock.Name
+			stock.Price = args.Stock.Price
+			stock.Tendency = args.Stock.Tendency
+			stock.CreatedAt = args.Time
+			stock.UpdatedAt = args.Time
+
+			if err := tx.Create(&stock).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+		} else {
+			updates := &domain.StockUpdates{
+				Price:    &args.Stock.Price,
+				Tendency: &args.Stock.Tendency,
+			}
+
+			if err := tx.Model(&stock).Where("id = ?", stock.ID).Updates(updates).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+
+		if args.Recomendation != nil {
+			brokerage, ok := brokerages[args.Recomendation.Brokerage.Name]
+			if !ok {
+				brokerage = brokerageRecord{}
+				if err := tx.First(&brokerage, "name = ?", args.Recomendation.Brokerage.Name).Error; err != nil {
+					if !errors.Is(err, gorm.ErrRecordNotFound) {
+						tx.Rollback()
+						return err
+					}
+
+					brokerage = brokerageRecord{
+						Name: args.Recomendation.Brokerage.Name,
+					}
+					if err := tx.Create(&brokerage).Error; err != nil {
+						tx.Rollback()
+						return err
+					}
+					brokerages[args.Recomendation.Brokerage.Name] = brokerage
+				}
+			}
+
+			if err := tx.Create(&recommendationRecord{
+				StockID:     stock.ID,
+				BrokerageID: brokerage.ID,
+				RatingTo:    args.Recomendation.RatingTo,
+				RatingFrom:  args.Recomendation.RatingFrom,
+				TargetTo:    args.Recomendation.TargetTo,
+				TargetFrom:  args.Recomendation.TargetFrom,
+			}).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+
 	}
 
-	record := mapStockInsert(stock)
-
-	if err := r.db.WithContext(ctx).Create(record).Error; err != nil {
+	if err := tx.Commit().Error; err != nil {
 		return err
 	}
-	_ = mapStockToDomain(record, stock)
 
 	return nil
-}
-
-func (r *stockRepository) update(ctx context.Context, stockID uint, updates *domain.StockUpdates) error {
-	if updates == nil {
-		return pkg.BadRequest("args for stock update were not provided")
-	}
-
-	if updates.Name == nil && updates.Price == nil && updates.Tendency == nil {
-		return pkg.BadRequest("no fields to update")
-	}
-
-	return r.db.WithContext(ctx).
-		Model(&stockRecord{}).
-		Where("id = ?", stockID).
-		Updates(updates).Error
 }
 
 func NewStockRepository(db *gorm.DB) *stockRepository {
