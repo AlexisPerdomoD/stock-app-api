@@ -11,9 +11,9 @@ type RemoveUserStockUseCase struct {
 	ur domain.UserRepository
 }
 
-func (r *RemoveUserStockUseCase) Execute(ctx context.Context, userID uint, stockID uint) error {
+func (ruc *RemoveUserStockUseCase) Execute(ctx context.Context, userID uint, stockID uint) error {
 
-	panic("implement me")
+	return ruc.ur.RemoveUserStock(ctx, userID, stockID)
 }
 
 func NewRemoveUserStockUserCase(ur domain.UserRepository) *RemoveUserStockUseCase {

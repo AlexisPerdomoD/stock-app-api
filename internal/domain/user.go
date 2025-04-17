@@ -22,4 +22,6 @@ type UserRepository interface {
 	Create(ctx context.Context, args *User) error
 
 	RegisterUserStock(ctx context.Context, userID uint, stockID uint) error
+
+	RemoveUserStock(ctx context.Context, userID uint, stockID uint) error
 }
