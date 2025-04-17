@@ -55,7 +55,7 @@ func main() {
 	/* Controllers */
 	/* Start server */
 	/* StockSources */
-	mainSSource := service.NewMainSourceStockService()
+	mainSSource := service.NewMainSourceStockService(false)
 
 	/* Scheduler jobs */
 	scheduler := scheduler.New()
