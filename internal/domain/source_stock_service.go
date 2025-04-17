@@ -11,6 +11,7 @@ type MarketArgs struct {
 
 type CompanyArgs struct {
 	Name string
+	ISIN *string
 }
 
 type BrokerageArgs struct {

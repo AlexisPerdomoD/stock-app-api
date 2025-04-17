@@ -38,6 +38,7 @@ type MainSourceStockService struct {
 	cl   *http.Client
 	uri  string
 	key  string
+	verbose bool
 }
 
 func (s *MainSourceStockService) Name() string {
@@ -73,7 +74,9 @@ func (s *MainSourceStockService) doRequest(ctx context.Context, nextPage string)
 }
 
 func (s *MainSourceStockService) getPrice(price string) (float64, error) {
-	return strconv.ParseFloat(strings.TrimPrefix(price, "$"), 64)
+	price = strings.ReplaceAll(price, ",", "")
+	price = strings.ReplaceAll(price, "$", "")
+	return strconv.ParseFloat(price, 64)
 }
 
 func (s *MainSourceStockService) getTendency(current, previus float64) domain.Tendency {
@@ -97,7 +100,6 @@ func (s *MainSourceStockService) setRating(rating string) domain.Action {
 		return domain.Neutral
 	}
 }
-
 func (s *MainSourceStockService) Get(ctx context.Context, limitDate *time.Time) ([]domain.SourceStockData, error) {
 
 	doUntil := limitDate
@@ -109,7 +111,14 @@ func (s *MainSourceStockService) Get(ctx context.Context, limitDate *time.Time) 
 		doUntil = &yesterday
 	}
 
+	if doUntil == nil && s.verbose {
+		log.Printf("[main source stock] no limit date provided")
+	}
+
 	for {
+		if s.verbose {
+			log.Printf("[main source stock]: start getting stocks from main source stock from page %s", nextPage)
+		}
 		payload, err := s.doRequest(ctx, nextPage)
 		if err != nil {
 			return nil, err
@@ -173,15 +182,23 @@ func (s *MainSourceStockService) Get(ctx context.Context, limitDate *time.Time) 
 				Price:    currentPrice,
 				Tendency: tendency,
 			}
-
 			response = append(response, args)
 		}
 
 		if payload.NextPage == nil || *payload.NextPage == "" {
+			if s.verbose {
+				log.Printf("[main source stock] no next page")
+				log.Printf("[main source stock] got %v stocks total", len(response))
+			}
+
 			break
 		}
 
 		nextPage = *payload.NextPage
+
+		if s.verbose {
+			log.Printf("[main source stock] next page: %s", nextPage)
+		}
 	}
 
 	slices.SortFunc(response, func(a, b domain.SourceStockData) int {
@@ -197,7 +214,7 @@ func (s *MainSourceStockService) Get(ctx context.Context, limitDate *time.Time) 
 	return response, nil
 }
 
-func NewMainSourceStockService() *MainSourceStockService {
+func NewMainSourceStockService(verbose bool) *MainSourceStockService {
 	uri := os.Getenv("MAIN_SOURCE_STOCK_URI")
 	key := os.Getenv("MAIN_SOURCE_STOCK_KEY")
 
@@ -206,10 +223,10 @@ func NewMainSourceStockService() *MainSourceStockService {
 	}
 
 	name := "main source stock"
-	
+
 	cl := &http.Client{
 		Timeout: time.Second * 10,
 	}
 
-	return &MainSourceStockService{name, cl, uri, key}
+	return &MainSourceStockService{name, cl, uri, key, verbose}
 }
