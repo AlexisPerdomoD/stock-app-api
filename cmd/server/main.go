@@ -46,18 +46,18 @@ func main() {
 
 	loginUserUC := usecase.NewLoginUseCase(ur)
 	registerUserUC := usecase.NewRegisterUserUseCase(ur)
-	// registerUserStockUC := usecase.NewRegisterUserStockUseCase(ur)
-	// removeUserStockUC := usecase.NewRemoveUserStockUserCase(ur)
+	registerUserStockUC := usecase.NewRegisterUserStockUseCase(ur)
+	removeUserStockUC := usecase.NewRemoveUserStockUserCase(ur)
 
 	/* Controllers */
 	stockController := controller.NewStockController(getStocksUC)
-	userController := controller.NewUserController(registerUserUC, loginUserUC)
+	userController := controller.NewUserController(registerUserUC, loginUserUC, registerUserStockUC, removeUserStockUC)
 	/* Start server */
 	router := gin.Default()
 	/* Set routes */
 	stockController.SetRoutes(router)
 	userController.SetRoutes(router)
-	
+
 	if err := router.Run(":3000"); err != nil {
 		log.Fatalln(err.Error())
 	}

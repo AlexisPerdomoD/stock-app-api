@@ -66,13 +66,22 @@ func (r *userRepository) Create(ctx context.Context, usr *domain.User) error {
 
 func (r *userRepository) RegisterUserStock(ctx context.Context, userID uint, stockID uint) error {
 
-	panic("RegisterUserStock not implemented with cockroachdb")
-
+	return r.db.Model(&userRecord{
+		Model: gorm.Model{ID: userID},
+	}).
+		Association("Stocks").Append(&stockRecord{
+		Model: gorm.Model{ID: stockID},
+	})
 }
 
 func (r *userRepository) RemoveUserStock(ctx context.Context, userID uint, stockID uint) error {
 
-	panic("RemoveUserStock not implemented with cockroachdb")
+	return r.db.Model(&userRecord{
+		Model: gorm.Model{ID: userID},
+	}).
+		Association("Stocks").Delete(&stockRecord{
+		Model: gorm.Model{ID: stockID},
+	})
 
 }
 
