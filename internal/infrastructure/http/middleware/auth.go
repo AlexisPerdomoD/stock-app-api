@@ -1,4 +1,4 @@
-package http
+package middleware
 
 import (
 	"net/http"
@@ -22,7 +22,7 @@ func UserSessionMiddleware(c *gin.Context) {
 	if err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusUnauthorized,
-			gin.H{"message": "Session is expired or invalid"})
+			gin.H{"name": "Unauthorized", "message": "Session is expired or invalid"})
 		return
 	}
 
