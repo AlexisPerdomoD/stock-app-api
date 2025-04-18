@@ -9,11 +9,6 @@ type User struct {
 	Active   bool
 }
 
-type CreateUserArgs struct {
-	UserName string
-	Password string
-}
-
 type UserRepository interface {
 	Get(ctx context.Context, id uint) (*User, error)
 
