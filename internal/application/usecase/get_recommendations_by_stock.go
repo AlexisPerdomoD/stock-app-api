@@ -15,8 +15,8 @@ type GetRecommendationsByStockUseCase struct {
 
 func (uc *GetRecommendationsByStockUseCase) Execute(
 	ctx context.Context,
-	stockID uint,
 	filters pkg.PaginationFilter,
+	stockID uint,
 ) (*pkg.PaginationReponse[domain.PopulatedRecommendation], error) {
 
 	stock, err := uc.sr.Get(ctx, stockID)
@@ -29,9 +29,7 @@ func (uc *GetRecommendationsByStockUseCase) Execute(
 		return nil, pkg.NotFound("Stock not found")
 	}
 
-	filters.FilterBy = []pkg.FilterByItem{{Field: "stock_id", Value: stock.ID}}
-
-	return uc.rr.GetAllPaginated(ctx, filters)
+	return uc.rr.GetAllPaginated(ctx, filters, stock.ID)
 
 }
 
@@ -41,11 +39,11 @@ func NewGetRecommendationsByStockUseCase(
 ) *GetRecommendationsByStockUseCase {
 
 	if sr == nil {
-		log.Fatalln("bad impl: StockRepository was nil for NewGetRecommendationsByStockUseCase")
+		log.Fatalln("[GetRecommendationsByStockUseCase]: StockRepository provided was nil")
 	}
 
 	if rr == nil {
-		log.Fatalln("bad impl: RecommendationRepository was nil for NewGetRecommendationsByStockUseCase")
+		log.Fatalln("[GetRecommendationsByStockUseCase]: RecommendationRepository was provided as nil")
 	}
 
 	return &GetRecommendationsByStockUseCase{sr, rr}

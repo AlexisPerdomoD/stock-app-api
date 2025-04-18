@@ -7,14 +7,13 @@ import (
 	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
 )
 
-type Action string
+type Action uint8
 
 const (
-	Buy     Action = "buy"
-	Sell    Action = "sell"
-	Neutral Action = "neutral"
-	Hold    Action = "hold"
-	Unknown Action = "unknown"
+	Buy     Action = 1
+	Hold    Action = 2
+	Neutral Action = 3
+	Sell    Action = 4
 )
 
 /*
@@ -50,7 +49,9 @@ type PopulatedRecommendation struct {
 type RecommendationRepository interface {
 	Get(ctx context.Context, id uint) (*Recommendation, error)
 
-	GetAllPaginated(ctx context.Context, filter pkg.PaginationFilter) (*pkg.PaginationReponse[PopulatedRecommendation], error)
-
-	Create(ctx context.Context, args *Recommendation) error
+	GetAllPaginated(
+		ctx context.Context,
+		filter pkg.PaginationFilter,
+		stockID uint,
+	) (*pkg.PaginationReponse[PopulatedRecommendation], error)
 }

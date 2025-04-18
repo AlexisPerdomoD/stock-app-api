@@ -26,8 +26,8 @@ func (uc RegisterUserUseCase) Execute(ctx context.Context, usr *domain.User) (se
 	if err := uc.ur.Create(ctx, usr); err != nil {
 		return "", err
 	}
-
 	return auth.GenerateSessionToken(usr)
+
 }
 
 func NewRegisterUserUseCase(ur domain.UserRepository) *RegisterUserUseCase {

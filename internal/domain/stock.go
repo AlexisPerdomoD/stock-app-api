@@ -65,7 +65,7 @@ type PopulatedStock struct {
 }
 
 type StockRepository interface {
-	Get(ctx context.Context, id uint) (*Stock, error)
+	Get(ctx context.Context, id uint) (*PopulatedStock, error)
 
 	GetAllPaginated(ctx context.Context, filter pkg.PaginationFilter, userID *uint) (*pkg.PaginationReponse[PopulatedStock], error)
 
