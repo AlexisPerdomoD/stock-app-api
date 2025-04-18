@@ -3,6 +3,7 @@ package pkg
 import (
 	"errors"
 	"fmt"
+	"net/http"
 )
 
 type ApiErr struct {
@@ -23,39 +24,56 @@ type ResponseError struct {
 }
 
 func NotFound(detail string) error {
-	return &ApiErr{Detail: detail, Code: 404, Name: "Not Found"}
+	return &ApiErr{Detail: detail, Code: http.StatusNotFound, Name: "Not Found"}
 }
 
 func BadRequest(detail string) error {
-	return &ApiErr{Detail: detail, Code: 400, Name: "Bad Request"}
+	return &ApiErr{Detail: detail, Code: http.StatusBadRequest, Name: "Bad Request"}
 }
 
 func Unauthorized(detail string) error {
-	return &ApiErr{Detail: detail, Code: 401, Name: "Unauthorized"}
+	return &ApiErr{Detail: detail, Code: http.StatusUnauthorized, Name: "Unauthorized"}
 }
 
 func Forbidden(detail string) error {
-	return &ApiErr{Detail: detail, Code: 403, Name: "Forbidden"}
+	return &ApiErr{Detail: detail, Code: http.StatusForbidden, Name: "Forbidden"}
 }
 
 func DataBaseErr(detail string, code int) error {
 
 	if code == 0 {
-		code = 500
+		code = http.StatusInternalServerError
 	}
 
 	return &ApiErr{Detail: detail, Code: code, Name: "Database Error"}
 }
 
 func InternalServerError(detail string) error {
-	return &ApiErr{Detail: detail, Code: 500, Name: "Internal Server Error"}
+	return &ApiErr{
+		Detail: detail,
+		Code:   http.StatusInternalServerError,
+		Name:   "Internal Server Error",
+	}
 }
 
 func MapHttpErr(err error) *ResponseError {
 	var apiErr *ApiErr
 
-	if err == nil || !errors.As(err, &apiErr) {
-		return &ResponseError{StatusCode: 500, Name: "Unknown Error", Message: "this is a bug :("}
+	if err == nil {
+		return &ResponseError{
+			StatusCode: http.StatusInternalServerError,
+			Name:       "Unknown Error",
+			Message:    "Error interno desconocido",
+		}
+	}
+
+	if !errors.As(err, &apiErr) {
+		return &ResponseError{
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+			Name:       "Internal Server Error",
+		}
+
 	}
 
 	return &ResponseError{
