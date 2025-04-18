@@ -12,10 +12,13 @@ type FilterOperator string
 const (
 	Equals      FilterOperator = "equals"
 	GreaterThan FilterOperator = "greater_than"
+	GreaterOrEq FilterOperator = "greater_or_equals"
 	LessThan    FilterOperator = "less_than"
+	LessOrEq    FilterOperator = "less_or_equals"
 	NotEquals   FilterOperator = "not_equals"
 	IsNull      FilterOperator = "is_null"
 	IsNotNull   FilterOperator = "is_not_null"
+	Like        FilterOperator = "like"
 )
 
 type FilterByItem struct {
@@ -30,8 +33,9 @@ type PaginationPage struct {
 }
 
 type PaginationFilter struct {
-	SortBy    map[string]SortOrder `json:"sort_by"`
-	FilterBy  []FilterByItem       `json:"filter_by"`
+	SortBy   map[string]SortOrder `json:"sort_by"`
+	FilterBy []FilterByItem       `json:"filter_by"`
+	Search   string
 	PaginationPage
 }
 

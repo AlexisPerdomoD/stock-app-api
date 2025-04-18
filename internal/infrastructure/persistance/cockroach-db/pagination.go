@@ -25,12 +25,18 @@ func applyFilters(
 		}
 
 		switch filter.Operator {
+		case pkg.Like:
+			query = query.Where(fmt.Sprintf("%s LIKE ?", filter.Field), filter.Value)
 		case pkg.Equals:
 			query = query.Where(fmt.Sprintf("%s = ?", filter.Field), filter.Value)
 		case pkg.GreaterThan:
 			query = query.Where(fmt.Sprintf("%s > ?", filter.Field), filter.Value)
+		case pkg.GreaterOrEq:
+			query = query.Where(fmt.Sprintf("%s >= ?", filter.Field), filter.Value)
 		case pkg.LessThan:
 			query = query.Where(fmt.Sprintf("%s < ?", filter.Field), filter.Value)
+		case pkg.LessOrEq:
+			query = query.Where(fmt.Sprintf("%s <= ?", filter.Field), filter.Value)
 		case pkg.NotEquals:
 			query = query.Where(fmt.Sprintf("%s != ?", filter.Field), filter.Value)
 		case pkg.IsNull:

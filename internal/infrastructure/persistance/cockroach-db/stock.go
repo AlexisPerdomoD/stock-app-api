@@ -61,17 +61,22 @@ func (r *stockRepository) GetAllPaginated(ctx context.Context, filter pkg.Pagina
 		"price":      true,
 		"ticker":     true,
 		"tendency":   true,
-		"user_id":    true,
 	}
+
 	allowedSorters := map[string]bool{
 		"tendency":   true,
 		"price":      true,
-		"created_at": true,
+		"updated_at": true,
 	}
+
 	var total int64
 	var records []stockRecord
-
 	query := r.db.WithContext(ctx).Model(stockRecord{}).Preload("Company.Market")
+
+	if filter.Search != "" {
+		query.Joins("JOIN companies ON companies.id = stocks.company_id").
+			Where("companies.name LIKE ?", filter.Search)
+	}
 
 	if userID != nil {
 		query = query.
@@ -85,25 +90,14 @@ func (r *stockRepository) GetAllPaginated(ctx context.Context, filter pkg.Pagina
 		return nil, err
 	}
 
-	query = applyPagination(query, &filter, allowedSorters)
-
-	if err := query.
+	if err := applyPagination(query, &filter, allowedSorters).
 		Find(&records).Error; err != nil {
 		return nil, err
 	}
 
 	stocks := []domain.PopulatedStock{}
-
 	for _, record := range records {
-		stock := domain.Stock{}
-		_ = mapStockToDomain(&record, &stock)
-		populated := domain.PopulatedStock{
-			Stock:       stock,
-			CompanyName: record.Company.Name,
-			Market:      *mapMarketToDomain(&record.Company.Market, nil),
-		}
-
-		stocks = append(stocks, populated)
+		stocks = append(stocks, *mapPopulatedStockToDomain(&record, nil))
 	}
 
 	page := 1

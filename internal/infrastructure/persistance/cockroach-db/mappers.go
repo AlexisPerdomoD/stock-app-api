@@ -23,22 +23,10 @@ func mapBrokerageInsert(args *domain.Brokerage) *brokerageRecord {
 	return &brokerageRecord{Name: args.Name}
 }
 
-/* mapStockInsert assumes that the args are not nil */
-func mapStockInsert(args *domain.Stock) *stockRecord {
-
-	return &stockRecord{
-		Name:      args.Name,
-		CompanyID: args.CompanyID,
-		Ticker:    args.Ticker,
-		Price:     args.Price,
-		Tendency:  args.Tendency,
-	}
-}
-
 /* mapRecommendationInsert assumes that the args are not nil */
 func mapRecommendationInsert(args *domain.Recommendation) *recommendationRecord {
 
-	return &recommendationRecord{
+	recommendation := &recommendationRecord{
 		StockID:     args.StockID,
 		BrokerageID: args.BrokerageID,
 		RatingFrom:  args.RatingFrom,
@@ -46,6 +34,9 @@ func mapRecommendationInsert(args *domain.Recommendation) *recommendationRecord 
 		TargetFrom:  args.TargetFrom,
 		TargetTo:    args.TargetFrom,
 	}
+
+	recommendation.CreatedAt = args.CreatedAt
+	return recommendation
 }
 
 /* mapUserInsert assumes that the args are not nil */
@@ -60,7 +51,6 @@ func mapUserInsert(args *domain.User) *userRecord {
 
 /* mapMarketToDomain assumes that the record is not nil */
 func mapMarketToDomain(record *marketRecord, target *domain.Market) *domain.Market {
-
 	if target == nil {
 		return &domain.Market{
 			Name:      record.Name,
@@ -129,6 +119,22 @@ func mapStockToDomain(record *stockRecord, target *domain.Stock) *domain.Stock {
 	target.CreatedAt = record.CreatedAt
 	target.UpdatedAt = record.UpdatedAt
 
+	return target
+}
+
+/* mapPopulatedStockToDomain assumes that the record is not nil */
+func mapPopulatedStockToDomain(record *stockRecord, target *domain.PopulatedStock) *domain.PopulatedStock {
+	if target == nil {
+		return &domain.PopulatedStock{
+			Stock:       *mapStockToDomain(record, nil),
+			CompanyName: record.Company.Name,
+			Market:      *mapMarketToDomain(&record.Company.Market, nil),
+		}
+	}
+
+	target.Stock = *mapStockToDomain(record, nil)
+	target.CompanyName = record.Company.Name
+	target.Market = *mapMarketToDomain(&record.Company.Market, nil)
 	return target
 }
 
