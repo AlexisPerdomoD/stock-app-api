@@ -58,6 +58,5 @@ func Migrate(db *gorm.DB) error {
 		&stockRecord{},
 		&recommendationRecord{},
 		&userRecord{},
-		&userStockRecord{},
 	)
 }

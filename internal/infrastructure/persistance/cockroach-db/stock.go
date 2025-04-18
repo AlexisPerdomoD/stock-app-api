@@ -18,7 +18,9 @@ func (r *stockRepository) Get(ctx context.Context, id uint) (*domain.Stock, erro
 
 	record := &stockRecord{}
 
-	if err := r.db.WithContext(ctx).First(record, id).Error; err != nil {
+	if err := r.db.WithContext(ctx).
+		Preload("Company.Market").
+		First(record, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
@@ -51,7 +53,7 @@ func (r *stockRepository) GetByTicker(ctx context.Context, marketID uint, ticker
 	return mapStockToDomain(record, nil), nil
 }
 
-func (r *stockRepository) GetAllPaginated(ctx context.Context, filter pkg.PaginationFilter) (*pkg.PaginationReponse[domain.PopulatedStock], error) {
+func (r *stockRepository) GetAllPaginated(ctx context.Context, filter pkg.PaginationFilter, userID *uint) (*pkg.PaginationReponse[domain.PopulatedStock], error) {
 
 	allowedFilters := map[string]bool{
 		"name":       true,
@@ -69,14 +71,23 @@ func (r *stockRepository) GetAllPaginated(ctx context.Context, filter pkg.Pagina
 	var total int64
 	var records []stockRecord
 
-	query := r.db.WithContext(ctx).Model(stockRecord{})
+	query := r.db.WithContext(ctx).Model(stockRecord{}).Preload("Company.Market")
+
+	if userID != nil {
+		query = query.
+			Joins("JOIN user_stocks ON user_stocks.stock_record_id = stocks.id").
+			Where("user_stocks.user_record_id = ?", *userID)
+	}
+
 	query = applyFilters(query, filter.FilterBy, allowedFilters)
 
 	if err := query.Count(&total).Error; err != nil {
 		return nil, err
 	}
 
-	if err := applyPagination(query, &filter, allowedSorters).
+	query = applyPagination(query, &filter, allowedSorters)
+
+	if err := query.
 		Find(&records).Error; err != nil {
 		return nil, err
 	}
@@ -87,10 +98,9 @@ func (r *stockRepository) GetAllPaginated(ctx context.Context, filter pkg.Pagina
 		stock := domain.Stock{}
 		_ = mapStockToDomain(&record, &stock)
 		populated := domain.PopulatedStock{
-			Stock: stock,
-			// TODO: RESOLVE THIS
-			CompanyName: "",
-			Market:      domain.Market{},
+			Stock:       stock,
+			CompanyName: record.Company.Name,
+			Market:      *mapMarketToDomain(&record.Company.Market, nil),
 		}
 
 		stocks = append(stocks, populated)

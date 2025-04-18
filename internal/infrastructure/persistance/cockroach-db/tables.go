@@ -23,16 +23,6 @@ type brokerageRecord struct {
 	Name string `gorm:"unique"`
 }
 
-type stockRecord struct {
-	gorm.Model
-	Name      *string
-	CompanyID uint `gorm:"uniqueIndex:idx_ticker_company"`
-	Company   companyRecord
-	Ticker    string `gorm:"uniqueIndex:idx_ticker_company"`
-	Price     float64
-	Tendency  domain.Tendency
-}
-
 type recommendationRecord struct {
 	gorm.Model
 	StockID     uint
@@ -45,18 +35,23 @@ type recommendationRecord struct {
 	TargetFrom  float64
 }
 
+type stockRecord struct {
+	gorm.Model
+	Name      *string
+	CompanyID uint `gorm:"uniqueIndex:idx_ticker_company"`
+	Company   companyRecord
+	Ticker    string `gorm:"uniqueIndex:idx_ticker_company"`
+	Price     float64
+	Tendency  domain.Tendency
+	Users     []userRecord `gorm:"many2many:user_stocks;"`
+}
+
 type userRecord struct {
 	gorm.Model
 	UserName string `gorm:"unique"`
 	Password string
+	Stocks   []stockRecord `gorm:"many2many:user_stocks;"`
 	Active   bool
-}
-
-type userStockRecord struct {
-	UserID  uint `gorm:"primaryKey"`
-	User    userRecord
-	StockID uint `gorm:"primaryKey"`
-	Stock   stockRecord
 }
 
 /* gorm struct table naming overide for conviniance */
@@ -83,8 +78,4 @@ func (recommendationRecord) TableName() string {
 
 func (userRecord) TableName() string {
 	return "users"
-}
-
-func (userStockRecord) TableName() string {
-	return "user_stocks"
 }
