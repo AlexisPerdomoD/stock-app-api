@@ -10,11 +10,19 @@ import (
 	"gorm.io/gorm"
 )
 
-type recommendationRepository struct {
+type RecommendationRepository struct {
 	db *gorm.DB
 }
 
-func (r *recommendationRepository) Get(ctx context.Context, id uint) (*domain.Recommendation, error) {
+func NewRecommendationRepository(db *gorm.DB) *RecommendationRepository {
+	if db == nil {
+		log.Fatalf("[RecommendationRepository]: CR db provided is nil")
+	}
+
+	return &RecommendationRepository{db: db}
+}
+
+func (r *RecommendationRepository) Get(ctx context.Context, id uint) (*domain.Recommendation, error) {
 
 	record := &recommendationRecord{}
 
@@ -30,27 +38,38 @@ func (r *recommendationRepository) Get(ctx context.Context, id uint) (*domain.Re
 	return mapRecommendationToDomain(record, nil), nil
 }
 
-func (r *recommendationRepository) GetAllPaginated(
+func (r *RecommendationRepository) GetAllPaginated(
 	ctx context.Context,
 	filter pkg.PaginationFilter,
+	stockID uint,
 ) (*pkg.PaginationReponse[domain.PopulatedRecommendation], error) {
 
 	var records []recommendationRecord
 	var total int64
 
 	allowedFilters := map[string]bool{
-		"stock_id":     true,
 		"created_at":   true,
 		"brokerage_id": true,
 	}
 
 	allowedSorters := map[string]bool{
-		"stock_id":     true,
-		"brokerage_id": true,
-		"created_at":   true,
+		"target_from": true,
+		"target_to":   true,
+		"rating_from": true,
+		"rating_to":   true,
+		"created_at":  true,
 	}
 
-	query := r.db.WithContext(ctx).Model(recommendationRecord{})
+	query := r.db.WithContext(ctx).
+		Model(recommendationRecord{}).
+		Preload("Brokerage").
+		Where("recommendations.stock_id = ?", stockID)
+
+	if filter.Search != "" {
+		query.Joins("JOIN brokerages ON brokerages.id = recommendations.brokerage_id").
+			Where("brokerages.name = ?", filter.Search)
+	}
+
 	query = applyFilters(query, filter.FilterBy, allowedFilters)
 
 	if err := query.Count(&total).Error; err != nil {
@@ -65,13 +84,8 @@ func (r *recommendationRepository) GetAllPaginated(
 	recommendations := []domain.PopulatedRecommendation{}
 
 	for _, record := range records {
-		recommendation := domain.Recommendation{}
-		_ = mapRecommendationToDomain(&record, &recommendation)
-		populated := domain.PopulatedRecommendation{
-			Recommendation: recommendation,
-			// TODO: RESOLVE THIS
-			BrokerageName: "",
-		}
+		populated := domain.PopulatedRecommendation{}
+		_ = mapPopulatedRecommendationToDomain(&record, &populated)
 		recommendations = append(recommendations, populated)
 	}
 
@@ -88,28 +102,4 @@ func (r *recommendationRepository) GetAllPaginated(
 	}
 
 	return result, nil
-}
-
-func (r *recommendationRepository) Create(ctx context.Context, recommendation *domain.Recommendation) error {
-	if recommendation == nil {
-		return pkg.BadRequest("args for recommendation insertion were not provided")
-	}
-
-	record := mapRecommendationInsert(recommendation)
-
-	if err := r.db.WithContext(ctx).Create(record).Error; err != nil {
-		return err
-	}
-
-	_ = mapRecommendationToDomain(record, recommendation)
-
-	return nil
-}
-
-func NewRecommendationRepository(db *gorm.DB) *recommendationRepository {
-	if db == nil {
-		log.Fatalf("bad impl: db is nil in NewRecommendationRepository")
-	}
-
-	return &recommendationRepository{db: db}
 }

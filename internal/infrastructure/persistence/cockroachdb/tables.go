@@ -7,7 +7,8 @@ import (
 
 type marketRecord struct {
 	gorm.Model
-	Name string `gorm:"unique"`
+	Name      string `gorm:"unique"`
+	Companies []companyRecord `gorm:"foreignKey:MarketID"`
 }
 
 type companyRecord struct {
@@ -20,7 +21,8 @@ type companyRecord struct {
 
 type brokerageRecord struct {
 	gorm.Model
-	Name string `gorm:"unique"`
+	Name            string `gorm:"unique"`
+	Recommendations []recommendationRecord `gorm:"foreignKey:BrokerageID"`
 }
 
 type recommendationRecord struct {

@@ -116,10 +116,36 @@ func mapRecommendationToDomain(record *recommendationRecord, target *domain.Reco
 	return target
 }
 
+/* mapPopulatedRecommendationToDomain assumes that the record is not nil */
+func mapPopulatedRecommendationToDomain(
+	record *recommendationRecord,
+	target *domain.PopulatedRecommendation,
+) *domain.PopulatedRecommendation {
+	if target == nil {
+		return &domain.PopulatedRecommendation{
+			BrokerageName:  record.Brokerage.Name,
+			Recommendation: *mapRecommendationToDomain(record, nil),
+		}
+	}
+
+	target.ID = record.ID
+	target.StockID = record.StockID
+	target.BrokerageID = record.BrokerageID
+	target.BrokerageName = record.Brokerage.Name
+	target.RatingFrom = record.RatingFrom
+	target.RatingTo = record.RatingTo
+	target.TargetFrom = record.TargetFrom
+	target.TargetTo = record.TargetTo
+	target.CreatedAt = record.CreatedAt
+
+	return target
+}
+
 /* mapUserToDomain assumes that the record is not nil */
 func mapUserToDomain(record *userRecord, target *domain.User) *domain.User {
 
 	if target != nil {
+		target.ID = record.ID
 		target.UserName = record.UserName
 		target.Password = record.Password
 		target.Active = record.Active

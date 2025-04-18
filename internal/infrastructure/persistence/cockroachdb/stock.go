@@ -14,7 +14,7 @@ type stockRepository struct {
 	db *gorm.DB
 }
 
-func (r *stockRepository) Get(ctx context.Context, id uint) (*domain.Stock, error) {
+func (r *stockRepository) Get(ctx context.Context, id uint) (*domain.PopulatedStock, error) {
 
 	record := &stockRecord{}
 
@@ -29,7 +29,7 @@ func (r *stockRepository) Get(ctx context.Context, id uint) (*domain.Stock, erro
 
 	}
 
-	return mapStockToDomain(record, nil), nil
+	return mapPopulatedStockToDomain(record, nil), nil
 }
 
 func (r *stockRepository) GetAllPaginated(
