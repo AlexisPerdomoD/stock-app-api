@@ -7,7 +7,7 @@ import (
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/application/usecase"
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/controller"
-	cockroachdb "github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/persistance/cockroach-db"
+	cockroachdb "github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/persistence/cockroachdb"
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/scheduler"
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/service"
 	"github.com/gin-gonic/gin"
@@ -22,6 +22,7 @@ import (
 5) Start server (done)
 6) Map controllers routes (working)
 7) Pray Golang and start
+8) Set Cron jobs
 */
 func main() {
 
@@ -30,15 +31,10 @@ func main() {
 	}
 
 	db := cockroachdb.NewDB()
-	/* Repositories */
-	// mr := cockroachdb.NewMarketRepository(db)
-	// cr := cockroachdb.NewCompanyRepository(db)
-	// br := cockroachdb.NewBrokerageRepository(db)
 	sr := cockroachdb.NewStockRepository(db)
 	// rr := cockroachdb.NewRecommendationRepository(db)
 	ur := cockroachdb.NewUserRepository(db)
 
-	/* Usecases */
 	getStocksUC := usecase.NewGetStocksUseCase(sr)
 	registerStocksUC := usecase.NewRegisterStocksUseCase(sr)
 
@@ -49,12 +45,10 @@ func main() {
 	registerUserStockUC := usecase.NewRegisterUserStockUseCase(ur)
 	removeUserStockUC := usecase.NewRemoveUserStockUserCase(ur)
 
-	/* Controllers */
 	stockController := controller.NewStockController(getStocksUC)
 	userController := controller.NewUserController(getStocksUC, registerUserUC, loginUserUC, registerUserStockUC, removeUserStockUC)
-	/* Start server */
+
 	router := gin.Default()
-	/* Set routes */
 	stockController.SetRoutes(router)
 	userController.SetRoutes(router)
 

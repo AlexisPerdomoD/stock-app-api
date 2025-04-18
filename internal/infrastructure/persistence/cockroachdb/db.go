@@ -30,7 +30,6 @@ func NewDB() *gorm.DB {
 	}
 
 	// setutp db config
-	// maybe in another func with *gorm.DB as param (???) :b
 	sqlDB, err := db.DB()
 	if err != nil {
 		log.Fatalf("failed to get generic DB from GORM: %v", err)
@@ -47,7 +46,7 @@ func Migrate(db *gorm.DB) error {
 	}
 
 	if os.Getenv("CR_RUN_MIGRATE") != "TRUE" {
-		log.Println("AutoMigration was ommited")
+		log.Println("AutoMigration was omitted")
 		return nil
 	}
 

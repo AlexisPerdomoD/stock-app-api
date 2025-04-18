@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	cockroachdb "github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/persistance/cockroach-db"
+	cockroachdb "github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/persistence/cockroachdb"
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/service"
 	"github.com/joho/godotenv"
 )

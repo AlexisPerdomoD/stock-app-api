@@ -2,27 +2,6 @@ package cockroachdb
 
 import "github.com/alexisPerdomoD/stock-app-api/internal/domain"
 
-/* All mappers insertions assume that the args are not nil */
-
-func mapMarketInsert(args *domain.Market) *marketRecord {
-	return &marketRecord{Name: args.Name}
-}
-
-/* mapCompanyInsert assumes that the args are not nil */
-func mapCompanyInsert(args *domain.Company) *companyRecord {
-
-	return &companyRecord{
-		MarketID: args.MarketID,
-		ISIN:     args.ISIN,
-		Name:     args.Name,
-	}
-}
-
-/* mapBrokerageInsert assumes that the args are not nil */
-func mapBrokerageInsert(args *domain.Brokerage) *brokerageRecord {
-	return &brokerageRecord{Name: args.Name}
-}
-
 /* mapRecommendationInsert assumes that the args are not nil */
 func mapRecommendationInsert(args *domain.Recommendation) *recommendationRecord {
 
@@ -63,35 +42,6 @@ func mapMarketToDomain(record *marketRecord, target *domain.Market) *domain.Mark
 	target.Name = record.Name
 
 	return target
-}
-
-/* mapCompanyToDomain assumes that the record is not nil */
-func mapCompanyToDomain(record *companyRecord, target *domain.Company) *domain.Company {
-
-	if target == nil {
-		return &domain.Company{
-			ID:        record.ID,
-			MarketID:  record.MarketID,
-			Name:      record.Name,
-			ISIN:      record.ISIN,
-			CreatedAt: record.CreatedAt,
-		}
-	}
-	return nil
-}
-
-/* mapBrokerageToDomain assumes that the record is not nil */
-func mapBrokerageToDomain(record *brokerageRecord, target *domain.Brokerage) *domain.Brokerage {
-
-	if target == nil {
-		return &domain.Brokerage{
-			ID:        record.ID,
-			Name:      record.Name,
-			CreatedAt: record.CreatedAt,
-		}
-
-	}
-	return nil
 }
 
 /* mapStockToDomain assumes that the record is not nil */

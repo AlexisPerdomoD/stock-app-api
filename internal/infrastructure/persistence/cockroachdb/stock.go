@@ -32,28 +32,11 @@ func (r *stockRepository) Get(ctx context.Context, id uint) (*domain.Stock, erro
 	return mapStockToDomain(record, nil), nil
 }
 
-func (r *stockRepository) GetByTicker(ctx context.Context, marketID uint, ticker string) (*domain.Stock, error) {
-
-	record := &stockRecord{}
-
-	if err := r.db.
-		WithContext(ctx).
-		Joins("JOIN companies on companies.id = stock.companies_id").
-		Where("companies.market_id = ? AND stock.ticker = ?", marketID, ticker).
-		First(record).Error; err != nil {
-
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
-
-		return nil, err
-
-	}
-
-	return mapStockToDomain(record, nil), nil
-}
-
-func (r *stockRepository) GetAllPaginated(ctx context.Context, filter pkg.PaginationFilter, userID *uint) (*pkg.PaginationReponse[domain.PopulatedStock], error) {
+func (r *stockRepository) GetAllPaginated(
+	ctx context.Context,
+	filter pkg.PaginationFilter,
+	userID *uint,
+) (*pkg.PaginationReponse[domain.PopulatedStock], error) {
 
 	allowedFilters := map[string]bool{
 		"name":       true,
@@ -115,7 +98,9 @@ func (r *stockRepository) GetAllPaginated(ctx context.Context, filter pkg.Pagina
 	return &result, nil
 }
 
-func (r *stockRepository) Register(ctx context.Context, data []domain.SourceStockData) error {
+func (r *stockRepository) Register(
+	ctx context.Context, data []domain.SourceStockData,
+) error {
 
 	markets := map[string]marketRecord{}
 	companies := map[string]companyRecord{}
