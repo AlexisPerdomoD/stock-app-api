@@ -13,6 +13,7 @@ import (
 )
 
 type UserController struct {
+	getStocksUC     *usecase.GetStocksUseCase
 	registerUC      *usecase.RegisterUserUseCase
 	loginUC         *usecase.LoginUseCase
 	registerStockUC *usecase.RegisterUserStockUseCase
@@ -20,18 +21,22 @@ type UserController struct {
 }
 
 func NewUserController(
+	getStocksUC *usecase.GetStocksUseCase,
 	registerUC *usecase.RegisterUserUseCase,
 	loginUC *usecase.LoginUseCase,
 	registerStockUC *usecase.RegisterUserStockUseCase,
 	removeStockUC *usecase.RemoveUserStockUseCase,
 ) *UserController {
-	if registerUC == nil {
-		log.Fatalln("[UserController]: RegisterUC provided as nil")
+	if getStocksUC == nil {
+		log.Fatalln("[UserController]: getStocksUC provided as nil")
+	}
 
+	if registerUC == nil {
+		log.Fatalln("[UserController]: registerUC provided as nil")
 	}
 
 	if loginUC == nil {
-		log.Fatalln("[UserController]: LoginUC provided as nil")
+		log.Fatalln("[UserController]: loginUC provided as nil")
 	}
 
 	if registerStockUC == nil {
@@ -42,7 +47,27 @@ func NewUserController(
 		log.Fatalln("[UserController]: removeStockUC provided as nil")
 	}
 
-	return &UserController{registerUC, loginUC, registerStockUC, removeStockUC}
+	return &UserController{getStocksUC, registerUC, loginUC, registerStockUC, removeStockUC}
+}
+
+func (sc *UserController) GetStocksHandler(c *gin.Context) {
+	userID := c.GetUint("user_id")
+	if userID <= 0 {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
+	ctx := c.Request.Context()
+	filters := dto.MapGetStocksFilter(c)
+
+	stocks, err := sc.getStocksUC.Execute(ctx, *filters, &userID)
+	if err != nil {
+		res := pkg.MapHttpErr(err)
+		c.JSON(res.StatusCode, res)
+		return
+	}
+
+	c.JSON(http.StatusOK, stocks)
 }
 
 func (uc *UserController) RegisterUserHandler(c *gin.Context) {
@@ -106,7 +131,7 @@ func (uc *UserController) RegisterStockHandler(c *gin.Context) {
 	}
 
 	parseStockID, err := strconv.Atoi(stockID)
-	if err != nil || parseStockID <= 0{
+	if err != nil || parseStockID <= 0 {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"name":    "Bad Request",
 			"message": "stockID invalid",
@@ -176,6 +201,7 @@ func (uc *UserController) SetRoutes(r *gin.Engine) {
 
 	group.POST("", uc.RegisterUserHandler)
 	group.POST("/login", uc.LoginUserHandler)
+	group.GET("/stocks", middleware.UserSessionMiddleware, uc.GetStocksHandler)
 	group.POST("/stocks/:stockID", middleware.UserSessionMiddleware, uc.RegisterStockHandler)
 	group.DELETE("/stocks/:stockID", middleware.UserSessionMiddleware, uc.RemoveStockHandler)
 }

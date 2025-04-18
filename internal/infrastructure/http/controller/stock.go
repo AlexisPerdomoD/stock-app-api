@@ -29,31 +29,10 @@ func (sc *StockController) GetStocksHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, stocks)
 }
 
-func (sc *StockController) GetStocksByUserHandler(c *gin.Context) {
-	userID := c.GetUint("user_id")
-	if userID <= 0 {
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return
-	}
-
-	ctx := c.Request.Context()
-	filters := dto.MapGetStocksFilter(c)
-
-	stocks, err := sc.getStocksUseCase.Execute(ctx, *filters, &userID)
-	if err != nil {
-		res := pkg.MapHttpErr(err)
-		c.JSON(res.StatusCode, res)
-		return
-	}
-
-	c.JSON(http.StatusOK, stocks)
-}
-
 func (sc *StockController) SetRoutes(r *gin.Engine) {
 	group := r.Group("/stocks")
 	group.Use(middleware.UserSessionMiddleware)
 	group.GET("", sc.GetStocksHandler)
-	group.GET("/user", sc.GetStocksByUserHandler)
 }
 
 func NewStockController(getStocksUseCase *usecase.GetStocksUseCase) *StockController {

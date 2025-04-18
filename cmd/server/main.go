@@ -51,7 +51,7 @@ func main() {
 
 	/* Controllers */
 	stockController := controller.NewStockController(getStocksUC)
-	userController := controller.NewUserController(registerUserUC, loginUserUC, registerUserStockUC, removeUserStockUC)
+	userController := controller.NewUserController(getStocksUC, registerUserUC, loginUserUC, registerUserStockUC, removeUserStockUC)
 	/* Start server */
 	router := gin.Default()
 	/* Set routes */
