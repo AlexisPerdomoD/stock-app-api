@@ -3,31 +3,46 @@ package controller
 import (
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/application/usecase"
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/dto"
+	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/middleware"
 	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
 	"github.com/gin-gonic/gin"
 )
 
 type UserController struct {
-	registerUC *usecase.RegisterUserUseCase
-	loginUC    *usecase.LoginUseCase
+	registerUC      *usecase.RegisterUserUseCase
+	loginUC         *usecase.LoginUseCase
+	registerStockUC *usecase.RegisterUserStockUseCase
+	removeStockUC   *usecase.RemoveUserStockUseCase
 }
 
 func NewUserController(
 	registerUC *usecase.RegisterUserUseCase,
 	loginUC *usecase.LoginUseCase,
+	registerStockUC *usecase.RegisterUserStockUseCase,
+	removeStockUC *usecase.RemoveUserStockUseCase,
 ) *UserController {
 	if registerUC == nil {
-		log.Fatalln("bad impl: RegisterUserUseCase was nil for NewUserController")
+		log.Fatalln("[UserController]: RegisterUC provided as nil")
 
 	}
+
 	if loginUC == nil {
-		log.Fatalln("bad impl: LoginUseCase was nil for NewUserController")
+		log.Fatalln("[UserController]: LoginUC provided as nil")
 	}
 
-	return &UserController{registerUC, loginUC}
+	if registerStockUC == nil {
+		log.Fatalln("[UserController]: registerStockUC provided as nil")
+	}
+
+	if removeStockUC == nil {
+		log.Fatalln("[UserController]: removeStockUC provided as nil")
+	}
+
+	return &UserController{registerUC, loginUC, registerStockUC, removeStockUC}
 }
 
 func (uc *UserController) RegisterUserHandler(c *gin.Context) {
@@ -80,9 +95,87 @@ func (uc *UserController) LoginUserHandler(c *gin.Context) {
 	})
 }
 
+func (uc *UserController) RegisterStockHandler(c *gin.Context) {
+	stockID, ok := c.Params.Get("stockID")
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"name":    "Bad Request",
+			"message": "stockID not provided",
+		})
+		return
+	}
+
+	parseStockID, err := strconv.Atoi(stockID)
+	if err != nil || parseStockID <= 0{
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"name":    "Bad Request",
+			"message": "stockID invalid",
+		})
+		return
+	}
+
+	userID := c.GetUint("user_id")
+	if userID == 0 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"name":    "Unauthorized",
+			"message": "userID not provided",
+		})
+		return
+	}
+
+	ctx := c.Request.Context()
+	if err := uc.registerStockUC.Execute(ctx, userID, uint(parseStockID)); err != nil {
+		res := pkg.MapHttpErr(err)
+		c.AbortWithStatusJSON(res.StatusCode, res)
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"ok": true, "message": "user stock registered"})
+}
+
+func (uc *UserController) RemoveStockHandler(c *gin.Context) {
+	stockID, ok := c.Params.Get("stockID")
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"name":    "Bad Request",
+			"message": "stockID not provided",
+		})
+		return
+	}
+
+	parseStockID, err := strconv.Atoi(stockID)
+	if err != nil || parseStockID <= 0 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"name":    "Bad Request",
+			"message": "stockID invalid",
+		})
+		return
+	}
+
+	userID := c.GetUint("user_id")
+	if userID == 0 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"name":    "Unauthorized",
+			"message": "userID not provided",
+		})
+		return
+	}
+
+	ctx := c.Request.Context()
+	if err := uc.removeStockUC.Execute(ctx, userID, uint(parseStockID)); err != nil {
+		res := pkg.MapHttpErr(err)
+		c.AbortWithStatusJSON(res.StatusCode, res)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"ok": true, "message": "user stock removed"})
+}
+
 func (uc *UserController) SetRoutes(r *gin.Engine) {
 	group := r.Group("/users")
 
 	group.POST("", uc.RegisterUserHandler)
 	group.POST("/login", uc.LoginUserHandler)
+	group.POST("/stocks/:stockID", middleware.UserSessionMiddleware, uc.RegisterStockHandler)
+	group.DELETE("/stocks/:stockID", middleware.UserSessionMiddleware, uc.RemoveStockHandler)
 }
