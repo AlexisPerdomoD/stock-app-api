@@ -1,9 +1,10 @@
 package http
 
 import (
+	"net/http"
 	"strings"
 
-	pkg "github.com/alexisPerdomoD/stock-app-api/internal/pkg/service"
+	"github.com/alexisPerdomoD/stock-app-api/internal/pkg/auth"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,14 +12,20 @@ func UserSessionMiddleware(c *gin.Context) {
 	authHeader := c.Request.Header.Get("Authorization")
 	if !strings.HasPrefix(authHeader, "Bearer ") {
 
-		c.AbortWithStatusJSON(401, gin.H{"message": "Session is required"})
+		c.AbortWithStatusJSON(
+			http.StatusUnauthorized,
+			gin.H{"message": "Session is required"})
 		return
 	}
 	token := strings.TrimPrefix(authHeader, "Bearer ")
-	if err := pkg.ValidateSessionToken(token); err != nil {
-		c.AbortWithStatusJSON(401, gin.H{"message": "Session is expired or invalid"})
+	userID, err := auth.ValidateSessionToken(token)
+	if err != nil {
+		c.AbortWithStatusJSON(
+			http.StatusUnauthorized,
+			gin.H{"message": "Session is expired or invalid"})
 		return
 	}
 
+	c.Set("user_id", userID)
 	c.Next()
 }

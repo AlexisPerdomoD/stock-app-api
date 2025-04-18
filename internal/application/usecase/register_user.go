@@ -6,28 +6,28 @@ import (
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
-	pkgService "github.com/alexisPerdomoD/stock-app-api/internal/pkg/service"
+	"github.com/alexisPerdomoD/stock-app-api/internal/pkg/auth"
 )
 
 type RegisterUserUseCase struct {
 	ur domain.UserRepository
 }
 
-func (uc RegisterUserUseCase) Execute(ctx context.Context, args *domain.User) error {
+func (uc RegisterUserUseCase) Execute(ctx context.Context, usr *domain.User) (session string, err error) {
 
-	hashed, err := pkgService.HashPassword(args.Password)
+	hashed, err := auth.HashPassword(usr.Password)
 
 	if err != nil {
-		return pkg.InternalServerError("Error hashing password")
+		return "", pkg.InternalServerError("Error hashing password")
 	}
 
-	args.Password = hashed
+	usr.Password = hashed
 
-	if err := uc.ur.Create(ctx, args); err != nil {
-		return err
+	if err := uc.ur.Create(ctx, usr); err != nil {
+		return "", err
 	}
 
-	return nil
+	return auth.GenerateSessionToken(usr)
 }
 
 func NewRegisterUserUseCase(ur domain.UserRepository) *RegisterUserUseCase {

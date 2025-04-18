@@ -6,7 +6,7 @@ import (
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
-	pkgService "github.com/alexisPerdomoD/stock-app-api/internal/pkg/service"
+	"github.com/alexisPerdomoD/stock-app-api/internal/pkg/auth"
 )
 
 type LoginUseCase struct {
@@ -20,11 +20,11 @@ func (uc *LoginUseCase) Execute(ctx context.Context, username, password string) 
 		return "", err
 	}
 
-	if err = pkgService.VerifyPassword(password, user.Password); err != nil {
+	if err = auth.VerifyPassword(password, user.Password); err != nil {
 		return "", pkg.Unauthorized(err.Error())
 	}
 
-	session, err = pkgService.GenerateSessionToken(user)
+	session, err = auth.GenerateSessionToken(user)
 
 	if err != nil {
 		return "", err
