@@ -1,10 +1,10 @@
-# stock-app-api
+# Stock App Api
 
-Este es un API REST siguiendo de patrones DDD con unn enfoque minimalista sobre una app para consultar y sugerir Stocks.
+Este es un API REST siguiendo de patrones DDD con un enfoque minimalista sobre una app para consultar y sugerir Stocks.
 
 ## Features
 
-- Manejo de session basico a traves de JWT
+- Manejo de session básico a través de JWT
 
 - Registro de usuarios
 
@@ -31,6 +31,28 @@ Este proyecto usa Go 1.23 y depende de:
 - `github.com/stretchr/testify` : utilidades para tests.
 
 Dependencias adicionales incluyen utilidades para fechas, sincronización, y soporte para PostgreSQL (`pgx`, `puddle`, etc.).
+
+## Environment Variables
+
+Crea un archivo `.env` en la raíz del proyecto siguiendo el formato de `.env.example`. Asegúrate de completar los valores sensibles como contraseñas, llaves y secretos.
+
+```env
+# COCKROACHDB SETUP CR
+CR_HOST=localhost
+CR_PORT=26257
+CR_USER=root
+CR_PASSWORD=yourpassword
+CR_DB=defaultdb
+CR_SSL=disable
+CR_RUN_MIGRATE=TRUE
+
+# DATA SOURCING
+MAIN_SOURCE_STOCK_URI=https://your-api-url.com/path
+MAIN_SOURCE_STOCK_KEY=your-api-key
+
+# AUTH
+SESSION_SECRET=your-session-secret
+```
 
 Ver `go.mod` para detalles.
 
