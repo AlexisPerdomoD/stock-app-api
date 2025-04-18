@@ -1,24 +1,30 @@
-version: '2'
+# Opciones para análisis
+version: "2"
 run:
-  timeout: 2m
+  # Tiempo máximo para análisis
+  timeout: 1m
+  # Incluir archivos de prueba
   tests: true
+  # Número de CPU a usar
+  concurrency: 4
 
+# Linters a utilizar
 linters:
   enable:
-    - govet
-    - errcheck
-    - staticcheck
-    - gosimple
-    - unused
-    - deadcode
-    - typecheck
-    - structcheck
-    - varcheck
-    - ineffassign
-    - gofmt
-    - goimports
+    - errcheck      # Verifica errores no manejados
+    - govet         # Reporta construcciones sospechosas
+    - ineffassign   # Detecta asignaciones no utilizadas
+    - staticcheck   # Análisis estático avanzado
+    - unused        # Verifica código no utilizado
+    - gosec         # Inspecciona código por problemas de seguridad
+    - misspell      # Encuentra errores ortográficos
 
+# Configuración específica de linters
 
+# Problemas a ignorar
 issues:
-  max-same-issues: 5
+  # Límite máximo de problemas a mostrar
   max-issues-per-linter: 0
+  max-same-issues: 0
+  # Excluir directorios específicos
+
