@@ -19,6 +19,10 @@ func main() {
 	defer cancel()
 	db := cockroachdb.NewDB()
 
+	if err := cockroachdb.Migrate(db); err != nil {
+		log.Fatalln(err.Error())
+	}
+
 	mainService := service.NewMainSourceStockService(true)
 	sr := cockroachdb.NewStockRepository(db)
 
@@ -28,10 +32,11 @@ func main() {
 		log.Fatalf("[populatedb] error: %v", err)
 	}
 
+	log.Printf("[populatedb] starting insert of %d stocks", len(payload))
+
 	if err := sr.Register(ctx, payload); err != nil {
 		log.Fatalf("[populatedb] error: %v", err)
 	}
 
 	log.Printf("[populatedb] done with %d stocks", len(payload))
-
 }

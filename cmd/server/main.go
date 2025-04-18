@@ -6,9 +6,11 @@ import (
 	"time"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/application/usecase"
+	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/controller"
 	cockroachdb "github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/persistance/cockroach-db"
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/scheduler"
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/service"
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
@@ -16,9 +18,9 @@ import (
 1) Instance db (done)
 2) Inject db on repositories implementations (done)
 3) Inject repositories and services on usecases (done)
-4) Inject usecases on controllers
-5) Start server
-6) Map controllers routes
+4) Inject usecases on controllers (working)
+5) Start server (done)
+6) Map controllers routes (working)
 7) Pray Golang and start
 */
 func main() {
@@ -28,11 +30,7 @@ func main() {
 	}
 
 	db := cockroachdb.NewDB()
-	if err := cockroachdb.Migrate(db); err != nil {
-		log.Fatalln(err.Error())
-	}
 	/* Repositories */
-
 	// mr := cockroachdb.NewMarketRepository(db)
 	// cr := cockroachdb.NewCompanyRepository(db)
 	// br := cockroachdb.NewBrokerageRepository(db)
@@ -41,8 +39,7 @@ func main() {
 	//ur := cockroachdb.NewUserRepository(db)
 
 	/* Usecases */
-
-	//getStocksUC := usecase.NewGetStocksUseCase(sr)
+	getStocksUC := usecase.NewGetStocksUseCase(sr)
 	registerStocksUC := usecase.NewRegisterStocksUseCase(sr)
 
 	// getRecommendationByStockUC := usecase.NewGetRecommendationsByStockUseCase(sr, rr)
@@ -53,7 +50,19 @@ func main() {
 	// removeUserStockUC := usecase.NewRemoveUserStockUserCase(ur)
 
 	/* Controllers */
+	stockController := controller.NewStockController(getStocksUC)
+
 	/* Start server */
+	router := gin.Default()
+	/* Set routes */
+	stockController.SetRoutes(router)
+
+	if err := router.Run(":3000"); err != nil {
+		log.Fatalln(err.Error())
+	}
+
+	log.Println("[INFO] Server started")
+
 	/* StockSources */
 	mainSSource := service.NewMainSourceStockService(false)
 
