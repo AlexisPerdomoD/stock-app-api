@@ -12,7 +12,6 @@ import (
 
 type userRepository struct {
 	db *gorm.DB
-	//stockr: stockRepository
 }
 
 func (r *userRepository) Get(ctx context.Context, id uint) (*domain.User, error) {
@@ -34,7 +33,7 @@ func (r *userRepository) Get(ctx context.Context, id uint) (*domain.User, error)
 
 func (r *userRepository) GetByUsername(ctx context.Context, username string) (*domain.User, error) {
 	record := &userRecord{}
-	result := r.db.WithContext(ctx).Where("username = ?", username).First(record)
+	result := r.db.WithContext(ctx).Where("user_name = ?", username).First(record)
 
 	if result.Error != nil {
 
@@ -56,10 +55,8 @@ func (r *userRepository) Create(ctx context.Context, usr *domain.User) error {
 	}
 
 	record := mapUserInsert(usr)
-	result := r.db.WithContext(ctx).Create(record)
-
-	if result.Error != nil {
-		return result.Error
+	if err := r.db.WithContext(ctx).Create(record).Error; err != nil {
+		return pkg.DataBaseErr(err.Error(), 400)
 	}
 
 	_ = mapUserToDomain(record, usr)

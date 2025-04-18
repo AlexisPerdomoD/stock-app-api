@@ -36,7 +36,7 @@ func main() {
 	// br := cockroachdb.NewBrokerageRepository(db)
 	sr := cockroachdb.NewStockRepository(db)
 	// rr := cockroachdb.NewRecommendationRepository(db)
-	//ur := cockroachdb.NewUserRepository(db)
+	ur := cockroachdb.NewUserRepository(db)
 
 	/* Usecases */
 	getStocksUC := usecase.NewGetStocksUseCase(sr)
@@ -44,19 +44,20 @@ func main() {
 
 	// getRecommendationByStockUC := usecase.NewGetRecommendationsByStockUseCase(sr, rr)
 
-	// loginUserUC := usecase.NewLoginUseCase(ur)
-	// registerUserUC := usecase.NewRegisterUserUseCase(ur)
+	loginUserUC := usecase.NewLoginUseCase(ur)
+	registerUserUC := usecase.NewRegisterUserUseCase(ur)
 	// registerUserStockUC := usecase.NewRegisterUserStockUseCase(ur)
 	// removeUserStockUC := usecase.NewRemoveUserStockUserCase(ur)
 
 	/* Controllers */
 	stockController := controller.NewStockController(getStocksUC)
-
+	userController := controller.NewUserController(registerUserUC, loginUserUC)
 	/* Start server */
 	router := gin.Default()
 	/* Set routes */
 	stockController.SetRoutes(router)
-
+	userController.SetRoutes(router)
+	
 	if err := router.Run(":3000"); err != nil {
 		log.Fatalln(err.Error())
 	}

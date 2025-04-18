@@ -20,17 +20,15 @@ func (uc *LoginUseCase) Execute(ctx context.Context, username, password string) 
 		return "", err
 	}
 
+	if user == nil {
+		return "", pkg.NotFound("user does not exist")
+	}
+
 	if err = auth.VerifyPassword(password, user.Password); err != nil {
 		return "", pkg.Unauthorized(err.Error())
 	}
 
-	session, err = auth.GenerateSessionToken(user)
-
-	if err != nil {
-		return "", err
-	}
-
-	return session, nil
+	return auth.GenerateSessionToken(user)
 }
 
 func NewLoginUseCase(ur domain.UserRepository) *LoginUseCase {
