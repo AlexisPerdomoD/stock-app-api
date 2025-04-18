@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
+	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
 )
 
 type RemoveUserStockUseCase struct {
@@ -13,7 +14,10 @@ type RemoveUserStockUseCase struct {
 
 func (ruc *RemoveUserStockUseCase) Execute(ctx context.Context, userID uint, stockID uint) error {
 
-	return ruc.ur.RemoveUserStock(ctx, userID, stockID)
+	if err:= ruc.ur.RemoveUserStock(ctx, userID, stockID); err !=nil{
+		return pkg.BadRequest("Stock is invalid")
+	}
+	return nil
 }
 
 func NewRemoveUserStockUserCase(ur domain.UserRepository) *RemoveUserStockUseCase {

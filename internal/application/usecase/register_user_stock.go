@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
+	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
 )
 
 type RegisterUserStockUseCase struct {
@@ -13,8 +14,10 @@ type RegisterUserStockUseCase struct {
 
 func (uc *RegisterUserStockUseCase) Execute(ctx context.Context, userID uint, stockID uint) error {
 
-	return uc.ur.RegisterUserStock(ctx, userID, stockID)
-
+	if err := uc.ur.RegisterUserStock(ctx, userID, stockID); err != nil {
+		return pkg.BadRequest("Stock is not valid")
+	}
+	return nil
 }
 
 func NewRegisterUserStockUseCase(ur domain.UserRepository) *RegisterUserStockUseCase {
