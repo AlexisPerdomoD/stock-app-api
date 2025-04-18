@@ -2,9 +2,10 @@ package controller
 
 import (
 	"log"
-	"strconv"
+	"net/http"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/application/usecase"
+	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/dto"
 	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
 	"github.com/gin-gonic/gin"
 )
@@ -15,39 +16,16 @@ type StockController struct {
 
 func (sc *StockController) GetStocksHandler(c *gin.Context) {
 	ctx := c.Request.Context()
-	// filter by lower than
-	// filter by greater than
-	// filter by company name
-	// filter by ticker
-	// filter by user id
-	filters := pkg.PaginationFilter{
-		SortBy: map[string]pkg.SortOrder{
-			"tendency": pkg.SortOrderAsc,
-			"price":    pkg.SortOrderDesc,
-		},
-
-		PaginationPage: pkg.PaginationPage{
-			Size: 20,
-			Page: 1,
-		},
-		FilterBy: []pkg.FilterByItem{},
-	}
-
-	page := c.DefaultQuery("page", "1")
-	parsePage, err := strconv.Atoi(page)
-	if err == nil {
-		filters.PaginationPage.Page = parsePage
-	}
-
-	stocks, err := sc.getStocksUseCase.Execute(ctx, filters)
+	filters := dto.MapGetStocksFilter(c)
+	
+	stocks, err := sc.getStocksUseCase.Execute(ctx, *filters, nil)
 	if err != nil {
 		res := pkg.MapHttpErr(err)
 		c.JSON(res.StatusCode, res)
 		return
 	}
 
-	c.JSON(200, stocks)
-
+	c.JSON(http.StatusOK, stocks)
 }
 
 func (sc *StockController) SetRoutes(r *gin.Engine) {
