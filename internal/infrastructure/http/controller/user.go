@@ -60,7 +60,7 @@ func (sc *UserController) GetStocksHandler(c *gin.Context) {
 	ctx := c.Request.Context()
 	filters := dto.MapGetStocksFilter(c)
 
-	stocks, err := sc.getStocksUC.Execute(ctx, *filters, &userID)
+	stocks, err := sc.getStocksUC.Execute(ctx, filters, &userID)
 	if err != nil {
 		res := pkg.MapHttpErr(err)
 		c.JSON(res.StatusCode, res)
@@ -140,6 +140,7 @@ func (uc *UserController) RegisterStockHandler(c *gin.Context) {
 	}
 
 	userID := c.GetUint("user_id")
+	println(userID)
 	if userID == 0 {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"name":    "Unauthorized",
