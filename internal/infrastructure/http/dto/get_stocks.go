@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func MapGetStocksFilter(c *gin.Context) *pkg.PaginationFilter {
+func MapGetStocksFilter(c *gin.Context) pkg.PaginationFilter {
 
 	search := c.Query("search")
 	orderBy := c.Query("orderby")
@@ -19,7 +19,7 @@ func MapGetStocksFilter(c *gin.Context) *pkg.PaginationFilter {
 	page := c.DefaultQuery("page", "1")
 	size := c.DefaultQuery("size", "20")
 
-	filters := &pkg.PaginationFilter{
+	filters := pkg.PaginationFilter{
 		SortBy: map[string]pkg.SortOrder{},
 
 		PaginationPage: pkg.PaginationPage{

@@ -25,7 +25,7 @@ func UserSessionMiddleware(c *gin.Context) {
 			gin.H{"name": "Unauthorized", "message": "Session is expired or invalid"})
 		return
 	}
-
 	c.Set("user_id", userID)
+
 	c.Next()
 }
