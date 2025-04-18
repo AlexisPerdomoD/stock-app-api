@@ -15,9 +15,10 @@ type GetStocksUseCase struct {
 func (uc *GetStocksUseCase) Execute(
 	ctx context.Context,
 	filters pkg.PaginationFilter,
+	userID *uint,
 ) (*pkg.PaginationReponse[domain.PopulatedStock], error) {
 
-	return uc.sr.GetAllPaginated(ctx, filters)
+	return uc.sr.GetAllPaginated(ctx, filters, userID)
 }
 
 func NewGetStocksUseCase(sr domain.StockRepository) *GetStocksUseCase {

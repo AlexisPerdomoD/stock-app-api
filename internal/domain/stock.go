@@ -7,12 +7,12 @@ import (
 	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
 )
 
-type Tendency string
+type Tendency uint8
 
 const (
-	Up   Tendency = "up"
-	Down Tendency = "down"
-	Side Tendency = "side"
+	Up   Tendency = 1
+	Side Tendency = 2
+	Down Tendency = 3
 )
 
 /*
@@ -47,7 +47,7 @@ type StockRepository interface {
 
 	GetByTicker(ctx context.Context, marketID uint, ticker string) (*Stock, error)
 
-	GetAllPaginated(ctx context.Context, filter pkg.PaginationFilter) (*pkg.PaginationReponse[PopulatedStock], error)
+	GetAllPaginated(ctx context.Context, filter pkg.PaginationFilter, userID *uint) (*pkg.PaginationReponse[PopulatedStock], error)
 
 	Register(ctx context.Context, stock []SourceStockData) error
 }
