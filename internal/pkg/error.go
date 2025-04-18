@@ -1,7 +1,6 @@
 package pkg
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 )
@@ -54,32 +53,4 @@ func InternalServerError(detail string) error {
 		Code:   http.StatusInternalServerError,
 		Name:   "Internal Server Error",
 	}
-}
-
-func MapHttpErr(err error) *ResponseError {
-	var apiErr *ApiErr
-
-	if err == nil {
-		return &ResponseError{
-			StatusCode: http.StatusInternalServerError,
-			Name:       "Unknown Error",
-			Message:    "Error interno desconocido",
-		}
-	}
-
-	if !errors.As(err, &apiErr) {
-		return &ResponseError{
-			StatusCode: http.StatusInternalServerError,
-			Message:    err.Error(),
-			Name:       "Internal Server Error",
-		}
-
-	}
-
-	return &ResponseError{
-		StatusCode: apiErr.Code,
-		Name:       apiErr.Name,
-		Message:    apiErr.Detail,
-	}
-
 }
