@@ -52,6 +52,10 @@ MAIN_SOURCE_STOCK_KEY=your-api-key
 
 # AUTH
 SESSION_SECRET=your-session-secret
+
+# SERVER
+SERVER_PORT=3000
+GIN_MODE=debug
 ```
 
 Ver `go.mod` para detalles.

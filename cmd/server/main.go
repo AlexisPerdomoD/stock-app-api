@@ -2,7 +2,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/application/usecase"
@@ -15,56 +17,65 @@ import (
 )
 
 /*
-1) Instance db (done)
-2) Inject db on repositories implementations (done)
-3) Inject repositories and services on usecases (done)
-4) Inject usecases on controllers (working)
-5) Start server (done)
-6) Map controllers routes (working)
-7) Pray Golang and start
-8) Set Cron jobs
+1) Instance db
+2) Inject db on repositories implementations
+3) Inject repositories and services on usecases
+4) Inject usecases on controllers
+5) Map controllers routes
+6) Start server
+7) Set Cron jobs (working)
 */
 func main() {
-
 	if err := godotenv.Load(); err != nil {
 		log.Fatalln(err.Error())
 	}
 
 	db := cockroachdb.NewDB()
+
 	sr := cockroachdb.NewStockRepository(db)
-	// rr := cockroachdb.NewRecommendationRepository(db)
+	rr := cockroachdb.NewRecommendationRepository(db)
 	ur := cockroachdb.NewUserRepository(db)
 
 	getStocksUC := usecase.NewGetStocksUseCase(sr)
+	getStockUC := usecase.NewGetStockUseCase(sr)
 	registerStocksUC := usecase.NewRegisterStocksUseCase(sr)
-
-	// getRecommendationByStockUC := usecase.NewGetRecommendationsByStockUseCase(sr, rr)
-
+	getRecommendationByStockUC := usecase.NewGetRecommendationsByStockUseCase(sr, rr)
 	loginUserUC := usecase.NewLoginUseCase(ur)
 	registerUserUC := usecase.NewRegisterUserUseCase(ur)
 	registerUserStockUC := usecase.NewRegisterUserStockUseCase(ur)
 	removeUserStockUC := usecase.NewRemoveUserStockUserCase(ur)
 
-	stockController := controller.NewStockController(getStocksUC)
-	userController := controller.NewUserController(getStocksUC, registerUserUC, loginUserUC, registerUserStockUC, removeUserStockUC)
+	stockController := controller.NewStockController(getStocksUC, getStockUC)
+	recommendationController := controller.NewRecommendationController(getRecommendationByStockUC)
+	userController := controller.NewUserController(
+		getStocksUC,
+		registerUserUC,
+		loginUserUC,
+		registerUserStockUC,
+		removeUserStockUC,
+	)
 
 	router := gin.Default()
+
 	stockController.SetRoutes(router)
+	recommendationController.SetRoutes(router)
 	userController.SetRoutes(router)
 
-	if err := router.Run(":3000"); err != nil {
+	PORT := fmt.Sprintf(":%v", os.Getenv("SERVER_PORT"))
+	if err := router.Run(PORT); err != nil {
 		log.Fatalln(err.Error())
 	}
 
-	log.Println("[INFO] Server started")
-
-	/* StockSources */
-	mainSSource := service.NewMainSourceStockService(false)
-
-	/* Scheduler jobs */
 	scheduler := scheduler.New()
+
+	mainSSource := service.NewMainSourceStockService(false)
 	interval := time.Hour * 24
 	timeout := time.Minute * 3
-	scheduler.AddStockSourceService(mainSSource, registerStocksUC, timeout, &interval)
+	scheduler.AddStockSourceService(
+		mainSSource,
+		registerStocksUC,
+		timeout,
+		&interval,
+	)
 	scheduler.StartOnBackground()
 }
