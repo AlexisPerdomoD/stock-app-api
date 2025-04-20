@@ -12,6 +12,7 @@ import (
 	cockroachdb "github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/persistence/cockroachdb"
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/scheduler"
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/service"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -56,6 +57,8 @@ func main() {
 	)
 
 	router := gin.Default()
+	// TODO: Implement cors config
+	router.Use(cors.Default())
 
 	stockController.SetRoutes(router)
 	recommendationController.SetRoutes(router)
