@@ -23,8 +23,8 @@ import (
 3) Inject repositories and services on usecases
 4) Inject usecases on controllers
 5) Map controllers routes
-6) Start server
-7) Set Cron jobs (working)
+6) Set Cron jobs (working)
+7) Start server
 */
 func main() {
 	if err := godotenv.Load(); err != nil {
@@ -58,16 +58,14 @@ func main() {
 
 	router := gin.Default()
 	// TODO: Implement cors config
-	router.Use(cors.Default())
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AddAllowHeaders("Authorization")
+	corsConfig.AllowAllOrigins = true
+	router.Use(cors.New(corsConfig))
 
 	stockController.SetRoutes(router)
 	recommendationController.SetRoutes(router)
 	userController.SetRoutes(router)
-
-	PORT := fmt.Sprintf(":%v", os.Getenv("SERVER_PORT"))
-	if err := router.Run(PORT); err != nil {
-		log.Fatalln(err.Error())
-	}
 
 	scheduler := scheduler.New()
 
@@ -81,4 +79,10 @@ func main() {
 		&interval,
 	)
 	scheduler.StartOnBackground()
+
+	PORT := fmt.Sprintf(":%v", os.Getenv("SERVER_PORT"))
+	if err := router.Run(PORT); err != nil {
+		log.Fatalln(err.Error())
+	}
+
 }
