@@ -34,8 +34,8 @@ func (r *stockRepository) Get(ctx context.Context, stockID uint, userID *uint) (
 	if userID != nil {
 		var count int64
 		err := r.db.WithContext(ctx).Model(stockRecord{}).
-			Joins("JOIN user_stocks ON user_stocks.stock_record_id = stocks.id").
-			Where("user_stocks.user_record_id = ?", *userID).Count(&count).Error
+			Joins("INNER JOIN user_stocks ON user_stocks.stock_record_id = stocks.id").
+			Where("user_stocks.user_record_id = ? AND stocks.id = ?", *userID, stock.ID).Count(&count).Error
 		if err != nil {
 			return nil, err
 		}
