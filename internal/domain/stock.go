@@ -62,10 +62,11 @@ type PopulatedStock struct {
 	Stock
 	CompanyName string `json:"company_name"`
 	Market      Market `json:"market"`
+	IsSaved     *bool  `json:"is_saved,omitempty"`
 }
 
 type StockRepository interface {
-	Get(ctx context.Context, id uint) (*PopulatedStock, error)
+	Get(ctx context.Context, stockID uint, userID *uint) (*PopulatedStock, error)
 
 	GetAllPaginated(ctx context.Context, filter pkg.PaginationFilter, userID *uint) (*pkg.PaginationReponse[PopulatedStock], error)
 

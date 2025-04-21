@@ -19,7 +19,7 @@ func (uc *GetRecommendationsByStockUseCase) Execute(
 	stockID uint,
 ) (*pkg.PaginationReponse[domain.PopulatedRecommendation], error) {
 
-	stock, err := uc.sr.Get(ctx, stockID)
+	stock, err := uc.sr.Get(ctx, stockID, nil)
 
 	if err != nil {
 		return nil, err

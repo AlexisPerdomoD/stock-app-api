@@ -50,9 +50,9 @@ func (sc *StockController) GetStockHandler(c *gin.Context) {
 		})
 		return
 	}
-
+	userID := c.GetUint("user_id")
 	ctx := c.Request.Context()
-	stock, err := sc.getStockUC.Execute(ctx, uint(parsedStockID))
+	stock, err := sc.getStockUC.Execute(ctx, uint(parsedStockID), &userID)
 
 	if err != nil {
 		res := pkg.MapHttpErr(err)

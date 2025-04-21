@@ -24,7 +24,7 @@ func Test_stockRepository_Get(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := NewStockRepository(tt.db)
-			got, gotErr := r.Get(context.Background(), tt.id)
+			got, gotErr := r.Get(context.Background(), tt.id, nil)
 			if gotErr != nil {
 				if !tt.wantErr {
 					t.Errorf("Get() failed: %v", gotErr)
@@ -41,7 +41,6 @@ func Test_stockRepository_Get(t *testing.T) {
 		})
 	}
 }
-
 
 func Test_stockRepository_Register(t *testing.T) {
 	tests := []struct {
@@ -70,7 +69,6 @@ func Test_stockRepository_Register(t *testing.T) {
 		})
 	}
 }
-
 
 func Test_stockRepository_GetAllPaginated(t *testing.T) {
 	tests := []struct {
@@ -105,4 +103,3 @@ func Test_stockRepository_GetAllPaginated(t *testing.T) {
 		})
 	}
 }
-

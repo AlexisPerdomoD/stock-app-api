@@ -12,8 +12,8 @@ type GetStockUseCase struct {
 	sr domain.StockRepository
 }
 
-func (uc *GetStockUseCase) Execute(ctx context.Context, stockID uint) (*domain.PopulatedStock, error) {
-	stock, err := uc.sr.Get(ctx, stockID)
+func (uc *GetStockUseCase) Execute(ctx context.Context, stockID uint, userID *uint) (*domain.PopulatedStock, error) {
+	stock, err := uc.sr.Get(ctx, stockID, userID)
 	if err != nil {
 		return nil, err
 	}

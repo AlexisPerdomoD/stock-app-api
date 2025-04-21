@@ -15,22 +15,35 @@ type stockRepository struct {
 	db *gorm.DB
 }
 
-func (r *stockRepository) Get(ctx context.Context, id uint) (*domain.PopulatedStock, error) {
+func (r *stockRepository) Get(ctx context.Context, stockID uint, userID *uint) (*domain.PopulatedStock, error) {
 
 	record := &stockRecord{}
 
 	if err := r.db.WithContext(ctx).
 		Preload("Company.Market").
-		First(record, id).Error; err != nil {
+		First(record, stockID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
 
 		return nil, err
-
 	}
 
-	return mapPopulatedStockToDomain(record, nil), nil
+	stock := mapPopulatedStockToDomain(record, nil)
+
+	if userID != nil {
+		var count int64
+		err := r.db.WithContext(ctx).Model(stockRecord{}).
+			Joins("JOIN user_stocks ON user_stocks.stock_record_id = stocks.id").
+			Where("user_stocks.user_record_id = ?", *userID).Count(&count).Error
+		if err != nil {
+			return nil, err
+		}
+		isSaved := count > 0
+		stock.IsSaved = &isSaved
+	}
+
+	return stock, nil
 }
 
 func (r *stockRepository) GetAllPaginated(
