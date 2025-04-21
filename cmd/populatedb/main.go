@@ -11,10 +11,7 @@ import (
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatalln(err.Error())
-	}
-
+	_ = godotenv.Load()
 	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Second)
 	defer cancel()
 	db := cockroachdb.NewDB()

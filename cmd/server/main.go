@@ -27,9 +27,7 @@ import (
 7) Start server
 */
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatalln(err.Error())
-	}
+	_ = godotenv.Load()
 
 	db := cockroachdb.NewDB()
 
