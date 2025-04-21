@@ -60,4 +60,16 @@ GIN_MODE=debug
 
 Ver `go.mod` para detalles.
 
+## Setup
+
+1. Incluir variables de entorno en `.env`.
+2. Ejecutar go mod tidy.
+3. Levantar la base de datos CockroachDB.
+4. Ejecutar `go run ./cmd/populatedb` para migrar y popular la base de datos.
+5. Ejecutar `go run ./cmd/server` para levantar el servidor.
+
+## Tests
+
+Para ejecutar los tests, ejecutar `go test ./...` desde la raíz del proyecto.
+
 Hecho con mucho ❤️ y Go 🐹
