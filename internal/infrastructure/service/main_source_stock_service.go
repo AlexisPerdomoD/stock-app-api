@@ -34,10 +34,10 @@ type MainStockSourcePayload struct {
 }
 
 type MainSourceStockService struct {
-	name string
-	cl   *http.Client
-	uri  string
-	key  string
+	name    string
+	cl      *http.Client
+	uri     string
+	key     string
 	verbose bool
 }
 
@@ -66,6 +66,7 @@ func (s *MainSourceStockService) doRequest(ctx context.Context, nextPage string)
 	}
 
 	if res.StatusCode != http.StatusOK {
+		log.Printf("[main source stock] unexpected response body: %+v", payload)
 		return nil, pkg.InternalServerError(fmt.Sprintf("unexpected status code %d", res.StatusCode))
 	}
 
