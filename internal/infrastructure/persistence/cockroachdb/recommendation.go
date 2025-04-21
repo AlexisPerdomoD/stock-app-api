@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"math"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
@@ -95,10 +96,11 @@ func (r *RecommendationRepository) GetAllPaginated(
 	}
 
 	result := &pkg.PaginationReponse[domain.PopulatedRecommendation]{
-		Items:     recommendations,
-		Page:      page,
-		PageSize:  len(recommendations),
-		TotalSize: int(total),
+		Items:      recommendations,
+		Page:       page,
+		PageSize:   len(recommendations),
+		TotalSize:  int(total),
+		TotalPages: int(math.Ceil(float64(total) / float64(filter.Size))),
 	}
 
 	return result, nil

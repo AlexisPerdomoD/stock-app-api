@@ -40,8 +40,9 @@ type PaginationFilter struct {
 }
 
 type PaginationReponse[T interface{}] struct {
-	Items     []T `json:"items"`
-	Page      int `json:"page"`
-	PageSize  int `json:"page_size"`
-	TotalSize int `json:"total_size"`
+	Items      []T `json:"items"`
+	Page       int `json:"page"`
+	PageSize   int `json:"page_size"`
+	TotalSize  int `json:"total_size"`
+	TotalPages int `json:"total_pages"`
 }

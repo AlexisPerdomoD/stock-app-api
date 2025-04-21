@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"math"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
@@ -89,10 +90,11 @@ func (r *stockRepository) GetAllPaginated(
 	}
 
 	result := pkg.PaginationReponse[domain.PopulatedStock]{
-		Items:     stocks,
-		Page:      page,
-		PageSize:  len(stocks),
-		TotalSize: int(total),
+		Items:      stocks,
+		Page:       page,
+		PageSize:   len(stocks),
+		TotalSize:  int(total),
+		TotalPages: int(math.Ceil(float64(total) / float64(filter.Size))),
 	}
 
 	return &result, nil
