@@ -20,7 +20,7 @@ Market
 Represents the market where the stock is traded.
 */
 type Market struct {
-	ID        uint      `json:"id"`
+	ID        uint      `json:"id,string"`
 	Name      string    `json:"name"`
 	CreatedAt time.Time `json:"created_at"`
 }
@@ -30,8 +30,8 @@ Company
 Represents the company that owns the stock.
 */
 type Company struct {
-	ID        uint      `json:"id"`
-	MarketID  uint      `json:"market_id"`
+	ID        uint      `json:"id,string"`
+	MarketID  uint      `json:"market_id,string"`
 	Name      string    `json:"name"`
 	ISIN      *string   `json:"isin"`
 	CreatedAt time.Time `json:"created_at"`
@@ -42,8 +42,8 @@ Stock
 Represents a stock.
 */
 type Stock struct {
-	ID        uint      `json:"id"`
-	CompanyID uint      `json:"company_id"`
+	ID        uint      `json:"id,string"`
+	CompanyID uint      `json:"company_id,string"`
 	Ticker    string    `json:"ticker"`
 	Name      *string   `json:"name,omitempty"`
 	Price     float64   `json:"price"`
