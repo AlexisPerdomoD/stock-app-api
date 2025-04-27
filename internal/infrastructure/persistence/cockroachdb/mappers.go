@@ -2,22 +2,6 @@ package cockroachdb
 
 import "github.com/alexisPerdomoD/stock-app-api/internal/domain"
 
-/* mapRecommendationInsert assumes that the args are not nil */
-func mapRecommendationInsert(args *domain.Recommendation) *recommendationRecord {
-
-	recommendation := &recommendationRecord{
-		StockID:     args.StockID,
-		BrokerageID: args.BrokerageID,
-		RatingFrom:  args.RatingFrom,
-		RatingTo:    args.RatingTo,
-		TargetFrom:  args.TargetFrom,
-		TargetTo:    args.TargetFrom,
-	}
-
-	recommendation.CreatedAt = args.CreatedAt
-	return recommendation
-}
-
 /* mapUserInsert assumes that the args are not nil */
 func mapUserInsert(args *domain.User) *userRecord {
 

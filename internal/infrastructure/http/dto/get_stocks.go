@@ -1,7 +1,6 @@
 package dto
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -50,7 +49,7 @@ func MapGetStocksFilter(c *gin.Context) pkg.PaginationFilter {
 	}
 
 	if search != "" {
-		filters.Search = fmt.Sprintf("%s%%", strings.ToLower(search))
+		filters.Search = strings.ToLower(search)
 	}
 
 	switch orderBy {

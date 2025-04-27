@@ -12,7 +12,7 @@ import (
 )
 
 var stock *domain.PopulatedStock
-var getAllPaginatedTest = []struct {
+var stockGetAllPaginatedTests = []struct {
 	name             string
 	filter           pkg.PaginationFilter
 	userID           *uint
@@ -131,7 +131,7 @@ func Test_stockRepository_GetAllPaginated(t *testing.T) {
 	db := cockroachdb.NewDB()
 	r := cockroachdb.NewStockRepository(db)
 	assert := assert.New(t)
-	for _, test := range getAllPaginatedTest {
+	for _, test := range stockGetAllPaginatedTests {
 		t.Run(test.name, func(t *testing.T) {
 			got, gotErr := r.GetAllPaginated(context.Background(), test.filter, test.userID)
 			if test.wantErr {
@@ -175,11 +175,7 @@ func Test_stockRepository_Get(t *testing.T) {
 				assert.Error(gotErr)
 			}
 
-			if tt.want != nil {
-				assert.Equal(tt.want, got)
-			} else {
-				assert.Nil(got)
-			}
+			assert.Equal(tt.want, got)
 
 		})
 	}

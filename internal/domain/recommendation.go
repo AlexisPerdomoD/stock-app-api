@@ -47,8 +47,6 @@ type PopulatedRecommendation struct {
 }
 
 type RecommendationRepository interface {
-	Get(ctx context.Context, id uint) (*Recommendation, error)
-
 	GetAllPaginated(
 		ctx context.Context,
 		filter pkg.PaginationFilter,

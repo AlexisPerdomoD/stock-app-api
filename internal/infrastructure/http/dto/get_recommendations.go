@@ -1,7 +1,6 @@
 package dto
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -27,11 +26,11 @@ func MapGetRecommendationsFilter(c *gin.Context) pkg.PaginationFilter {
 	}
 
 	if search != "" {
-		filters.Search = fmt.Sprintf("%s%%", strings.ToLower(search))
+		filters.Search = strings.ToLower(search)
 	}
 
 	filters.SortBy["updated_at"] = pkg.SortOrderDesc
-	
+
 	if groupByRating {
 		filters.SortBy["rating_to"] = pkg.SortOrderDesc
 	}

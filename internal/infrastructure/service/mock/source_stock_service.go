@@ -55,7 +55,7 @@ func (m *MockSourceStockService) Get(ctx context.Context, limitDate *time.Time) 
 		ticker := RandomTicker()
 		stock := domain.SourceStockData{
 			Market: domain.MarketArgs{
-				Name: "mock-market",
+				Name: "mock market",
 			},
 			Company: domain.CompanyArgs{
 				Name: ticker,
@@ -66,7 +66,7 @@ func (m *MockSourceStockService) Get(ctx context.Context, limitDate *time.Time) 
 				RatingFrom: RandomAction(),
 				TargetTo:   RandomNumber(10, 2000),
 				TargetFrom: RandomNumber(10, 2000),
-				Brokerage:  domain.BrokerageArgs{Name: RandomString(10)},
+				Brokerage:  domain.BrokerageArgs{Name: "mock " + RandomString(10)},
 			},
 			Stock: domain.StockArgs{
 				Ticker:   ticker,

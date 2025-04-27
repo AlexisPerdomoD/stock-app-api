@@ -2,7 +2,7 @@ package cockroachdb
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"log"
 	"math"
 
@@ -21,22 +21,6 @@ func NewRecommendationRepository(db *gorm.DB) *RecommendationRepository {
 	}
 
 	return &RecommendationRepository{db: db}
-}
-
-func (r *RecommendationRepository) Get(ctx context.Context, id uint) (*domain.Recommendation, error) {
-
-	record := &recommendationRecord{}
-
-	if err := r.db.WithContext(ctx).First(record, id).Error; err != nil {
-
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
-
-		return nil, err
-	}
-
-	return mapRecommendationToDomain(record, nil), nil
 }
 
 func (r *RecommendationRepository) GetAllPaginated(
@@ -67,8 +51,8 @@ func (r *RecommendationRepository) GetAllPaginated(
 		Where("recommendations.stock_id = ?", stockID)
 
 	if filter.Search != "" {
-		query.Joins("JOIN brokerages ON brokerages.id = recommendations.brokerage_id").
-			Where("brokerages.name = ?", filter.Search)
+		query = query.Joins("JOIN brokerages ON brokerages.id = recommendations.brokerage_id").
+			Where("brokerages.name LIKE ?", fmt.Sprintf("%%%s%%", filter.Search))
 	}
 
 	query = applyFilters(query, filter.FilterBy, allowedFilters)
@@ -95,12 +79,17 @@ func (r *RecommendationRepository) GetAllPaginated(
 		page = filter.Page
 	}
 
+	totalPages := 0
+	if total > 0 {
+		totalPages = int(math.Ceil(float64(total) / float64(filter.Size)))
+	}
+
 	result := &pkg.PaginationReponse[domain.PopulatedRecommendation]{
 		Items:      recommendations,
 		Page:       page,
 		PageSize:   len(recommendations),
 		TotalSize:  int(total),
-		TotalPages: int(math.Ceil(float64(total) / float64(filter.Size))),
+		TotalPages: totalPages,
 	}
 
 	return result, nil

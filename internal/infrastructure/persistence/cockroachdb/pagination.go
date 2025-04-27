@@ -60,18 +60,36 @@ func applyPagination(query *gorm.DB,
 		log.Fatalln("applyPagination: db is nil")
 	}
 
-	size := 20
-	page := 1
+	defaultSize := 20
+	defaultPage := 1
 	defaultOrder := clause.OrderByColumn{
 		Column: clause.Column{Name: "created_at"},
 		Desc:   true,
 	}
 
-	if filters == nil || len(filters.SortBy) == 0 {
+	if filters == nil {
+		filters = &pkg.PaginationFilter{
+			PaginationPage: pkg.PaginationPage{
+				Page: defaultPage,
+				Size: defaultSize,
+			},
+		}
+	}
+
+	if filters.Size <= 0 {
+		filters.Size = defaultSize
+	}
+
+	if filters.Page <= 0 {
+
+		filters.Page = defaultPage
+	}
+
+	if len(filters.SortBy) == 0 {
 		return query.
 			Order(defaultOrder).
-			Limit(size).
-			Offset(size * (page - 1))
+			Limit(filters.Size).
+			Offset(filters.Size * (filters.Page - 1))
 	}
 
 	for sortBy, orderBy := range filters.SortBy {
@@ -82,16 +100,8 @@ func applyPagination(query *gorm.DB,
 		query = query.Order(fmt.Sprintf("%s %s", sortBy, orderBy))
 	}
 
-	if filters.Size > 0 {
-		size = filters.Size
-	}
-
-	if filters.Page > 1 {
-		page = filters.Page
-	}
-
 	query = query.
-		Limit(size).
-		Offset(size * (page - 1))
+		Limit(filters.Size).
+		Offset(filters.Size * (filters.Page - 1))
 	return query
 }

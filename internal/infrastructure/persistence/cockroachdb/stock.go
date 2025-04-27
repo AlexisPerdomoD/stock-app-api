@@ -3,6 +3,7 @@ package cockroachdb
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"math"
 
@@ -71,8 +72,8 @@ func (r *StockRepository) GetAllPaginated(
 	query := r.db.WithContext(ctx).Model(stockRecord{}).Preload("Company.Market")
 
 	if filter.Search != "" {
-		query.Joins("JOIN companies ON companies.id = stocks.company_id").
-			Where("companies.name LIKE ?", filter.Search)
+		query = query.Joins("JOIN companies ON companies.id = stocks.company_id").
+			Where("companies.name LIKE ?", fmt.Sprintf("%%%s%%", filter.Search))
 	}
 
 	if userID != nil {
@@ -97,17 +98,16 @@ func (r *StockRepository) GetAllPaginated(
 		stocks = append(stocks, *mapPopulatedStockToDomain(&record, nil))
 	}
 
-	page := 1
-	if filter.Page > 1 {
-		page = filter.Page
+	totalPages := 0
+	if total > 0 {
+		totalPages = int(math.Ceil(float64(total) / float64(filter.Size)))
 	}
-
 	result := pkg.PaginationReponse[domain.PopulatedStock]{
 		Items:      stocks,
-		Page:       page,
+		Page:       filter.Page,
 		PageSize:   len(stocks),
 		TotalSize:  int(total),
-		TotalPages: int(math.Ceil(float64(total) / float64(filter.Size))),
+		TotalPages: totalPages,
 	}
 
 	return &result, nil
