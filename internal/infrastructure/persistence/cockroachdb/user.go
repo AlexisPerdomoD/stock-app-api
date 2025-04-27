@@ -14,6 +14,22 @@ type userRepository struct {
 	db *gorm.DB
 }
 
+func (r *userRepository) Create(ctx context.Context, usr *domain.User) error {
+
+	if usr == nil {
+		return pkg.BadRequest("User args provided were nil")
+	}
+
+	record := mapUserInsert(usr)
+	if err := r.db.WithContext(ctx).Create(record).Error; err != nil {
+		return pkg.DataBaseErr(err.Error(), 400)
+	}
+
+	_ = mapUserToDomain(record, usr)
+
+	return nil
+}
+
 func (r *userRepository) Get(ctx context.Context, id uint) (*domain.User, error) {
 	record := &userRecord{}
 	result := r.db.WithContext(ctx).First(record, id)
@@ -46,22 +62,6 @@ func (r *userRepository) GetByUsername(ctx context.Context, username string) (*d
 
 	return mapUserToDomain(record, nil), nil
 
-}
-
-func (r *userRepository) Create(ctx context.Context, usr *domain.User) error {
-
-	if usr == nil {
-		return pkg.BadRequest("User args provided were nil")
-	}
-
-	record := mapUserInsert(usr)
-	if err := r.db.WithContext(ctx).Create(record).Error; err != nil {
-		return pkg.DataBaseErr(err.Error(), 400)
-	}
-
-	_ = mapUserToDomain(record, usr)
-
-	return nil
 }
 
 func (r *userRepository) RegisterUserStock(ctx context.Context, userID uint, stockID uint) error {
