@@ -11,11 +11,11 @@ import (
 	"gorm.io/gorm"
 )
 
-type stockRepository struct {
+type StockRepository struct {
 	db *gorm.DB
 }
 
-func (r *stockRepository) Get(ctx context.Context, stockID uint, userID *uint) (*domain.PopulatedStock, error) {
+func (r *StockRepository) Get(ctx context.Context, stockID uint, userID *uint) (*domain.PopulatedStock, error) {
 
 	record := &stockRecord{}
 
@@ -46,7 +46,7 @@ func (r *stockRepository) Get(ctx context.Context, stockID uint, userID *uint) (
 	return stock, nil
 }
 
-func (r *stockRepository) GetAllPaginated(
+func (r *StockRepository) GetAllPaginated(
 	ctx context.Context,
 	filter pkg.PaginationFilter,
 	userID *uint,
@@ -113,7 +113,7 @@ func (r *stockRepository) GetAllPaginated(
 	return &result, nil
 }
 
-func (r *stockRepository) Register(
+func (r *StockRepository) Register(
 	ctx context.Context, data []domain.SourceStockData,
 ) error {
 	if data == nil {
@@ -242,10 +242,10 @@ func (r *stockRepository) Register(
 	return nil
 }
 
-func NewStockRepository(db *gorm.DB) *stockRepository {
+func NewStockRepository(db *gorm.DB) *StockRepository {
 	if db == nil {
 		log.Fatalf("bad impl: db is nil in NewStockRepository")
 	}
 
-	return &stockRepository{db: db}
+	return &StockRepository{db: db}
 }

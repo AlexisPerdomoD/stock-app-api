@@ -1,13 +1,13 @@
-package cockroachdb
+package cockroachdb_test
 
 import (
 	"os"
 	"testing"
 
-	"gorm.io/gorm"
+	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/persistence/cockroachdb"
 )
 
-func SetTestSetup() *gorm.DB {
+func TestMain(m *testing.M) {
 
 	mustSet := func(key, value string) {
 		if err := os.Setenv(key, value); err != nil {
@@ -23,18 +23,11 @@ func SetTestSetup() *gorm.DB {
 	mustSet("CR_SSL", "disable")
 	mustSet("CR_RUN_MIGRATE", "TRUE")
 
-	db := NewDB()
-	if err := Migrate(db); err != nil {
+	db := cockroachdb.NewDB()
+	if err := cockroachdb.Migrate(db); err != nil {
 		panic("[SetTestSetup]: failed when migrating on db: " + err.Error())
 	}
 
-	return db
-}
-
-var testDB *gorm.DB
-
-func TestMain(m *testing.M) {
-	testDB = SetTestSetup()
 	code := m.Run()
 	os.Exit(code)
 }
