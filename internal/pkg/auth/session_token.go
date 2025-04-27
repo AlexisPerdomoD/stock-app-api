@@ -2,7 +2,6 @@ package auth
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"time"
 
@@ -18,14 +17,14 @@ type SessionClaims struct {
 
 func GenerateSessionToken(user *domain.User) (token string, err error) {
 
-	if user == nil {
-		log.Fatalln("[GenerateSessionToken] user is nil")
+	if user == nil || user.ID == 0 {
+		return "", fmt.Errorf("[GenerateSessionToken] user is invalid or nil %+v", user)
 	}
 
 	secret := os.Getenv("SESSION_SECRET")
 
 	if secret == "" {
-		log.Fatalln("[GenerateSessionToken] secret is empty")
+		return "", fmt.Errorf("[GenerateSessionToken] secret is empty")
 	}
 
 	claims := &SessionClaims{

@@ -1,22 +1,44 @@
 package auth_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"github.com/alexisPerdomoD/stock-app-api/internal/pkg/auth"
 )
 
+// #nosec: G101 (CWE-798): Potential hardcoded credentials(they're not, but we want to test it)
+var INVALID_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjQ5OTk0OTU0fQ.0x0"
+var VALID_SESSION string
+
 func TestGenerateSessionToken(t *testing.T) {
+	if err := os.Setenv("SESSION_SECRET", "test-secret"); err != nil {
+		t.Fatal(err)
+	}
+
 	tests := []struct {
-		name string // description of this test case
-		// Named input parameters for target function.
+		name    string
 		user    *domain.User
-		want    string
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name:    "fail with nil user",
+			user:    nil,
+			wantErr: true,
+		},
+		{
+			name:    "fail with invalid user id",
+			user:    &domain.User{ID: 0},
+			wantErr: true,
+		},
+		{
+			name:    "success with valid user",
+			user:    &domain.User{ID: 1},
+			wantErr: false,
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, gotErr := auth.GenerateSessionToken(tt.user)
@@ -29,23 +51,41 @@ func TestGenerateSessionToken(t *testing.T) {
 			if tt.wantErr {
 				t.Fatal("GenerateSessionToken() succeeded unexpectedly")
 			}
-			// TODO: update the condition below to compare got with tt.want.
-			if true {
-				t.Errorf("GenerateSessionToken() = %v, want %v", got, tt.want)
+			if got == "" {
+				t.Errorf("GenerateSessionToken() returned empty string and error is nil")
 			}
+			VALID_SESSION = got
 		})
 	}
 }
 
 func TestValidateSessionToken(t *testing.T) {
 	tests := []struct {
-		name string // description of this test case
-		// Named input parameters for target function.
+		name    string
 		token   string
 		want    uint
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name:    "fail with empty token",
+			token:   "",
+			want:    0,
+			wantErr: true,
+		},
+
+		{
+			name:    "fail with invalid token",
+			token:   INVALID_TOKEN,
+			want:    0,
+			wantErr: true,
+		},
+
+		{
+			name:    "success with valid token",
+			token:   VALID_SESSION,
+			want:    1,
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -59,8 +99,8 @@ func TestValidateSessionToken(t *testing.T) {
 			if tt.wantErr {
 				t.Fatal("ValidateSessionToken() succeeded unexpectedly")
 			}
-			// TODO: update the condition below to compare got with tt.want.
-			if true {
+
+			if got != tt.want {
 				t.Errorf("ValidateSessionToken() = %v, want %v", got, tt.want)
 			}
 		})
