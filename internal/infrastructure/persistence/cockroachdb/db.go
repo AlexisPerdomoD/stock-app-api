@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"testing"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -23,7 +22,7 @@ func NewDB() *gorm.DB {
 	)
 
 	db, err := gorm.Open(postgres.Open(conn), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Warn),
+		Logger: logger.Default.LogMode(logger.Silent),
 	})
 
 	if err != nil || db == nil {
@@ -59,29 +58,4 @@ func Migrate(db *gorm.DB) error {
 		&recommendationRecord{},
 		&userRecord{},
 	)
-}
-
-func SetTestSetup(t *testing.T) *gorm.DB {
-	t.Helper()
-
-	mustSet := func(key, value string) {
-		if err := os.Setenv(key, value); err != nil {
-			t.Fatalf("[SetTestSetup]:failed to set env var %s: %v", key, err)
-		}
-	}
-
-	mustSet("CR_HOST", "localhost")
-	mustSet("CR_PORT", "26257")
-	mustSet("CR_USER", "root")
-	mustSet("CR_PASSWORD", "")
-	mustSet("CR_DB", "testdb")
-	mustSet("CR_SSL", "disable")
-	mustSet("CR_RUN_MIGRATE", "TRUE")
-
-	db := NewDB()
-	if err := Migrate(db); err != nil {
-		t.Fatalf("[SetTestSetup]: failed when migrating on db: %v", err)
-	}
-
-	return db
 }

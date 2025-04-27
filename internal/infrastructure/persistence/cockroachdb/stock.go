@@ -116,6 +116,9 @@ func (r *stockRepository) GetAllPaginated(
 func (r *stockRepository) Register(
 	ctx context.Context, data []domain.SourceStockData,
 ) error {
+	if data == nil {
+		return pkg.BadRequest("data is nil")
+	}
 
 	markets := map[string]marketRecord{}
 	companies := map[string]companyRecord{}
