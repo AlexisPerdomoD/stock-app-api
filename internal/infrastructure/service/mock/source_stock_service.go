@@ -9,14 +9,8 @@ import (
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 )
 
-// MockSourceStockService es una implementación de SourceStockService para pruebas
-type MockSourceStockService struct{}
-
-func NewMockSourceStockService() *MockSourceStockService {
-	return &MockSourceStockService{}
-}
-
 func RandomNumber(min, max float64) float64 {
+	// #nosec G404 -- rand is fine in test/mock context
 	return min + rand.Float64()*(max-min)
 }
 
@@ -47,6 +41,13 @@ func RandomTicker() string {
 	return tickers[rand.Intn(len(tickers))]
 }
 
+// MockSourceStockService es una implementación de SourceStockService para pruebas
+type MockSourceStockService struct{}
+
+func (m *MockSourceStockService) Name() string {
+	return "MockSourceStockService"
+}
+
 func (m *MockSourceStockService) Get(ctx context.Context, limitDate *time.Time) ([]domain.SourceStockData, error) {
 	var result []domain.SourceStockData
 
@@ -54,7 +55,7 @@ func (m *MockSourceStockService) Get(ctx context.Context, limitDate *time.Time) 
 		ticker := RandomTicker()
 		stock := domain.SourceStockData{
 			Market: domain.MarketArgs{
-				Name: RandomString(10),
+				Name: "mock-market",
 			},
 			Company: domain.CompanyArgs{
 				Name: ticker,
