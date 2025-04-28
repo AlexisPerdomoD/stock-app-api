@@ -9,6 +9,7 @@ import (
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/dto"
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/middleware"
 	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
+	"github.com/alexisPerdomoD/stock-app-api/internal/pkg/auth"
 	"github.com/gin-gonic/gin"
 )
 
@@ -81,7 +82,13 @@ func (uc *UserController) RegisterUserHandler(c *gin.Context) {
 		return
 	}
 	ctx := c.Request.Context()
-	session, err := uc.registerUC.Execute(ctx, user)
+	if err := uc.registerUC.Execute(ctx, user); err != nil {
+		res := pkg.MapHttpErr(err)
+		c.AbortWithStatusJSON(res.StatusCode, res)
+		return
+	}
+
+	session, err := auth.GenerateSessionToken(user)
 	if err != nil {
 		res := pkg.MapHttpErr(err)
 		c.AbortWithStatusJSON(res.StatusCode, res)
@@ -106,7 +113,14 @@ func (uc *UserController) LoginUserHandler(c *gin.Context) {
 		return
 	}
 	ctx := c.Request.Context()
-	session, err := uc.loginUC.Execute(ctx, credentials.Email, credentials.Password)
+	user, err := uc.loginUC.Execute(ctx, credentials.Email, credentials.Password)
+	if err != nil {
+		res := pkg.MapHttpErr(err)
+		c.AbortWithStatusJSON(res.StatusCode, res)
+		return
+	}
+
+	session, err := auth.GenerateSessionToken(user)
 	if err != nil {
 		res := pkg.MapHttpErr(err)
 		c.AbortWithStatusJSON(res.StatusCode, res)

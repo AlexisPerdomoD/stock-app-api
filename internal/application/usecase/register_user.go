@@ -13,20 +13,22 @@ type RegisterUserUseCase struct {
 	ur domain.UserRepository
 }
 
-func (uc RegisterUserUseCase) Execute(ctx context.Context, usr *domain.User) (session string, err error) {
+func (uc RegisterUserUseCase) Execute(ctx context.Context, usr *domain.User) error {
 
 	hashed, err := auth.HashPassword(usr.Password)
 
 	if err != nil {
-		return "", pkg.InternalServerError("Error hashing password")
+		return pkg.InternalServerError("Error hashing password")
 	}
 
 	usr.Password = hashed
 
 	if err := uc.ur.Create(ctx, usr); err != nil {
-		return "", err
+		return err
 	}
-	return auth.GenerateSessionToken(usr)
+
+	usr.Password = ""
+	return nil
 
 }
 

@@ -13,22 +13,23 @@ type LoginUseCase struct {
 	ur domain.UserRepository
 }
 
-func (uc *LoginUseCase) Execute(ctx context.Context, username, password string) (session string, err error) {
+func (uc *LoginUseCase) Execute(ctx context.Context, username, password string) (*domain.User, error) {
 	user, err := uc.ur.GetByUsername(ctx, username)
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	if user == nil {
-		return "", pkg.NotFound("user does not exist")
+		return nil, pkg.NotFound("user does not exist")
 	}
 
 	if err = auth.VerifyPassword(password, user.Password); err != nil {
-		return "", pkg.Unauthorized(err.Error())
+		return nil, pkg.Unauthorized(err.Error())
 	}
 
-	return auth.GenerateSessionToken(user)
+	user.Password = ""
+	return user, nil
 }
 
 func NewLoginUseCase(ur domain.UserRepository) *LoginUseCase {
