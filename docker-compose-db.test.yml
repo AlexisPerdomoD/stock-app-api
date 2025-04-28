@@ -1,0 +1,21 @@
+# UP --> docker-compose -f docker-compose-db.test.yml up -d
+# DOWN --> docker-compose -f docker-compose-db.test.yml down
+# command --> docker exec -it cockroach-test cockroach sql --insecure
+services:
+  cockroach-test:
+    image: cockroachdb/cockroach:v23.1.11
+    container_name: cockroach-test
+    command: start-single-node --insecure
+    ports:
+      - "26258:26257"
+      - "8090:8080"
+    environment:
+      - COCKROACH_DATABASE=testdb
+    healthcheck:
+      test: ["CMD", "cockroach", "sql", "--insecure", "--execute", "SHOW DATABASES"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: no
+    tmpfs:
+      - /cockroach/cockroach-data

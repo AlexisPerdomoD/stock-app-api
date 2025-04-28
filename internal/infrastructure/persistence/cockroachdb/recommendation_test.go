@@ -128,7 +128,6 @@ func TestRecommendationRepository_GetAllPaginated(t *testing.T) {
 	if len(stocks.Items) < 2 {
 		t.Fatalf("failed to get stocks: %v", err)
 	}
-	t.Logf("stocks: %+v", stocks)
 	recommendationGetAllPaginatedTests[1].stockID = stocks.Items[0].ID
 	recommendationGetAllPaginatedTests[2].stockID = stocks.Items[1].ID
 
@@ -139,8 +138,6 @@ func TestRecommendationRepository_GetAllPaginated(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 
 			got, gotErr := rr.GetAllPaginated(context.Background(), tt.filter, tt.stockID)
-			t.Logf("gotErr: %+v", tt.filter)
-			t.Logf("got: %+v", got)
 			if tt.wantErr {
 				assert.Error(gotErr)
 			} else {
