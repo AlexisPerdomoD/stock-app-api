@@ -45,7 +45,10 @@ func (s *MainSourceStockService) Name() string {
 	return s.name
 }
 
-func (s *MainSourceStockService) doRequest(ctx context.Context, nextPage string) (*MainStockSourcePayload, error) {
+func (s *MainSourceStockService) doRequest(
+	ctx context.Context,
+	nextPage string,
+) (*MainStockSourcePayload, error) {
 	payload := &MainStockSourcePayload{}
 
 	req, err := http.NewRequestWithContext(ctx, "GET", s.uri+"?next_page="+nextPage, nil)
@@ -70,7 +73,11 @@ func (s *MainSourceStockService) doRequest(ctx context.Context, nextPage string)
 		return nil, pkg.InternalServerError(fmt.Sprintf("unexpected status code %d", res.StatusCode))
 	}
 
-	defer res.Body.Close()
+	defer func() {
+		if err := res.Body.Close(); err != nil {
+			log.Printf("[main source stock] failed to close response body: %v", err)
+		}
+	}()
 	return payload, nil
 }
 
@@ -101,7 +108,11 @@ func (s *MainSourceStockService) setRating(rating string) domain.Action {
 		return domain.Neutral
 	}
 }
-func (s *MainSourceStockService) Get(ctx context.Context, limitDate *time.Time) ([]domain.SourceStockData, error) {
+
+func (s *MainSourceStockService) Get(
+	ctx context.Context,
+	limitDate *time.Time,
+) ([]domain.SourceStockData, error) {
 
 	doUntil := limitDate
 	response := []domain.SourceStockData{}

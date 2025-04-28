@@ -48,7 +48,7 @@ func (sc *Scheduler) AddStockSourceService(
 
 		log.Println("[CRON] starting stock source service ", s.Name())
 
-		inserts, err := uc.Execute(ctx, s, &limitDate) 
+		inserts, err := uc.Execute(ctx, s, &limitDate)
 		if err != nil {
 			log.Println("[CRON] error executing stock source service ", s.Name())
 			log.Println("[CRON] error: ", err)

@@ -73,11 +73,7 @@ func TestMainSourceStockService_Get(t *testing.T) {
 	data, err := svc.Get(context.Background(), &twoDaysAgo)
 	assert.NoError(t, err)
 
-	t.Log("Test: Verificando longitud de data recibida")
-
 	assert.Len(t, data, 2)
-
-	t.Log("Test: Validar primer elemento esperado")
 
 	assert.Equal(t, "bblc", data[0].Stock.Ticker)
 	assert.Equal(t, "mac donalds", data[0].Company.Name)
@@ -88,8 +84,6 @@ func TestMainSourceStockService_Get(t *testing.T) {
 	assert.Equal(t, float64(100), data[0].Recomendation.TargetTo)
 	assert.Equal(t, float64(160), data[0].Recomendation.TargetFrom)
 
-	t.Log("Test: Validar segundo elemento esperado")
-
 	assert.Equal(t, "aapl", data[1].Stock.Ticker)
 	assert.Equal(t, "apple inc", data[1].Company.Name)
 	assert.Equal(t, domain.Buy, data[1].Recomendation.RatingTo)
@@ -98,8 +92,6 @@ func TestMainSourceStockService_Get(t *testing.T) {
 	assert.Equal(t, float64(120), data[1].Stock.Price)
 	assert.Equal(t, float64(120), data[1].Recomendation.TargetTo)
 	assert.Equal(t, float64(100), data[1].Recomendation.TargetFrom)
-
-	t.Log("Test: Validar orden Ascendente de elementos en base a campo Time")
 
 	assert.True(t, yesterday.Equal(data[0].Time))
 	assert.True(t, today.Equal(data[1].Time))
@@ -116,11 +108,9 @@ func TestMainSourceStockService_Get(t *testing.T) {
 	os.Setenv("MAIN_SOURCE_STOCK_KEY", "test-key")
 	svc = service.NewMainSourceStockService(false)
 	data, err = svc.Get(context.Background(), &twoDaysAgo)
-	t.Logf("%v", data)
 	assert.Nil(t, data)
 	assert.Error(t, err)
 
-	t.Log("Test: Validar error de timeout por context")
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	cancel()
 
