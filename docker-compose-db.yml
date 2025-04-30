@@ -1,6 +1,6 @@
 # UP --> docker-compose -f docker-compose-db.yml up -d
 # DOWN --> docker-compose -f docker-compose-db.yml down
-# command --> docker exec -it cockroach-test cockroach sql --insecure
+# command --> docker exec -it cockroach cockroach sql --insecure
 services:
   cockroach-test:
     image: cockroachdb/cockroach:v23.1.11

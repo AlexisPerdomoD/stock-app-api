@@ -21,19 +21,30 @@ func main() {
 	}
 
 	mainService := service.NewMainSourceStockService(true)
+	cnnService := service.NewCnnStockSourceService()
+
 	sr := cockroachdb.NewStockRepository(db)
 
-	payload, err := mainService.Get(ctx, nil)
+	payloadcnn, err := cnnService.Get(ctx, nil)
+	if err != nil {
+		log.Fatalf("[populatedb] error: %v", err)
+	}
+
+	if err := sr.Register(ctx, payloadcnn); err != nil {
+		log.Fatalf("[populatedb] error: %v", err)
+	}
+
+	payloadmain, err := mainService.Get(ctx, nil)
 
 	if err != nil {
 		log.Fatalf("[populatedb] error: %v", err)
 	}
 
-	log.Printf("[populatedb] starting insert of %d stocks", len(payload))
+	log.Printf("[populatedb] starting insert of %d stocks", len(payloadmain))
 
-	if err := sr.Register(ctx, payload); err != nil {
+	if err := sr.Register(ctx, payloadmain); err != nil {
 		log.Fatalf("[populatedb] error: %v", err)
 	}
 
-	log.Printf("[populatedb] done with %d stocks", len(payload))
+	log.Printf("[populatedb] done with %d stocks", len(payloadmain)+len(payloadcnn))
 }
