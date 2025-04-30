@@ -6,15 +6,15 @@ import (
 	"github.com/alexisPerdomoD/stock-app-api/internal/pkg/auth"
 )
 
-var VALID_PASSWORD = "12345678"
-var INVALID_PASSWORD = "87654321"
-var INVALID_PASSWORD_TO_LONG = "123456789012345678901234567890123456789012345678901234567890123456789012" // 72 chars
-var VALID_HASH string
+var VALID_PASSWORD = []byte("12345678")
+var INVALID_PASSWORD = []byte("87654321")
+var INVALID_PASSWORD_TO_LONG = []byte("123456789012345678901234567890123456789012345678901234567890123456789012") // 72 chars
+var VALID_HASH []byte
 
 func TestHashPassword(t *testing.T) {
 	tests := []struct {
 		name     string
-		password string
+		password []byte
 		wantErr  bool
 	}{
 		{
@@ -42,7 +42,7 @@ func TestHashPassword(t *testing.T) {
 				t.Fatal("HashPassword() succeeded unexpectedly")
 			}
 
-			if got == "" {
+			if got == nil {
 				t.Errorf("HashPassword() returned empty string")
 			}
 
@@ -54,8 +54,8 @@ func TestHashPassword(t *testing.T) {
 func TestVerifyPassword(t *testing.T) {
 	tests := []struct {
 		name     string
-		password string
-		hash     string
+		password []byte
+		hash     []byte
 		wantErr  bool
 	}{
 		{

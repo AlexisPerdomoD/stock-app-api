@@ -13,7 +13,7 @@ type LoginUseCase struct {
 	ur domain.UserRepository
 }
 
-func (uc *LoginUseCase) Execute(ctx context.Context, username, password string) (*domain.User, error) {
+func (uc *LoginUseCase) Execute(ctx context.Context, username string, password []byte) (*domain.User, error) {
 	user, err := uc.ur.GetByUsername(ctx, username)
 
 	if err != nil {
@@ -21,21 +21,20 @@ func (uc *LoginUseCase) Execute(ctx context.Context, username, password string) 
 	}
 
 	if user == nil {
-		return nil, pkg.NotFound("user does not exist")
+		return nil, pkg.Unauthorized("Invalid credentials")
 	}
 
 	if err = auth.VerifyPassword(password, user.Password); err != nil {
-		return nil, pkg.Unauthorized(err.Error())
+		return nil, pkg.Unauthorized("Invalid credentials")
 	}
 
-	user.Password = ""
 	return user, nil
 }
 
 func NewLoginUseCase(ur domain.UserRepository) *LoginUseCase {
 
 	if ur == nil {
-		log.Fatalln("bad impl: UserRepository was nil for NewLoginUseCase")
+		log.Fatalln("[NewLoginUseCase]: UserRepository was nil")
 	}
 
 	return &LoginUseCase{ur}

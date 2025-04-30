@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
-	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
 	"github.com/alexisPerdomoD/stock-app-api/internal/pkg/auth"
 )
 
@@ -16,20 +15,14 @@ type RegisterUserUseCase struct {
 func (uc RegisterUserUseCase) Execute(ctx context.Context, usr *domain.User) error {
 
 	hashed, err := auth.HashPassword(usr.Password)
-
 	if err != nil {
-		return pkg.InternalServerError("Error hashing password")
-	}
-
-	usr.Password = hashed
-
-	if err := uc.ur.Create(ctx, usr); err != nil {
 		return err
 	}
 
-	usr.Password = ""
-	return nil
+	usr.Password = hashed
+	defer auth.ZeroBytes(usr.Password)
 
+	return uc.ur.Create(ctx, usr)
 }
 
 func NewRegisterUserUseCase(ur domain.UserRepository) *RegisterUserUseCase {

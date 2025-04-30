@@ -22,7 +22,7 @@ func MapNewUserForm(c *gin.Context) (*domain.User, error) {
 
 	user := &domain.User{
 		UserName: args.Email,
-		Password: args.Password,
+		Password: []byte(args.Password),
 		Active:   true,
 	}
 
@@ -50,7 +50,7 @@ func GetValidationErrors(err error) map[string]string {
 			}
 		}
 	} else {
-		errors["general"] = err.Error()
+		errors["general"] = "Invalid Format"
 	}
 
 	return errors

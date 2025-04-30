@@ -15,7 +15,7 @@ import (
 func Test_userRepository_Create(t *testing.T) {
 	usr1 := &domain.User{
 		UserName: mock.RandomString(12) + "@email.com",
-		Password: "1234Abcd",
+		Password: []byte("1234Abcd"),
 		Active:   true,
 	}
 
@@ -59,7 +59,7 @@ func Test_userRepository_Create(t *testing.T) {
 func Test_userRepository_Get(t *testing.T) {
 	usr3 := &domain.User{
 		UserName: mock.RandomString(12) + "@email.com",
-		Password: "1234Abcd",
+		Password: []byte("1234Abcd"),
 		Active:   true,
 	}
 
@@ -112,7 +112,7 @@ func Test_userRepository_Get(t *testing.T) {
 func Test_userRepository_GetByUsername(t *testing.T) {
 	usr4 := &domain.User{
 		UserName: mock.RandomString(12) + "@email.com",
-		Password: "1234Abcd",
+		Password: []byte("1234Abcd"),
 		Active:   true,
 	}
 
@@ -171,7 +171,7 @@ func Test_userRepository_RegisterUserStock(t *testing.T) {
 
 	usr5 := &domain.User{
 		UserName: mock.RandomString(12) + "@email.com",
-		Password: "1234Abcd",
+		Password: []byte("1234Abcd"),
 		Active:   true,
 	}
 
@@ -248,7 +248,7 @@ func Test_userRepository_RemoveUserStock(t *testing.T) {
 
 	usr6 := &domain.User{
 		UserName: mock.RandomString(12) + "@email.com",
-		Password: "1234Abcd",
+		Password: []byte("1234Abcd"),
 		Active:   true,
 	}
 

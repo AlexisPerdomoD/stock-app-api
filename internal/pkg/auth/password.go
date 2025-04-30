@@ -2,35 +2,49 @@ package auth
 
 import (
 	"errors"
+	"log"
 
+	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func HashPassword(password string) (string, error) {
-
-	if len(password) >= 72 {
-		return "", errors.New("password is too long")
+func ZeroBytes(b []byte) {
+	for i := range b {
+		b[i] = 0
 	}
-
-	hashed, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-
-	if err != nil {
-		return "", err
-	}
-
-	return string(hashed), nil
 }
 
-func VerifyPassword(password, hash string) error {
+func HashPassword(password []byte) ([]byte, error) {
+
 	if len(password) >= 72 {
-		return errors.New("password is too long")
+		return nil, errors.New("password is too long")
 	}
 
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	hashed, err := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return hashed, nil
+}
+
+func VerifyPassword(password []byte, hash []byte) error {
+	if hash == nil {
+		log.Panicln("[VerifyPassword]: a nil hash was provided")
+	}
+
+	defer ZeroBytes(hash)
+
+	if password == nil {
+		return pkg.Unauthorized("Invalid credentials")
+	}
+
+	defer ZeroBytes(password)
+
+	if len(password) >= 72 {
+		return pkg.Unauthorized("Invalid credentials")
+	}
+
+	return bcrypt.CompareHashAndPassword(hash, password)
 }

@@ -5,7 +5,7 @@ import "context"
 type User struct {
 	ID       uint
 	UserName string
-	Password string
+	Password []byte
 	Active   bool
 }
 

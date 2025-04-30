@@ -113,7 +113,7 @@ func (uc *UserController) LoginUserHandler(c *gin.Context) {
 		return
 	}
 	ctx := c.Request.Context()
-	user, err := uc.loginUC.Execute(ctx, credentials.Email, credentials.Password)
+	user, err := uc.loginUC.Execute(ctx, credentials.Email, []byte(credentials.Password))
 	if err != nil {
 		res := pkg.MapHttpErr(err)
 		c.AbortWithStatusJSON(res.StatusCode, res)

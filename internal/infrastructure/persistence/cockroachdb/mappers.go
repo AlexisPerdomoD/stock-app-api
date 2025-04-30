@@ -7,7 +7,7 @@ func mapUserInsert(args *domain.User) *userRecord {
 
 	return &userRecord{
 		UserName: args.UserName,
-		Password: args.Password,
+		Password: string(args.Password),
 		Active:   args.Active,
 	}
 }
@@ -131,7 +131,7 @@ func mapUserToDomain(record *userRecord, target *domain.User) *domain.User {
 	if target != nil {
 		target.ID = record.ID
 		target.UserName = record.UserName
-		target.Password = record.Password
+		target.Password = []byte(record.Password)
 		target.Active = record.Active
 		return target
 	}
@@ -139,7 +139,7 @@ func mapUserToDomain(record *userRecord, target *domain.User) *domain.User {
 	return &domain.User{
 		ID:       record.ID,
 		UserName: record.UserName,
-		Password: record.Password,
+		Password: []byte(record.Password),
 		Active:   record.Active,
 	}
 
