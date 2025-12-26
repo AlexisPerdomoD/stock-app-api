@@ -2,12 +2,11 @@ package main
 
 import (
 	"context"
-	"log"
-	"time"
-
-	cockroachdb "github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/persistence/cockroachdb"
+	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/persistence/cockroachdb"
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/service"
 	"github.com/joho/godotenv"
+	"log"
+	"time"
 )
 
 func main() {

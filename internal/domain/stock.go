@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
+	"github.com/alexisPerdomoD/stock-app-api/pkg"
 )
 
 type Tendency uint8

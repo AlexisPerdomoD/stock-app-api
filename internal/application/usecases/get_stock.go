@@ -1,18 +1,17 @@
-package usecase
+package usecases
 
 import (
 	"context"
-	"log"
-
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
-	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
+	"github.com/alexisPerdomoD/stock-app-api/pkg"
+	"log"
 )
 
-type GetStockUseCase struct {
+type GetStock struct {
 	sr domain.StockRepository
 }
 
-func (uc *GetStockUseCase) Execute(ctx context.Context, stockID uint, userID *uint) (*domain.PopulatedStock, error) {
+func (uc *GetStock) Execute(ctx context.Context, stockID uint, userID *uint) (*domain.PopulatedStock, error) {
 	stock, err := uc.sr.Get(ctx, stockID, userID)
 	if err != nil {
 		return nil, err
@@ -25,11 +24,11 @@ func (uc *GetStockUseCase) Execute(ctx context.Context, stockID uint, userID *ui
 	return stock, nil
 }
 
-func NewGetStockUseCase(sr domain.StockRepository) *GetStockUseCase {
+func NewGetStock(sr domain.StockRepository) *GetStock {
 
 	if sr == nil {
 		log.Fatalln("bad impl: StockRepository was nil for NewGetStocksUseCase")
 	}
 
-	return &GetStockUseCase{sr}
+	return &GetStock{sr}
 }

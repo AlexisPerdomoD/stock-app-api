@@ -1,11 +1,10 @@
 package middleware
 
 import (
+	"github.com/alexisPerdomoD/stock-app-api/pkg/auth"
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
-
-	"github.com/alexisPerdomoD/stock-app-api/internal/pkg/auth"
-	"github.com/gin-gonic/gin"
 )
 
 func UserSessionMiddleware(c *gin.Context) {

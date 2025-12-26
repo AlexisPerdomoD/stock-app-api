@@ -1,11 +1,10 @@
-package dto
+package mappers
 
 import (
+	"github.com/alexisPerdomoD/stock-app-api/pkg"
+	"github.com/gin-gonic/gin"
 	"strconv"
 	"strings"
-
-	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
-	"github.com/gin-gonic/gin"
 )
 
 func MapGetRecommendationsFilter(c *gin.Context) pkg.PaginationFilter {

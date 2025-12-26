@@ -1,15 +1,23 @@
-package pkg
+package mappers
 
 import (
 	"errors"
 	"net/http"
 	"strings"
 
+	"github.com/alexisPerdomoD/stock-app-api/pkg"
+	"github.com/go-playground/validator/v10"
 	"gorm.io/gorm"
 )
 
+type ResponseError struct {
+	StatusCode int    `json:"status_code"`
+	Name       string `json:"name"`
+	Message    string `json:"message"`
+}
+
 func MapHttpErr(err error) *ResponseError {
-	var apiErr *ApiErr
+	var apiErr *pkg.ApiErr
 
 	if err == nil {
 		return &ResponseError{
@@ -90,4 +98,31 @@ func MapHttpErr(err error) *ResponseError {
 		Message:    apiErr.Detail,
 	}
 
+}
+
+func MapValidationErrors(err error) map[string]string {
+	errors := make(map[string]string)
+
+	if validationErrors, ok := err.(validator.ValidationErrors); ok {
+		for _, e := range validationErrors {
+			field := strings.ToLower(e.Field())
+
+			switch e.Tag() {
+			case "required":
+				errors[field] = "Este campo es obligatorio"
+			case "email":
+				errors[field] = "Debe ser un email válido"
+			case "min":
+				errors[field] = "Debe tener al menos " + e.Param() + " caracteres"
+			case "max":
+				errors[field] = "No puede tener más de " + e.Param() + " caracteres"
+			default:
+				errors[field] = "Campo inválido: " + e.Tag()
+			}
+		}
+	} else {
+		errors["general"] = "Invalid Format"
+	}
+
+	return errors
 }

@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
-	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
+	"github.com/alexisPerdomoD/stock-app-api/pkg"
 )
 
 /*

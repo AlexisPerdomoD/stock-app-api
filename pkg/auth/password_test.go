@@ -1,10 +1,6 @@
-package auth_test
+package auth
 
-import (
-	"testing"
-
-	"github.com/alexisPerdomoD/stock-app-api/internal/pkg/auth"
-)
+import "testing"
 
 var VALID_PASSWORD = []byte("12345678")
 var INVALID_PASSWORD = []byte("87654321")
@@ -30,7 +26,7 @@ func TestHashPassword(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, gotErr := auth.HashPassword(tt.password)
+			got, gotErr := HashPassword(tt.password)
 			if gotErr != nil {
 				if !tt.wantErr {
 					t.Errorf("HashPassword() failed: %v", gotErr)
@@ -79,7 +75,7 @@ func TestVerifyPassword(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotErr := auth.VerifyPassword(tt.password, tt.hash)
+			gotErr := VerifyPassword(tt.password, tt.hash)
 			if gotErr != nil {
 				if !tt.wantErr {
 					t.Errorf("VerifyPassword() failed: %v", gotErr)

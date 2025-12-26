@@ -1,10 +1,10 @@
-package dto
+package mappers
 
 import (
 	"strconv"
 	"strings"
 
-	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
+	"github.com/alexisPerdomoD/stock-app-api/pkg"
 	"github.com/gin-gonic/gin"
 )
 

@@ -7,7 +7,7 @@ import (
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/persistence/cockroachdb"
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/service/mock"
-	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
+	"github.com/alexisPerdomoD/stock-app-api/pkg"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 )

@@ -1,19 +1,19 @@
-package usecase
+package usecases
 
 import (
 	"context"
 	"log"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
-	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
+	"github.com/alexisPerdomoD/stock-app-api/pkg"
 )
 
-type GetRecommendationsByStockUseCase struct {
+type GetRecommendationsByStock struct {
 	sr domain.StockRepository
 	rr domain.RecommendationRepository
 }
 
-func (uc *GetRecommendationsByStockUseCase) Execute(
+func (uc *GetRecommendationsByStock) Execute(
 	ctx context.Context,
 	filters pkg.PaginationFilter,
 	stockID uint,
@@ -33,10 +33,10 @@ func (uc *GetRecommendationsByStockUseCase) Execute(
 
 }
 
-func NewGetRecommendationsByStockUseCase(
+func NewGetRecommendationsByStock(
 	sr domain.StockRepository,
 	rr domain.RecommendationRepository,
-) *GetRecommendationsByStockUseCase {
+) *GetRecommendationsByStock {
 
 	if sr == nil {
 		log.Fatalln("[GetRecommendationsByStockUseCase]: StockRepository provided was nil")
@@ -46,5 +46,5 @@ func NewGetRecommendationsByStockUseCase(
 		log.Fatalln("[GetRecommendationsByStockUseCase]: RecommendationRepository was provided as nil")
 	}
 
-	return &GetRecommendationsByStockUseCase{sr, rr}
+	return &GetRecommendationsByStock{sr, rr}
 }

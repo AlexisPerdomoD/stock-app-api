@@ -1,18 +1,18 @@
-package usecase
+package usecases
 
 import (
 	"context"
 	"log"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
-	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
+	"github.com/alexisPerdomoD/stock-app-api/pkg"
 )
 
-type GetStocksUseCase struct {
+type GetStocks struct {
 	sr domain.StockRepository
 }
 
-func (uc *GetStocksUseCase) Execute(
+func (uc *GetStocks) Execute(
 	ctx context.Context,
 	filters pkg.PaginationFilter,
 	userID *uint,
@@ -21,11 +21,11 @@ func (uc *GetStocksUseCase) Execute(
 	return uc.sr.GetAllPaginated(ctx, filters, userID)
 }
 
-func NewGetStocksUseCase(sr domain.StockRepository) *GetStocksUseCase {
+func NewGetStocks(sr domain.StockRepository) *GetStocks {
 
 	if sr == nil {
 		log.Fatalln("bad impl: StockRepository was nil for NewGetStocksUseCase")
 	}
 
-	return &GetStocksUseCase{sr}
+	return &GetStocks{sr}
 }

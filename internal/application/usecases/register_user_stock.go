@@ -1,18 +1,18 @@
-package usecase
+package usecases
 
 import (
 	"context"
 	"log"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
-	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
+	"github.com/alexisPerdomoD/stock-app-api/pkg"
 )
 
-type RegisterUserStockUseCase struct {
+type RegisterUserStock struct {
 	ur domain.UserRepository
 }
 
-func (uc *RegisterUserStockUseCase) Execute(ctx context.Context, userID uint, stockID uint) error {
+func (uc *RegisterUserStock) Execute(ctx context.Context, userID uint, stockID uint) error {
 
 	if err := uc.ur.RegisterUserStock(ctx, userID, stockID); err != nil {
 		return pkg.BadRequest("Stock is not valid")
@@ -20,11 +20,11 @@ func (uc *RegisterUserStockUseCase) Execute(ctx context.Context, userID uint, st
 	return nil
 }
 
-func NewRegisterUserStockUseCase(ur domain.UserRepository) *RegisterUserStockUseCase {
+func NewRegisterUserStock(ur domain.UserRepository) *RegisterUserStock {
 
 	if ur == nil {
 		log.Fatalln("bad impl: UserRepository was nil for NewRegisterUserStockUseCase")
 	}
 
-	return &RegisterUserStockUseCase{ur: ur}
+	return &RegisterUserStock{ur: ur}
 }

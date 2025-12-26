@@ -16,12 +16,6 @@ func (e *ApiErr) Error() string {
 	return fmt.Sprintf("code: %d, name: %s, detail: %s", e.Code, e.Name, e.Detail)
 }
 
-type ResponseError struct {
-	StatusCode int    `json:"status_code"`
-	Name       string `json:"name"`
-	Message    string `json:"message"`
-}
-
 func NotFound(detail string) error {
 	return &ApiErr{Detail: detail, Code: http.StatusNotFound, Name: "Not Found"}
 }

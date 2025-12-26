@@ -1,18 +1,18 @@
-package usecase
+package usecases
 
 import (
 	"context"
 	"log"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
-	"github.com/alexisPerdomoD/stock-app-api/internal/pkg/auth"
+	"github.com/alexisPerdomoD/stock-app-api/pkg/auth"
 )
 
-type RegisterUserUseCase struct {
+type RegisterUser struct {
 	ur domain.UserRepository
 }
 
-func (uc RegisterUserUseCase) Execute(ctx context.Context, usr *domain.User) error {
+func (uc RegisterUser) Execute(ctx context.Context, usr *domain.User) error {
 
 	hashed, err := auth.HashPassword(usr.Password)
 	if err != nil {
@@ -25,11 +25,11 @@ func (uc RegisterUserUseCase) Execute(ctx context.Context, usr *domain.User) err
 	return uc.ur.Create(ctx, usr)
 }
 
-func NewRegisterUserUseCase(ur domain.UserRepository) *RegisterUserUseCase {
+func NewRegisterUser(ur domain.UserRepository) *RegisterUser {
 
 	if ur == nil {
 		log.Fatalln("user repository is nil, stopping :b")
 	}
 
-	return &RegisterUserUseCase{ur}
+	return &RegisterUser{ur}
 }

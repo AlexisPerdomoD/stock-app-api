@@ -1,31 +1,30 @@
-package controller
+package handlers
 
 import (
 	"log"
 	"net/http"
 	"strconv"
 
-	"github.com/alexisPerdomoD/stock-app-api/internal/application/usecase"
-	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/dto"
+	"github.com/alexisPerdomoD/stock-app-api/internal/application/usecases"
+	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/mappers"
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/middleware"
-	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
 	"github.com/gin-gonic/gin"
 )
 
-type RecommendationController struct {
-	getRecommendationsByStockUC *usecase.GetRecommendationsByStockUseCase
+type RecommendationHandler struct {
+	getRecommendationsByStockUC *usecases.GetRecommendationsByStock
 }
 
-func NewRecommendationController(getRecommendationsByStockUC *usecase.GetRecommendationsByStockUseCase) *RecommendationController {
+func NewRecommendationController(getRecommendationsByStockUC *usecases.GetRecommendationsByStock) *RecommendationHandler {
 
 	if getRecommendationsByStockUC == nil {
 		log.Fatalln("[RecommendationController]: getRecommendationsByStockUC provided as nil")
 	}
 
-	return &RecommendationController{getRecommendationsByStockUC}
+	return &RecommendationHandler{getRecommendationsByStockUC}
 }
 
-func (rc *RecommendationController) GetRecommendationsByStockHandler(c *gin.Context) {
+func (rc *RecommendationHandler) GetRecommendationsByStockHandler(c *gin.Context) {
 	stockID, ok := c.Params.Get("stockID")
 	if !ok {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
@@ -44,11 +43,11 @@ func (rc *RecommendationController) GetRecommendationsByStockHandler(c *gin.Cont
 		return
 	}
 
-	filters := dto.MapGetRecommendationsFilter(c)
+	filters := mappers.MapGetRecommendationsFilter(c)
 	ctx := c.Request.Context()
 	recommendations, err := rc.getRecommendationsByStockUC.Execute(ctx, filters, uint(parsedStockID))
 	if err != nil {
-		res := pkg.MapHttpErr(err)
+		res := mappers.MapHttpErr(err)
 		c.JSON(res.StatusCode, res)
 		return
 	}
@@ -57,7 +56,7 @@ func (rc *RecommendationController) GetRecommendationsByStockHandler(c *gin.Cont
 
 }
 
-func (rc *RecommendationController) SetRoutes(r *gin.Engine) {
+func (rc *RecommendationHandler) SetRoutes(r *gin.Engine) {
 	group := r.Group("/recommendations")
 	group.Use(middleware.UserSessionMiddleware)
 

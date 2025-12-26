@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/alexisPerdomoD/stock-app-api/internal/application/usecase"
+	"github.com/alexisPerdomoD/stock-app-api/internal/application/usecases"
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	cron "github.com/robfig/cron/v3"
 )
@@ -21,7 +21,7 @@ interval default is 24h
 */
 func (sc *Scheduler) AddStockSourceService(
 	s domain.SourceStockService,
-	uc *usecase.RegisterStocksUseCase,
+	uc *usecases.RegisterStocks,
 	timeout time.Duration,
 	itv *time.Duration,
 ) {

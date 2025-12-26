@@ -2,10 +2,9 @@ package auth
 
 import (
 	"errors"
-	"log"
-
-	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
+	"github.com/alexisPerdomoD/stock-app-api/pkg"
 	"golang.org/x/crypto/bcrypt"
+	"log"
 )
 
 func ZeroBytes(b []byte) {
@@ -30,16 +29,16 @@ func HashPassword(password []byte) ([]byte, error) {
 }
 
 func VerifyPassword(password []byte, hash []byte) error {
+
 	if hash == nil {
 		log.Panicln("[VerifyPassword]: a nil hash was provided")
 	}
-
-	defer ZeroBytes(hash)
 
 	if password == nil {
 		return pkg.Unauthorized("Invalid credentials")
 	}
 
+	defer ZeroBytes(hash)
 	defer ZeroBytes(password)
 
 	if len(password) >= 72 {

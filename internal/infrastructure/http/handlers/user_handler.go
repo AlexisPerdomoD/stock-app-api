@@ -1,54 +1,23 @@
-package controller
+package handlers
 
 import (
+	"github.com/alexisPerdomoD/stock-app-api/internal/application/usecases"
+	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/mappers"
+	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/middleware"
+	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/models"
+	"github.com/alexisPerdomoD/stock-app-api/pkg/auth"
+	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"strconv"
-
-	"github.com/alexisPerdomoD/stock-app-api/internal/application/usecase"
-	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/dto"
-	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/middleware"
-	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
-	"github.com/alexisPerdomoD/stock-app-api/internal/pkg/auth"
-	"github.com/gin-gonic/gin"
 )
 
 type UserController struct {
-	getStocksUC     *usecase.GetStocksUseCase
-	registerUC      *usecase.RegisterUserUseCase
-	loginUC         *usecase.LoginUseCase
-	registerStockUC *usecase.RegisterUserStockUseCase
-	removeStockUC   *usecase.RemoveUserStockUseCase
-}
-
-func NewUserController(
-	getStocksUC *usecase.GetStocksUseCase,
-	registerUC *usecase.RegisterUserUseCase,
-	loginUC *usecase.LoginUseCase,
-	registerStockUC *usecase.RegisterUserStockUseCase,
-	removeStockUC *usecase.RemoveUserStockUseCase,
-) *UserController {
-	if getStocksUC == nil {
-		log.Fatalln("[UserController]: getStocksUC provided as nil")
-	}
-
-	if registerUC == nil {
-		log.Fatalln("[UserController]: registerUC provided as nil")
-	}
-
-	if loginUC == nil {
-		log.Fatalln("[UserController]: loginUC provided as nil")
-	}
-
-	if registerStockUC == nil {
-		log.Fatalln("[UserController]: registerStockUC provided as nil")
-	}
-
-	if removeStockUC == nil {
-		log.Fatalln("[UserController]: removeStockUC provided as nil")
-	}
-
-	return &UserController{getStocksUC, registerUC, loginUC, registerStockUC, removeStockUC}
+	getStocksUC     *usecases.GetStocks
+	registerUC      *usecases.RegisterUser
+	loginUC         *usecases.Login
+	registerStockUC *usecases.RegisterUserStock
+	removeStockUC   *usecases.RemoveUserStock
 }
 
 func (sc *UserController) GetStocksHandler(c *gin.Context) {
@@ -59,11 +28,11 @@ func (sc *UserController) GetStocksHandler(c *gin.Context) {
 	}
 
 	ctx := c.Request.Context()
-	filters := dto.MapGetStocksFilter(c)
+	filters := mappers.MapGetStocksFilter(c)
 
 	stocks, err := sc.getStocksUC.Execute(ctx, filters, &userID)
 	if err != nil {
-		res := pkg.MapHttpErr(err)
+		res := mappers.MapHttpErr(err)
 		c.JSON(res.StatusCode, res)
 		return
 	}
@@ -72,9 +41,9 @@ func (sc *UserController) GetStocksHandler(c *gin.Context) {
 }
 
 func (uc *UserController) RegisterUserHandler(c *gin.Context) {
-	user, err := dto.MapNewUserForm(c)
+	args, err := mappers.MapRegisterUserDTO(c)
 	if err != nil {
-		issues := dto.GetValidationErrors(err)
+		issues := mappers.MapValidationErrors(err)
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
 			gin.H{"name": "bad_request", "message": "invalid format", "issues": issues},
@@ -82,15 +51,16 @@ func (uc *UserController) RegisterUserHandler(c *gin.Context) {
 		return
 	}
 	ctx := c.Request.Context()
-	if err := uc.registerUC.Execute(ctx, user); err != nil {
-		res := pkg.MapHttpErr(err)
+	usr := args.ToDomain()
+	if err := uc.registerUC.Execute(ctx, usr); err != nil {
+		res := mappers.MapHttpErr(err)
 		c.AbortWithStatusJSON(res.StatusCode, res)
 		return
 	}
 
-	session, err := auth.GenerateSessionToken(user)
+	session, err := auth.GenerateSessionToken(usr)
 	if err != nil {
-		res := pkg.MapHttpErr(err)
+		res := mappers.MapHttpErr(err)
 		c.AbortWithStatusJSON(res.StatusCode, res)
 		return
 	}
@@ -103,9 +73,9 @@ func (uc *UserController) RegisterUserHandler(c *gin.Context) {
 }
 
 func (uc *UserController) LoginUserHandler(c *gin.Context) {
-	credentials := &dto.UserDto{}
+	credentials := &models.UserLoginDTO{}
 	if err := c.ShouldBindBodyWithJSON(credentials); err != nil {
-		issues := dto.GetValidationErrors(err)
+		issues := mappers.MapValidationErrors(err)
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
 			gin.H{"name": "bad_request", "message": "invalid credentials", "issues": issues},
@@ -115,14 +85,14 @@ func (uc *UserController) LoginUserHandler(c *gin.Context) {
 	ctx := c.Request.Context()
 	user, err := uc.loginUC.Execute(ctx, credentials.Email, []byte(credentials.Password))
 	if err != nil {
-		res := pkg.MapHttpErr(err)
+		res := mappers.MapHttpErr(err)
 		c.AbortWithStatusJSON(res.StatusCode, res)
 		return
 	}
 
 	session, err := auth.GenerateSessionToken(user)
 	if err != nil {
-		res := pkg.MapHttpErr(err)
+		res := mappers.MapHttpErr(err)
 		c.AbortWithStatusJSON(res.StatusCode, res)
 		return
 	}
@@ -165,7 +135,7 @@ func (uc *UserController) RegisterStockHandler(c *gin.Context) {
 
 	ctx := c.Request.Context()
 	if err := uc.registerStockUC.Execute(ctx, userID, uint(parseStockID)); err != nil {
-		res := pkg.MapHttpErr(err)
+		res := mappers.MapHttpErr(err)
 		c.AbortWithStatusJSON(res.StatusCode, res)
 		return
 	}
@@ -203,7 +173,7 @@ func (uc *UserController) RemoveStockHandler(c *gin.Context) {
 
 	ctx := c.Request.Context()
 	if err := uc.removeStockUC.Execute(ctx, userID, uint(parseStockID)); err != nil {
-		res := pkg.MapHttpErr(err)
+		res := mappers.MapHttpErr(err)
 		c.AbortWithStatusJSON(res.StatusCode, res)
 		return
 	}
@@ -219,4 +189,34 @@ func (uc *UserController) SetRoutes(r *gin.Engine) {
 	group.GET("/stocks", middleware.UserSessionMiddleware, uc.GetStocksHandler)
 	group.POST("/stocks/:stockID", middleware.UserSessionMiddleware, uc.RegisterStockHandler)
 	group.DELETE("/stocks/:stockID", middleware.UserSessionMiddleware, uc.RemoveStockHandler)
+}
+
+func NewUserController(
+	getStocksUC *usecases.GetStocks,
+	registerUC *usecases.RegisterUser,
+	loginUC *usecases.Login,
+	registerStockUC *usecases.RegisterUserStock,
+	removeStockUC *usecases.RemoveUserStock,
+) *UserController {
+	if getStocksUC == nil {
+		log.Fatalln("[UserController]: getStocksUC provided as nil")
+	}
+
+	if registerUC == nil {
+		log.Fatalln("[UserController]: registerUC provided as nil")
+	}
+
+	if loginUC == nil {
+		log.Fatalln("[UserController]: loginUC provided as nil")
+	}
+
+	if registerStockUC == nil {
+		log.Fatalln("[UserController]: registerStockUC provided as nil")
+	}
+
+	if removeStockUC == nil {
+		log.Fatalln("[UserController]: removeStockUC provided as nil")
+	}
+
+	return &UserController{getStocksUC, registerUC, loginUC, registerStockUC, removeStockUC}
 }

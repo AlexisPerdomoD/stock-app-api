@@ -1,11 +1,9 @@
-package auth_test
+package auth
 
 import (
+	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"os"
 	"testing"
-
-	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
-	"github.com/alexisPerdomoD/stock-app-api/internal/pkg/auth"
 )
 
 // #nosec: G101 (CWE-798): Potential hardcoded credentials(they're not, but we want to test it)
@@ -41,7 +39,7 @@ func TestGenerateSessionToken(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, gotErr := auth.GenerateSessionToken(tt.user)
+			got, gotErr := GenerateSessionToken(tt.user)
 			if gotErr != nil {
 				if !tt.wantErr {
 					t.Errorf("GenerateSessionToken() failed: %v", gotErr)
@@ -89,7 +87,7 @@ func TestValidateSessionToken(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, gotErr := auth.ValidateSessionToken(tt.token)
+			got, gotErr := ValidateSessionToken(tt.token)
 			if gotErr != nil {
 				if !tt.wantErr {
 					t.Errorf("ValidateSessionToken() failed: %v", gotErr)

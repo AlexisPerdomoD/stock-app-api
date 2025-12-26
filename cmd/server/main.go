@@ -3,18 +3,17 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"os"
-	"time"
-
-	"github.com/alexisPerdomoD/stock-app-api/internal/application/usecase"
-	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/controller"
-	cockroachdb "github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/persistence/cockroachdb"
+	"github.com/alexisPerdomoD/stock-app-api/internal/application/usecases"
+	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/handlers"
+	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/persistence/cockroachdb"
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/scheduler"
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/service"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"log"
+	"os"
+	"time"
 )
 
 /*
@@ -35,18 +34,18 @@ func main() {
 	rr := cockroachdb.NewRecommendationRepository(db)
 	ur := cockroachdb.NewUserRepository(db)
 
-	getStocksUC := usecase.NewGetStocksUseCase(sr)
-	getStockUC := usecase.NewGetStockUseCase(sr)
-	registerStocksUC := usecase.NewRegisterStocksUseCase(sr)
-	getRecommendationByStockUC := usecase.NewGetRecommendationsByStockUseCase(sr, rr)
-	loginUserUC := usecase.NewLoginUseCase(ur)
-	registerUserUC := usecase.NewRegisterUserUseCase(ur)
-	registerUserStockUC := usecase.NewRegisterUserStockUseCase(ur)
-	removeUserStockUC := usecase.NewRemoveUserStockUserCase(ur)
+	getStocksUC := usecases.NewGetStocks(sr)
+	getStockUC := usecases.NewGetStock(sr)
+	registerStocksUC := usecases.NewRegisterStocks(sr)
+	getRecommendationByStockUC := usecases.NewGetRecommendationsByStock(sr, rr)
+	loginUserUC := usecases.NewLogin(ur)
+	registerUserUC := usecases.NewRegisterUser(ur)
+	registerUserStockUC := usecases.NewRegisterUserStock(ur)
+	removeUserStockUC := usecases.NewRemoveUserStock(ur)
 
-	stockController := controller.NewStockController(getStocksUC, getStockUC)
-	recommendationController := controller.NewRecommendationController(getRecommendationByStockUC)
-	userController := controller.NewUserController(
+	stockController := handlers.NewStockController(getStocksUC, getStockUC)
+	recommendationController := handlers.NewRecommendationController(getRecommendationByStockUC)
+	userController := handlers.NewUserController(
 		getStocksUC,
 		registerUserUC,
 		loginUserUC,

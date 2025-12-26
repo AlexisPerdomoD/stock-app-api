@@ -1,4 +1,4 @@
-package usecase
+package usecases
 
 import (
 	"context"
@@ -6,14 +6,14 @@ import (
 	"time"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
-	"github.com/alexisPerdomoD/stock-app-api/internal/pkg"
+	"github.com/alexisPerdomoD/stock-app-api/pkg"
 )
 
-type RegisterStocksUseCase struct {
+type RegisterStocks struct {
 	sr domain.StockRepository
 }
 
-func (uc *RegisterStocksUseCase) Execute(ctx context.Context, s domain.SourceStockService, limitDate *time.Time) (int, error) {
+func (uc *RegisterStocks) Execute(ctx context.Context, s domain.SourceStockService, limitDate *time.Time) (int, error) {
 	if s == nil {
 		return 0, pkg.InternalServerError("bad impl: SourceStockService was nil on registerStocksUseCase.Execute()")
 	}
@@ -34,11 +34,11 @@ func (uc *RegisterStocksUseCase) Execute(ctx context.Context, s domain.SourceSto
 	return len(data), nil
 }
 
-func NewRegisterStocksUseCase(sr domain.StockRepository) *RegisterStocksUseCase {
+func NewRegisterStocks(sr domain.StockRepository) *RegisterStocks {
 
 	if sr == nil {
 		log.Fatalln("bad impl: StockRepository is nil when creating register stock use case")
 	}
 
-	return &RegisterStocksUseCase{sr}
+	return &RegisterStocks{sr}
 }
