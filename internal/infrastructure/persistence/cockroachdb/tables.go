@@ -10,25 +10,19 @@ type userRecord struct {
 	Username  string    `db:"username"`
 	Firstname string    `db:"firstname"`
 	Lastname  string    `db:"lastname"`
-	Password  string    `db:"password"`
+	Password  []byte    `db:"password"`
 	Active    bool      `db:"active"`
 	CreatedAt time.Time `db:"created_at"`
 	UpdatedAt time.Time `db:"updated_at"`
 }
 
-func (r userRecord) ToDomain(inclidePassword bool) *domain.User {
-	var password []byte = nil
-
-	if inclidePassword {
-		password = []byte(r.Password)
-	}
-
+func (r userRecord) ToDomain() *domain.User {
 	return &domain.User{
 		ID:        r.ID,
 		Username:  r.Username,
 		Firstname: r.Firstname,
 		Lastname:  r.Lastname,
-		Password:  password,
+		Password:  r.Password,
 		Active:    r.Active,
 		CreatedAt: r.CreatedAt,
 	}
