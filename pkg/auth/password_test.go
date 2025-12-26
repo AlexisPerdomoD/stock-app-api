@@ -53,29 +53,33 @@ func TestVerifyPassword(t *testing.T) {
 		password []byte
 		hash     []byte
 		wantErr  bool
+		expected bool
 	}{
 		{
 			name:     "Password is too long",
 			password: INVALID_PASSWORD_TO_LONG,
 			hash:     VALID_HASH,
 			wantErr:  true,
+			expected: false,
 		},
 		{
 			name:     "invalid password",
 			password: INVALID_PASSWORD,
 			hash:     VALID_HASH,
 			wantErr:  true,
+			expected: false,
 		},
 		{
 			name:     "valid password",
 			password: VALID_PASSWORD,
 			hash:     VALID_HASH,
 			wantErr:  false,
+			expected: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotErr := VerifyPassword(tt.password, tt.hash)
+			validPassword, gotErr := VerifyPassword(tt.password, tt.hash)
 			if gotErr != nil {
 				if !tt.wantErr {
 					t.Errorf("VerifyPassword() failed: %v", gotErr)
@@ -84,6 +88,10 @@ func TestVerifyPassword(t *testing.T) {
 			}
 			if tt.wantErr {
 				t.Fatal("VerifyPassword() succeeded unexpectedly")
+			}
+
+			if validPassword != tt.expected {
+				t.Errorf("VerifyPassword() returned %v, expected %v", validPassword, tt.expected)
 			}
 		})
 	}

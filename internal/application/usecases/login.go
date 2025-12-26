@@ -2,20 +2,22 @@ package usecases
 
 import (
 	"context"
-	"log"
-
+	"github.com/alexisPerdomoD/stock-app-api/internal/application/models"
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"github.com/alexisPerdomoD/stock-app-api/pkg"
 	"github.com/alexisPerdomoD/stock-app-api/pkg/auth"
+	"log"
 )
 
 type Login struct {
 	ur domain.UserRepository
 }
 
-func (uc *Login) Execute(ctx context.Context, username string, password []byte) (*domain.User, error) {
-	user, err := uc.ur.GetByUsername(ctx, username)
+func (uc *Login) Execute(ctx context.Context, credentials *models.UserLoginDTO) (*domain.User, error) {
+	password := credentials.GetPasswordBytesAndClean()
+	defer auth.ZeroBytes(password)
 
+	user, err := uc.ur.GetByUsername(ctx, credentials.Username)
 	if err != nil {
 		return nil, err
 	}
@@ -23,8 +25,15 @@ func (uc *Login) Execute(ctx context.Context, username string, password []byte) 
 	if user == nil {
 		return nil, pkg.Unauthorized("Invalid credentials")
 	}
+	defer auth.ZeroBytes(user.Password)
 
-	if err = auth.VerifyPassword(password, user.Password); err != nil {
+	validPassword, err := auth.VerifyPassword(password, user.Password)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if !validPassword {
 		return nil, pkg.Unauthorized("Invalid credentials")
 	}
 

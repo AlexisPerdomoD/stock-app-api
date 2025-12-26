@@ -2,9 +2,7 @@ package auth
 
 import (
 	"errors"
-	"github.com/alexisPerdomoD/stock-app-api/pkg"
 	"golang.org/x/crypto/bcrypt"
-	"log"
 )
 
 func ZeroBytes(b []byte) {
@@ -28,22 +26,30 @@ func HashPassword(password []byte) ([]byte, error) {
 	return hashed, nil
 }
 
-func VerifyPassword(password []byte, hash []byte) error {
+func VerifyPassword(password []byte, hash []byte) (bool, error) {
 
-	if hash == nil {
-		log.Panicln("[VerifyPassword]: a nil hash was provided")
+	if hash == nil || password == nil {
+		return false, errors.New("a nil hash or password was provided as argument")
 	}
 
 	if password == nil {
-		return pkg.Unauthorized("Invalid credentials")
+		return false, nil
 	}
-
-	defer ZeroBytes(hash)
-	defer ZeroBytes(password)
 
 	if len(password) >= 72 {
-		return pkg.Unauthorized("Invalid credentials")
+		return false, nil
 	}
 
-	return bcrypt.CompareHashAndPassword(hash, password)
+	err := bcrypt.CompareHashAndPassword(hash, password)
+
+	if err != nil {
+
+		if err == bcrypt.ErrMismatchedHashAndPassword {
+			return false, nil
+		}
+
+		return false, err
+	}
+
+	return true, nil
 }

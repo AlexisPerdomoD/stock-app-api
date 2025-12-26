@@ -3,8 +3,16 @@ package models
 import "github.com/alexisPerdomoD/stock-app-api/internal/domain"
 
 type UserLoginDTO struct {
-	Email    string `json:"email" binding:"email,required"`
-	Password string `json:"password" binding:"required,min=8,max=72"`
+	Username string `json:"email" binding:"email,required"`
+	Password string `json:"password" binding:"required"`
+}
+
+// GetPasswordBytesAndClean returns the password bytes and clean the password field
+// to avoid leaking it in the logs
+func (dto *UserLoginDTO) GetPasswordBytesAndClean() []byte {
+	pwd := []byte(dto.Password)
+	dto.Password = ""
+	return pwd
 }
 
 type RegisterUserDTO struct {

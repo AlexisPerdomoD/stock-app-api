@@ -1,17 +1,15 @@
 package handlers
 
 import (
-	"log"
-	"net/http"
-	"strconv"
-
 	"github.com/alexisPerdomoD/stock-app-api/internal/application/usecases"
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/mappers"
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/middleware"
-	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/models"
 	"github.com/alexisPerdomoD/stock-app-api/pkg"
 	"github.com/alexisPerdomoD/stock-app-api/pkg/auth"
 	"github.com/gin-gonic/gin"
+	"log"
+	"net/http"
+	"strconv"
 )
 
 type UserHandler struct {
@@ -72,14 +70,14 @@ func (uc *UserHandler) RegisterUserHandler(c *gin.Context) {
 }
 
 func (uc *UserHandler) LoginUserHandler(c *gin.Context) {
-	credentials := &models.UserLoginDTO{}
-	if err := c.ShouldBindBodyWithJSON(credentials); err != nil {
+	userLogin, err := mappers.MapUserLoginDTO(c)
+	if err != nil {
 		res := mappers.MapHttpErr(err)
 		c.AbortWithStatusJSON(res.StatusCode, res)
 		return
 	}
 	ctx := c.Request.Context()
-	user, err := uc.login.Execute(ctx, credentials.Email, []byte(credentials.Password))
+	user, err := uc.login.Execute(ctx, userLogin)
 	if err != nil {
 		res := mappers.MapHttpErr(err)
 		c.AbortWithStatusJSON(res.StatusCode, res)

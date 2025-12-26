@@ -1,12 +1,12 @@
 package mappers
 
 import (
-	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/models"
+	appmodels "github.com/alexisPerdomoD/stock-app-api/internal/application/models"
 	"github.com/gin-gonic/gin"
 )
 
-func MapRegisterUserDTO(c *gin.Context) (*models.RegisterUserDTO, error) {
-	user := &models.RegisterUserDTO{}
+func MapRegisterUserDTO(c *gin.Context) (*appmodels.RegisterUserDTO, error) {
+	user := &appmodels.RegisterUserDTO{}
 
 	if err := c.ShouldBindBodyWithJSON(user); err != nil {
 		return nil, err
