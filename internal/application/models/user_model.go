@@ -24,8 +24,15 @@ type RegisterUserDTO struct {
 
 func (dto *RegisterUserDTO) ToDomain() *domain.User {
 	return &domain.User{
-		UserName: dto.Username,
-		Password: []byte(dto.Password),
-		Active:   true,
+		Username:  dto.Username,
+		Firstname: dto.Firstname,
+		Lastname:  dto.Lastname,
+		Active:    true,
 	}
+}
+
+func (dto *RegisterUserDTO) GetPasswordBytesAndClean() []byte {
+	pwd := []byte(dto.Password)
+	dto.Password = ""
+	return pwd
 }
