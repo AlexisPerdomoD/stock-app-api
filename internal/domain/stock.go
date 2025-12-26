@@ -16,28 +16,6 @@ const (
 )
 
 /*
-Market
-Represents the market where the stock is traded.
-*/
-type Market struct {
-	ID        uint      `json:"id,string"`
-	Name      string    `json:"name"`
-	CreatedAt time.Time `json:"created_at"`
-}
-
-/*
-Company
-Represents the company that owns the stock.
-*/
-type Company struct {
-	ID        uint      `json:"id,string"`
-	MarketID  uint      `json:"market_id,string"`
-	Name      string    `json:"name"`
-	ISIN      *string   `json:"isin"`
-	CreatedAt time.Time `json:"created_at"`
-}
-
-/*
 Stock
 Represents a stock.
 */
@@ -70,5 +48,7 @@ type StockRepository interface {
 
 	GetAllPaginated(ctx context.Context, filter pkg.PaginationFilter, userID *uint) (*pkg.PaginationReponse[PopulatedStock], error)
 
-	Register(ctx context.Context, stock []SourceStockData) error
+	Save(ctx context.Context, stock *Stock) error
+
+	Update(ctx context.Context, stock *StockUpdates) error
 }

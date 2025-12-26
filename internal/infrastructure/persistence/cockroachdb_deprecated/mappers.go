@@ -1,4 +1,4 @@
-package cockroachdb
+package cockroachdb_deprecated
 
 import "github.com/alexisPerdomoD/stock-app-api/internal/domain"
 

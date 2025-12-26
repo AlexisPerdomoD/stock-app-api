@@ -1,4 +1,4 @@
-package service_test
+package services_test
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
-	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/service"
+	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/services"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,8 +20,8 @@ func TestMainSourceStockService_Get(t *testing.T) {
 	twoDaysAgo := today.AddDate(0, 0, -2)
 	threeDaysAgo := today.AddDate(0, 0, -3)
 
-	mockResponse := service.MainStockSourcePayload{
-		Items: []service.MainStockSourceItem{
+	mockResponse := services.MainStockSourcePayload{
+		Items: []services.MainStockSourceItem{
 			{
 				Ticker:     "AAPL",
 				TargetFrom: "$100.00",
@@ -68,7 +68,7 @@ func TestMainSourceStockService_Get(t *testing.T) {
 	os.Setenv("MAIN_SOURCE_STOCK_URI", serverHappyPath.URL)
 	os.Setenv("MAIN_SOURCE_STOCK_KEY", "test-key")
 
-	svc := service.NewMainSourceStockService(false)
+	svc := services.NewMainSourceStockService(false)
 
 	data, err := svc.Get(context.Background(), &twoDaysAgo)
 	assert.NoError(t, err)
@@ -106,7 +106,7 @@ func TestMainSourceStockService_Get(t *testing.T) {
 
 	os.Setenv("MAIN_SOURCE_STOCK_URI", serverErr.URL)
 	os.Setenv("MAIN_SOURCE_STOCK_KEY", "test-key")
-	svc = service.NewMainSourceStockService(false)
+	svc = services.NewMainSourceStockService(false)
 	data, err = svc.Get(context.Background(), &twoDaysAgo)
 	assert.Nil(t, data)
 	assert.Error(t, err)

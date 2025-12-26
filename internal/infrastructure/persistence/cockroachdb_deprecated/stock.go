@@ -1,4 +1,4 @@
-package cockroachdb
+package cockroachdb_deprecated
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 	"log"
 	"math"
 
+	"github.com/alexisPerdomoD/stock-app-api/internal/application/services"
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"github.com/alexisPerdomoD/stock-app-api/pkg"
 	"gorm.io/gorm"
@@ -114,7 +115,7 @@ func (r *StockRepository) GetAllPaginated(
 }
 
 func (r *StockRepository) Register(
-	ctx context.Context, data []domain.SourceStockData,
+	ctx context.Context, data []services.DataSourceResponse,
 ) error {
 	if data == nil {
 		return pkg.BadRequest("data is nil")

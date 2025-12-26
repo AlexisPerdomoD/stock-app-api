@@ -1,17 +1,17 @@
-package service
+package services
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/alexisPerdomoD/stock-app-api/internal/application/services"
+	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
+	"github.com/alexisPerdomoD/stock-app-api/pkg"
 	"log"
 	"net/http"
 	"slices"
 	"strings"
 	"time"
-
-	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
-	"github.com/alexisPerdomoD/stock-app-api/pkg"
 )
 
 /*
@@ -109,7 +109,7 @@ func (s *CnnStockSourceService) Name() string {
 	return "CnnStockSourceService"
 }
 
-func (s *CnnStockSourceService) Get(ctx context.Context, limitDate *time.Time) ([]domain.SourceStockData, error) {
+func (s *CnnStockSourceService) Get(ctx context.Context, limitDate *time.Time) ([]services.DataSourceResponse, error) {
 	payload := []CnnStockSourceItem{}
 
 	req, err := http.NewRequestWithContext(ctx, "GET", s.url, nil)
@@ -139,7 +139,7 @@ func (s *CnnStockSourceService) Get(ctx context.Context, limitDate *time.Time) (
 		return nil, err
 	}
 
-	data := []domain.SourceStockData{}
+	data := make([]services.DataSourceResponse, 0)
 	log.Printf("[CnnStockSourceService]: service started and sorcing %d stocks", len(payload))
 	for _, item := range payload {
 		if limitDate != nil && limitDate.After(item.LastUpdated) {
@@ -154,15 +154,15 @@ func (s *CnnStockSourceService) Get(ctx context.Context, limitDate *time.Time) (
 			tendency = domain.Up
 		}
 
-		dataItem := domain.SourceStockData{
+		dataItem := services.DataSourceResponse{
 			Time: item.LastUpdated,
-			Market: domain.MarketArgs{
+			Market: services.MarketData{
 				Name: "cnn stock source",
 			},
-			Company: domain.CompanyArgs{
+			Company: services.CompanyData{
 				Name: strings.ToLower(item.CompanyName),
 			},
-			Stock: domain.StockArgs{
+			Stock: services.StockData{
 				Ticker:   strings.ToLower(item.Ticker),
 				Price:    item.CurrentPrice,
 				Tendency: tendency,
@@ -172,7 +172,7 @@ func (s *CnnStockSourceService) Get(ctx context.Context, limitDate *time.Time) (
 		data = append(data, dataItem)
 	}
 
-	slices.SortFunc(data, func(a, b domain.SourceStockData) int {
+	slices.SortFunc(data, func(a, b services.DataSourceResponse) int {
 		if a.Time.After(b.Time) {
 			return 1
 		}

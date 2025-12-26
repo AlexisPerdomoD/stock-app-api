@@ -1,14 +1,12 @@
-package cockroachdb_test
+package cockroachdb_deprecated_test
 
 import (
 	"context"
-	"testing"
-
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
-	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/persistence/cockroachdb"
-	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/service/mock"
+	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/persistence/cockroachdb_deprecated"
 	"github.com/alexisPerdomoD/stock-app-api/pkg"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 var stock *domain.PopulatedStock
@@ -87,49 +85,49 @@ var stockGetAllPaginatedTests = []struct {
 	},
 }
 
-func Test_stockRepository_Register(t *testing.T) {
-	db := cockroachdb.NewDB()
-	r := cockroachdb.NewStockRepository(db)
-	sourceDataService := mock.MockSourceStockService{}
-
-	data, err := sourceDataService.Get(context.Background(), nil)
-	if err != nil {
-		t.Fatalf("failed to get invalid data: %v", err)
-	}
-	assert := assert.New(t)
-
-	tests := []struct {
-		name    string
-		data    []domain.SourceStockData
-		wantErr bool
-	}{
-		{
-			name: "must do all insertions without error",
-			data: data,
-		},
-		{
-			name:    "provided nil data must return error",
-			data:    nil,
-			wantErr: true,
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-
-			gotErr := r.Register(context.Background(), test.data)
-			if test.wantErr {
-				assert.Error(gotErr)
-			} else {
-				assert.Nil(gotErr)
-			}
-		})
-	}
-}
+// func Test_stockRepository_Register(t *testing.T) {
+// 	db := cockroachdb.NewDB()
+// 	r := cockroachdb.NewStockRepository(db)
+// 	sourceDataService := mock.MockSourceStockService{}
+//
+// 	data, err := sourceDataService.Get(context.Background(), nil)
+// 	if err != nil {
+// 		t.Fatalf("failed to get invalid data: %v", err)
+// 	}
+// 	assert := assert.New(t)
+//
+// 	tests := []struct {
+// 		name    string
+// 		data    []domain.SourceStockData
+// 		wantErr bool
+// 	}{
+// 		{
+// 			name: "must do all insertions without error",
+// 			data: data,
+// 		},
+// 		{
+// 			name:    "provided nil data must return error",
+// 			data:    nil,
+// 			wantErr: true,
+// 		},
+// 	}
+//
+// 	for _, test := range tests {
+// 		t.Run(test.name, func(t *testing.T) {
+//
+// 			gotErr := r.Register(context.Background(), test.data)
+// 			if test.wantErr {
+// 				assert.Error(gotErr)
+// 			} else {
+// 				assert.Nil(gotErr)
+// 			}
+// 		})
+// 	}
+// }
 
 func Test_stockRepository_GetAllPaginated(t *testing.T) {
-	db := cockroachdb.NewDB()
-	r := cockroachdb.NewStockRepository(db)
+	db := cockroachdb_deprecated.NewDB()
+	r := cockroachdb_deprecated.NewStockRepository(db)
 	assert := assert.New(t)
 	for _, test := range stockGetAllPaginatedTests {
 		t.Run(test.name, func(t *testing.T) {
@@ -145,8 +143,8 @@ func Test_stockRepository_GetAllPaginated(t *testing.T) {
 }
 
 func Test_stockRepository_Get(t *testing.T) {
-	db := cockroachdb.NewDB()
-	r := cockroachdb.NewStockRepository(db)
+	db := cockroachdb_deprecated.NewDB()
+	r := cockroachdb_deprecated.NewStockRepository(db)
 	assert := assert.New(t)
 	tests := []struct {
 		name    string

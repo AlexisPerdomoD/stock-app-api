@@ -2,11 +2,11 @@ package mock
 
 import (
 	"context"
+	"github.com/alexisPerdomoD/stock-app-api/internal/application/services"
+	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"math/rand"
 	"strings"
 	"time"
-
-	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 )
 
 func RandomNumber(min, max float64) float64 {
@@ -18,7 +18,7 @@ func RandomString(length int) string {
 	const charset = "abcdefghijklmnopqrstuvwxyz0123456789"
 	var b strings.Builder
 	b.Grow(length)
-	for i := 0; i < length; i++ {
+	for range length {
 		// #nosec G404 -- rand is fine in test/mock context
 		b.WriteByte(charset[rand.Intn(len(charset))])
 	}
@@ -48,27 +48,27 @@ func (m *MockSourceStockService) Name() string {
 	return "MockSourceStockService"
 }
 
-func (m *MockSourceStockService) Get(ctx context.Context, limitDate *time.Time) ([]domain.SourceStockData, error) {
-	var result []domain.SourceStockData
+func (m *MockSourceStockService) Get(ctx context.Context, limitDate *time.Time) ([]services.DataSourceResponse, error) {
+	var result []services.DataSourceResponse
 
-	for i := 0; i < 500; i++ {
+	for i := range 500 {
 		ticker := RandomTicker()
-		stock := domain.SourceStockData{
-			Market: domain.MarketArgs{
+		stock := services.DataSourceResponse{
+			Market: services.MarketData{
 				Name: "mock market",
 			},
-			Company: domain.CompanyArgs{
+			Company: services.CompanyData{
 				Name: ticker,
 				ISIN: nil,
 			},
-			Recomendation: &domain.RecommendationArgs{
+			Recomendation: &services.RecommendationData{
 				RatingTo:   RandomAction(),
 				RatingFrom: RandomAction(),
 				TargetTo:   RandomNumber(10, 2000),
 				TargetFrom: RandomNumber(10, 2000),
-				Brokerage:  domain.BrokerageArgs{Name: "mock " + RandomString(10)},
+				Brokerage:  services.BrokerageData{Name: "mock " + RandomString(10)},
 			},
-			Stock: domain.StockArgs{
+			Stock: services.StockData{
 				Ticker:   ticker,
 				Name:     ticker,
 				Price:    RandomNumber(10, 2000),

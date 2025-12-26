@@ -1,10 +1,10 @@
-package cockroachdb_test
+package cockroachdb_deprecated_test
 
 import (
 	"os"
 	"testing"
 
-	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/persistence/cockroachdb"
+	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/persistence/cockroachdb_deprecated"
 )
 
 func TestMain(m *testing.M) {
@@ -23,8 +23,8 @@ func TestMain(m *testing.M) {
 	mustSet("CR_SSL", "disable")
 	mustSet("CR_RUN_MIGRATE", "TRUE")
 
-	db := cockroachdb.NewDB()
-	if err := cockroachdb.Migrate(db); err != nil {
+	db := cockroachdb_deprecated.NewDB()
+	if err := cockroachdb_deprecated.Migrate(db); err != nil {
 		panic("[SetTestSetup]: failed when migrating on db: " + err.Error())
 	}
 

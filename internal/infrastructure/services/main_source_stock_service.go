@@ -1,4 +1,4 @@
-package service
+package services
 
 import (
 	"context"
@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alexisPerdomoD/stock-app-api/internal/application/services"
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"github.com/alexisPerdomoD/stock-app-api/pkg"
 )
@@ -112,10 +113,11 @@ func (s *MainSourceStockService) setRating(rating string) domain.Action {
 func (s *MainSourceStockService) Get(
 	ctx context.Context,
 	limitDate *time.Time,
-) ([]domain.SourceStockData, error) {
+
+) ([]services.DataSourceResponse, error) {
 
 	doUntil := limitDate
-	response := []domain.SourceStockData{}
+	response := []services.DataSourceResponse{}
 	nextPage := ""
 
 	if doUntil != nil && doUntil.After(time.Now()) {
@@ -136,7 +138,7 @@ func (s *MainSourceStockService) Get(
 			return nil, err
 		}
 
-		mkt := domain.MarketArgs{Name: "main source stock"}
+		mkt := services.MarketData{Name: "main source stock"}
 
 		for i, item := range payload.Items {
 
@@ -173,23 +175,23 @@ func (s *MainSourceStockService) Get(
 			ratingFrom := s.setRating(item.RatingFrom)
 			ratingTo := s.setRating(item.RatingTo)
 
-			args := domain.SourceStockData{Time: item.Time}
+			args := services.DataSourceResponse{Time: item.Time}
 
 			args.Market = mkt
 
-			args.Company = domain.CompanyArgs{Name: companyName}
+			args.Company = services.CompanyData{Name: companyName}
 
-			args.Recomendation = &domain.RecommendationArgs{
+			args.Recomendation = &services.RecommendationData{
 				RatingTo:   ratingTo,
 				RatingFrom: ratingFrom,
 				TargetTo:   currentPrice,
 				TargetFrom: previusPrice,
-				Brokerage: domain.BrokerageArgs{
+				Brokerage: services.BrokerageData{
 					Name: brokerageName,
 				},
 			}
 
-			args.Stock = domain.StockArgs{
+			args.Stock = services.StockData{
 				Ticker:   ticker,
 				Price:    currentPrice,
 				Tendency: tendency,
@@ -213,7 +215,7 @@ func (s *MainSourceStockService) Get(
 		}
 	}
 
-	slices.SortFunc(response, func(a, b domain.SourceStockData) int {
+	slices.SortFunc(response, func(a, b services.DataSourceResponse) int {
 		if a.Time.After(b.Time) {
 			return 1
 		}

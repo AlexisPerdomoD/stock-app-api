@@ -17,16 +17,6 @@ const (
 )
 
 /*
-Brokerage
-Represents Analytics Brokerage teams that are responsible for the stocks recommendations.
-*/
-type Brokerage struct {
-	ID        uint      `json:"id,string"`
-	Name      string    `json:"name"`
-	CreatedAt time.Time `json:"created_at"`
-}
-
-/*
 Recommendation
 Represents a recommendation made by a brokerage team.
 */

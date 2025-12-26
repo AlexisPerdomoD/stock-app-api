@@ -1,4 +1,4 @@
-package cockroachdb
+package cockroachdb_deprecated
 
 import (
 	"context"
