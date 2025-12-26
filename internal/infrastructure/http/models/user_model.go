@@ -8,13 +8,15 @@ type UserLoginDTO struct {
 }
 
 type RegisterUserDTO struct {
-	Email    string `json:"email" binding:"email,required"`
-	Password string `json:"password" binding:"required,min=8,max=72"`
+	Username  string `json:"email" binding:"email,required"`
+	Firstname string `json:"firstname" binding:"min=1"`
+	Lastname  string `json:"lastname" binding:"min=1"`
+	Password  string `json:"password" binding:"required,min=8,max=72"`
 }
 
 func (dto *RegisterUserDTO) ToDomain() *domain.User {
 	return &domain.User{
-		UserName: dto.Email,
+		UserName: dto.Username,
 		Password: []byte(dto.Password),
 		Active:   true,
 	}

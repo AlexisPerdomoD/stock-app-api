@@ -1,27 +1,17 @@
 package handlers
 
 import (
-	"log"
-	"net/http"
-	"strconv"
-
 	"github.com/alexisPerdomoD/stock-app-api/internal/application/usecases"
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/mappers"
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/middleware"
 	"github.com/gin-gonic/gin"
+	"log"
+	"net/http"
+	"strconv"
 )
 
 type RecommendationHandler struct {
-	getRecommendationsByStockUC *usecases.GetRecommendationsByStock
-}
-
-func NewRecommendationController(getRecommendationsByStockUC *usecases.GetRecommendationsByStock) *RecommendationHandler {
-
-	if getRecommendationsByStockUC == nil {
-		log.Fatalln("[RecommendationController]: getRecommendationsByStockUC provided as nil")
-	}
-
-	return &RecommendationHandler{getRecommendationsByStockUC}
+	getRecommendationsByStock *usecases.GetRecommendationsByStock
 }
 
 func (rc *RecommendationHandler) GetRecommendationsByStockHandler(c *gin.Context) {
@@ -45,10 +35,10 @@ func (rc *RecommendationHandler) GetRecommendationsByStockHandler(c *gin.Context
 
 	filters := mappers.MapGetRecommendationsFilter(c)
 	ctx := c.Request.Context()
-	recommendations, err := rc.getRecommendationsByStockUC.Execute(ctx, filters, uint(parsedStockID))
+	recommendations, err := rc.getRecommendationsByStock.Execute(ctx, *filters, uint(parsedStockID))
 	if err != nil {
 		res := mappers.MapHttpErr(err)
-		c.JSON(res.StatusCode, res)
+		c.AbortWithStatusJSON(res.StatusCode, res)
 		return
 	}
 
@@ -61,4 +51,13 @@ func (rc *RecommendationHandler) SetRoutes(r *gin.Engine) {
 	group.Use(middleware.UserSessionMiddleware)
 
 	group.GET("/:stockID", rc.GetRecommendationsByStockHandler)
+}
+
+func NewRecommendationHandler(getRecommendationsByStockUC *usecases.GetRecommendationsByStock) *RecommendationHandler {
+
+	if getRecommendationsByStockUC == nil {
+		log.Fatalln("[RecommendationController]: getRecommendationsByStockUC provided as nil")
+	}
+
+	return &RecommendationHandler{getRecommendationsByStockUC}
 }

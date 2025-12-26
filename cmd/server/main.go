@@ -43,9 +43,9 @@ func main() {
 	registerUserStockUC := usecases.NewRegisterUserStock(ur)
 	removeUserStockUC := usecases.NewRemoveUserStock(ur)
 
-	stockController := handlers.NewStockController(getStocksUC, getStockUC)
-	recommendationController := handlers.NewRecommendationController(getRecommendationByStockUC)
-	userController := handlers.NewUserController(
+	stockController := handlers.NewStockHandler(getStocksUC, getStockUC)
+	recommendationController := handlers.NewRecommendationHandler(getRecommendationByStockUC)
+	userController := handlers.NewUserHandler(
 		getStocksUC,
 		registerUserUC,
 		loginUserUC,

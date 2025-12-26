@@ -7,14 +7,14 @@ import (
 	"strings"
 )
 
-func MapGetRecommendationsFilter(c *gin.Context) pkg.PaginationFilter {
+func MapGetRecommendationsFilter(c *gin.Context) *pkg.PaginationFilter {
 	search := c.Query("search")
 	groupByRating := c.Query("groupby") == "rating"
 
 	page := c.Query("page")
 	size := c.Query("size")
 
-	filters := pkg.PaginationFilter{
+	filters := &pkg.PaginationFilter{
 		SortBy: map[string]pkg.SortOrder{},
 
 		PaginationPage: pkg.PaginationPage{
