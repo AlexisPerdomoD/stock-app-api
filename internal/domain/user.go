@@ -1,12 +1,18 @@
 package domain
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 type User struct {
-	ID       uint
-	UserName string
-	Password []byte
-	Active   bool
+	ID        uint64
+	Username  string
+	Firstname string
+	Lastname  string
+	Password  []byte
+	Active    bool
+	CreatedAt time.Time
 }
 
 type UserRepository interface {

@@ -20,8 +20,8 @@ Stock
 Represents a stock.
 */
 type Stock struct {
-	ID        uint      `json:"id,string"`
-	CompanyID uint      `json:"company_id,string"`
+	ID        uint64    `json:"id,string"`
+	CompanyID uint64    `json:"company_id,string"`
 	Ticker    string    `json:"ticker"`
 	Name      *string   `json:"name,omitempty"`
 	Price     float64   `json:"price"`

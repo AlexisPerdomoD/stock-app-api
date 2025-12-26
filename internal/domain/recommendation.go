@@ -21,9 +21,9 @@ Recommendation
 Represents a recommendation made by a brokerage team.
 */
 type Recommendation struct {
-	ID          uint      `json:"id,string"`
-	StockID     uint      `json:"stock_id,string"`
-	BrokerageID uint      `json:"brokerage_id,string"`
+	ID          uint64    `json:"id,string"`
+	StockID     uint64    `json:"stock_id,string"`
+	BrokerageID uint64    `json:"brokerage_id,string"`
 	RatingTo    Action    `json:"rating_to"`
 	RatingFrom  Action    `json:"rating_from"`
 	TargetTo    float64   `json:"target_to"`
