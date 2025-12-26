@@ -44,11 +44,11 @@ type PopulatedStock struct {
 }
 
 type StockRepository interface {
-	Get(ctx context.Context, stockID uint, userID *uint) (*PopulatedStock, error)
+	Get(ctx context.Context, stockID uint64, userID *uint64) (*PopulatedStock, error)
 
-	GetAllPaginated(ctx context.Context, filter pkg.PaginationFilter, userID *uint) (*pkg.PaginationReponse[PopulatedStock], error)
+	GetAllPaginated(ctx context.Context, filter pkg.PaginationFilter, userID *uint64) (*pkg.PaginationReponse[PopulatedStock], error)
 
 	Save(ctx context.Context, stock *Stock) error
 
-	Update(ctx context.Context, stock *StockUpdates) error
+	Update(ctx context.Context, stock StockUpdates) error
 }

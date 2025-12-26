@@ -9,7 +9,7 @@ type UserLoginDTO struct {
 
 // GetPasswordBytesAndClean returns the password bytes and clean the password field
 // to avoid leaking it in the logs
-func (dto *UserLoginDTO) GetPasswordBytesAndClean() []byte {
+func (dto *UserLoginDTO) GetPasswordByesAndClean() []byte {
 	pwd := []byte(dto.Password)
 	dto.Password = ""
 	return pwd
@@ -31,6 +31,7 @@ func (dto *RegisterUserDTO) ToDomain() *domain.User {
 	}
 }
 
+// GetPasswordBytesAndClean returns the password bytes and clean the password field
 func (dto *RegisterUserDTO) GetPasswordBytesAndClean() []byte {
 	pwd := []byte(dto.Password)
 	dto.Password = ""

@@ -40,6 +40,6 @@ type RecommendationRepository interface {
 	GetAllPaginated(
 		ctx context.Context,
 		filter pkg.PaginationFilter,
-		stockID uint,
+		stockID uint64,
 	) (*pkg.PaginationReponse[PopulatedRecommendation], error)
 }
