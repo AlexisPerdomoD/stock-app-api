@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 
+	appmodel "github.com/alexisPerdomoD/stock-app-api/internal/application/models"
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"github.com/alexisPerdomoD/stock-app-api/pkg"
 )
@@ -17,7 +18,7 @@ func (uc *GetRecommendationsByStock) Execute(
 	ctx context.Context,
 	filters pkg.PaginationFilter,
 	stockID uint64,
-) (*pkg.PaginationReponse[domain.PopulatedRecommendation], error) {
+) (*pkg.PaginationReponse[appmodel.PopulatedRecommendationView], error) {
 
 	stock, err := uc.sr.Get(ctx, stockID, nil)
 
@@ -29,7 +30,19 @@ func (uc *GetRecommendationsByStock) Execute(
 		return nil, pkg.NotFound("Stock not found")
 	}
 
-	return uc.rr.GetAllPaginated(ctx, filters, stock.ID)
+	data, err := uc.rr.GetAllPaginated(ctx, filters, stock.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	response := &pkg.PaginationReponse[appmodel.PopulatedRecommendationView]{
+		Page:       data.Page,
+		PageSize:   data.PageSize,
+		TotalSize:  data.TotalSize,
+		TotalPages: data.TotalPages,
+		Items:      pkg.Map(data.Items, appmodel.NewPopulatedRecommendationView),
+	}
+	return response, nil
 
 }
 

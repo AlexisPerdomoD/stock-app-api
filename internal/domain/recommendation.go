@@ -16,6 +16,21 @@ const (
 	Sell    Action = 4
 )
 
+func (a Action) String() string {
+	switch a {
+	case Buy:
+		return "buy"
+	case Hold:
+		return "hold"
+	case Neutral:
+		return "neutral"
+	case Sell:
+		return "sell"
+	default:
+		return "unknown"
+	}
+}
+
 /*
 Recommendation
 Represents a recommendation made by a brokerage team.
@@ -33,7 +48,7 @@ type Recommendation struct {
 
 type PopulatedRecommendation struct {
 	Recommendation
-	Brokerage Brokerage `json:"brokerage"`
+	Brokerage *Brokerage `json:"brokerage"`
 }
 
 type RecommendationRepository interface {

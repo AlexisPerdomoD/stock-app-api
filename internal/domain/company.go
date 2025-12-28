@@ -7,11 +7,11 @@ Company
 Represents the company that owns the stock.
 */
 type Company struct {
-	ID        uint64    `json:"id,string"`
-	MarketID  uint64    `json:"market_id,string"`
-	Name      string    `json:"name"`
-	ISIN      *string   `json:"isin"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        uint64
+	MarketID  uint64
+	Name      string
+	ISIN      *string
+	CreatedAt time.Time
 }
 
 /*

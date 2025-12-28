@@ -1,6 +1,10 @@
 package models
 
-import "github.com/alexisPerdomoD/stock-app-api/internal/domain"
+import (
+	"time"
+
+	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
+)
 
 type UserLoginDTO struct {
 	Username string `json:"email" binding:"email,required"`
@@ -36,4 +40,28 @@ func (dto *RegisterUserDTO) GetPasswordBytesAndClean() []byte {
 	pwd := []byte(dto.Password)
 	dto.Password = ""
 	return pwd
+}
+
+type UserView struct {
+	ID        uint64    `json:"id,string"`
+	Username  string    `json:"username"`
+	Firstname string    `json:"firstname"`
+	Lastname  string    `json:"lastname"`
+	Active    bool      `json:"active"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+func (u UserView) GetID() uint64 {
+	return u.ID
+}
+
+func NewUserView(user *domain.User) *UserView {
+	return &UserView{
+		ID:        user.ID,
+		Username:  user.Username,
+		Firstname: user.Firstname,
+		Lastname:  user.Lastname,
+		Active:    user.Active,
+		CreatedAt: user.CreatedAt,
+	}
 }

@@ -2,16 +2,18 @@ package usecases
 
 import (
 	"context"
+	"log"
+
+	appmodels "github.com/alexisPerdomoD/stock-app-api/internal/application/models"
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"github.com/alexisPerdomoD/stock-app-api/pkg"
-	"log"
 )
 
 type GetStock struct {
 	sr domain.StockRepository
 }
 
-func (uc *GetStock) Execute(ctx context.Context, stockID uint64, userID *uint64) (*domain.PopulatedStock, error) {
+func (uc *GetStock) Execute(ctx context.Context, stockID uint64, userID *uint64) (*appmodels.PopulatedStockView, error) {
 	stock, err := uc.sr.GetPopulated(ctx, stockID, userID)
 	if err != nil {
 		return nil, err
@@ -21,7 +23,8 @@ func (uc *GetStock) Execute(ctx context.Context, stockID uint64, userID *uint64)
 		return nil, pkg.NotFound("stock does not exist")
 	}
 
-	return stock, nil
+	response := appmodels.NewPopulatedStockView(*stock)
+	return &response, nil
 }
 
 func NewGetStock(sr domain.StockRepository) *GetStock {

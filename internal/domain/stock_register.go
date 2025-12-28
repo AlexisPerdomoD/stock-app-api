@@ -13,6 +13,19 @@ const (
 	Down Tendency = 3
 )
 
+func (t Tendency) String() string {
+	switch t {
+	case Up:
+		return "up"
+	case Side:
+		return "side"
+	case Down:
+		return "down"
+	default:
+		return "unknown"
+	}
+}
+
 type StockRegister struct {
 	ID        uint64    `json:"id,string"`
 	StockID   uint64    `json:"stock_id,string"`

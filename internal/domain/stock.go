@@ -12,12 +12,12 @@ Stock
 Represents a  stock catalog.
 */
 type Stock struct {
-	ID        uint64    `json:"id,string"`
-	CompanyID uint64    `json:"company_id,string"`
-	Ticker    string    `json:"ticker"`
-	Name      *string   `json:"name,omitempty"`
-	CreatedAt time.Time `json:"registered"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        uint64
+	CompanyID uint64
+	Ticker    string
+	Name      *string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type StockUpdates struct {
@@ -26,10 +26,10 @@ type StockUpdates struct {
 
 type PopulatedStock struct {
 	Stock
-	Company      Company       `json:"company"`
-	Market       Market        `json:"market"`
-	LastRegister StockRegister `json:"last_register"`
-	IsSaved      *bool         `json:"is_saved,omitempty"`
+	Company      Company
+	Market       Market
+	LastRegister StockRegister
+	IsSaved      *bool
 }
 
 type StockRepository interface {

@@ -15,6 +15,10 @@ type User struct {
 	CreatedAt time.Time
 }
 
+func (u User) GetID() uint64 {
+	return u.ID
+}
+
 type UserRepository interface {
 	Get(ctx context.Context, id uint64, includePassword bool) (*User, error)
 

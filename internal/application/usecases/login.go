@@ -2,7 +2,7 @@ package usecases
 
 import (
 	"context"
-	"github.com/alexisPerdomoD/stock-app-api/internal/application/models"
+	appmodel "github.com/alexisPerdomoD/stock-app-api/internal/application/models"
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"github.com/alexisPerdomoD/stock-app-api/pkg"
 	"github.com/alexisPerdomoD/stock-app-api/pkg/auth"
@@ -13,7 +13,7 @@ type Login struct {
 	ur domain.UserRepository
 }
 
-func (uc *Login) Execute(ctx context.Context, credentials *models.UserLoginDTO) (*domain.User, error) {
+func (uc *Login) Execute(ctx context.Context, credentials *appmodel.UserLoginDTO) (*appmodel.UserView, error) {
 	password := credentials.GetPasswordBytesAndClean()
 	defer auth.ZeroBytes(password)
 
@@ -38,7 +38,7 @@ func (uc *Login) Execute(ctx context.Context, credentials *models.UserLoginDTO) 
 		return nil, pkg.Unauthorized("Invalid credentials")
 	}
 
-	return user, nil
+	return appmodel.NewUserView(user), nil
 }
 
 func NewLogin(ur domain.UserRepository) *Login {

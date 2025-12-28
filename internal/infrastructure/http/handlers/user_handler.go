@@ -47,9 +47,9 @@ func (uc *UserHandler) RegisterUserHandler(c *gin.Context) {
 		c.AbortWithStatusJSON(res.StatusCode, res)
 		return
 	}
-	ctx := c.Request.Context()
-	usr := args.ToDomain()
-	if err := uc.register.Execute(ctx, usr); err != nil {
+
+	usr, err := uc.register.Execute(c.Request.Context(), args)
+	if err != nil {
 		res := mappers.MapHttpErr(err)
 		c.AbortWithStatusJSON(res.StatusCode, res)
 		return
@@ -66,6 +66,7 @@ func (uc *UserHandler) RegisterUserHandler(c *gin.Context) {
 		"Ok":      true,
 		"message": "user registered properly",
 		"session": session,
+		"user":    usr,
 	})
 }
 
@@ -95,6 +96,7 @@ func (uc *UserHandler) LoginUserHandler(c *gin.Context) {
 		"Ok":      true,
 		"message": "user logged in properly",
 		"session": session,
+		"user":    user,
 	})
 }
 
