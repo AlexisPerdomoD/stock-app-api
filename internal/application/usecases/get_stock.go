@@ -12,7 +12,7 @@ type GetStock struct {
 }
 
 func (uc *GetStock) Execute(ctx context.Context, stockID uint64, userID *uint64) (*domain.PopulatedStock, error) {
-	stock, err := uc.sr.Get(ctx, stockID, userID)
+	stock, err := uc.sr.GetPopulated(ctx, stockID, userID)
 	if err != nil {
 		return nil, err
 	}
