@@ -14,16 +14,14 @@ It is meant to be used single time by operations
 */
 type UnitOfWork interface {
 	/*
-		Do executes a transaction.
-		- Automatically handles transactions and rollbacks in case of errors.
-		- Automatically commits transactions in case of success.
-	*/
-	Do(ctx context.Context, tx func(txCtx context.Context) error) error
-
-	/*
 		StockRepository returns a transactional stock repository.
 	*/
 	StockRepository() domain.StockRepository
+
+	/*
+		StockRegisterRepository returns a transactional stock repository.
+	*/
+	StockRegisterRepository() domain.StockRegisterRepository
 
 	/*
 		UserRepository returns a transactional user repository.
@@ -51,5 +49,10 @@ UnitOfWorkFactory
 Factory for UnitOfWork.
 */
 type UnitOfWorkFactory interface {
-	New() (UnitOfWork, error)
+	/*
+		Do executes a transaction.
+		- Automatically handles transactions and rollbacks in case of errors.
+		- Automatically commits transactions in case of success.
+	*/
+	Do(ctx context.Context, tx func(txCtx context.Context, uow UnitOfWork) error) error
 }
