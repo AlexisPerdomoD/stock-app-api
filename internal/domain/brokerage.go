@@ -17,7 +17,7 @@ BrokerageRepository
 Repository for the Brokerage entity.
 */
 type BrokerageRepository interface {
-	GetByID(id uint64) (Brokerage, error)
+	GetByID(id uint64) (*Brokerage, error)
 
-	Save(brokerage Brokerage) error
+	Save(brokerage *Brokerage) error
 }

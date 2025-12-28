@@ -1,0 +1,22 @@
+package cockroachdb
+
+import (
+	"database/sql"
+
+	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
+	"github.com/alexisPerdomoD/stock-app-api/pkg"
+)
+
+type CompanyRepository struct{}
+
+func (r CompanyRepository) GetByID(id uint64) (*domain.Company, error) {
+	return nil, pkg.InternalServerError("not implemented")
+}
+
+func (r CompanyRepository) Save(company *domain.Company) error {
+	return pkg.InternalServerError("not implemented")
+}
+
+func NewCompanyRepository(db *sql.DB) *CompanyRepository {
+	return &CompanyRepository{}
+}

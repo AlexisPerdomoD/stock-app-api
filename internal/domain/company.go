@@ -19,7 +19,7 @@ CompanyRepository
 Repository for the Company entity.
 */
 type CompanyRepository interface {
-	GetByID(id uint64) (Company, error)
+	GetByID(id uint64) (*Company, error)
 
-	Save(company Company) error
+	Save(company *Company) error
 }

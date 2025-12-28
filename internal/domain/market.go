@@ -17,7 +17,7 @@ MarketRepository
 Repository for the Market entity.
 */
 type MarketRepository interface {
-	GetByID(id uint64) (Market, error)
+	GetByID(id uint64) (*Market, error)
 
-	Save(market Market) error
+	Save(market *Market) error
 }

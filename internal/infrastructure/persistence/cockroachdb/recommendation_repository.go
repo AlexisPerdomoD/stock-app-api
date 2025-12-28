@@ -1,0 +1,23 @@
+package cockroachdb
+
+import (
+	"context"
+	"database/sql"
+
+	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
+	"github.com/alexisPerdomoD/stock-app-api/pkg"
+)
+
+type RecommendationRepository struct{}
+
+func (r RecommendationRepository) GetAllPaginated(
+	ctx context.Context,
+	filter pkg.PaginationFilter,
+	stockID uint64,
+) (*pkg.PaginationReponse[domain.PopulatedRecommendation], error) {
+	return nil, pkg.InternalServerError("not implemented")
+}
+
+func NewRecommendationRepository(db *sql.DB) *RecommendationRepository {
+	return &RecommendationRepository{}
+}
