@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/alexisPerdomoD/stock-app-api/pkg"
 	"github.com/go-playground/validator/v10"
-	"gorm.io/gorm"
 	"net/http"
 	"strings"
 )
@@ -54,27 +53,28 @@ func MapHttpErr(err error) *HttpErrResponse {
 		}
 	}
 
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return &HttpErrResponse{
-			StatusCode: http.StatusNotFound,
-			Name:       "Not Found",
-			Message:    "Recurso no encontrado",
-		}
-	}
+	// if errors.Is(err, gorm.ErrRecordNotFound) {
+	// 	return &HttpErrResponse{
+	// 		StatusCode: http.StatusNotFound,
+	// 		Name:       "Not Found",
+	// 		Message:    "Recurso no encontrado",
+	// 	}
+	// }
+	//
+	//
+	// if errors.Is(err, gorm.ErrForeignKeyViolated) {
+	// 	return &HttpErrResponse{
+	// 		StatusCode: http.StatusConflict,
+	// 		Name:       "DataBase Err",
+	// 		Message:    "Accion no valida",
+	// 	}
+	// }
 
 	if strings.Contains(err.Error(), "duplicate key") || strings.Contains(err.Error(), "UNIQUE constraint failed") {
 		return &HttpErrResponse{
 			StatusCode: http.StatusConflict,
 			Name:       "Conflict",
 			Message:    "Registro duplicado",
-		}
-	}
-
-	if errors.Is(err, gorm.ErrForeignKeyViolated) {
-		return &HttpErrResponse{
-			StatusCode: http.StatusConflict,
-			Name:       "DataBase Err",
-			Message:    "Accion no valida",
 		}
 	}
 
@@ -101,14 +101,14 @@ func MapHttpErr(err error) *HttpErrResponse {
 			Message:    "No se pudo conectar con la base de datos",
 		}
 	}
-
-	if errors.Is(err, gorm.ErrForeignKeyViolated) || strings.Contains(err.Error(), "violates foreign key constraint") {
-		return &HttpErrResponse{
-			StatusCode: http.StatusConflict,
-			Name:       "Database Error",
-			Message:    "Violación de integridad referencial",
-		}
-	}
+	//
+	// if errors.Is(err, gorm.ErrForeignKeyViolated) || strings.Contains(err.Error(), "violates foreign key constraint") {
+	// 	return &HttpErrResponse{
+	// 		StatusCode: http.StatusConflict,
+	// 		Name:       "Database Error",
+	// 		Message:    "Violación de integridad referencial",
+	// 	}
+	// }
 
 	if !errors.As(err, &apiErr) {
 		return &HttpErrResponse{
