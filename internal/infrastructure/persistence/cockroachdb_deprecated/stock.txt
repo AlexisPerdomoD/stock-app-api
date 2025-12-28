@@ -17,7 +17,7 @@ type StockRepository struct {
 	db *gorm.DB
 }
 
-func (r *StockRepository) Get(ctx context.Context, stockID uint, userID *uint) (*domain.PopulatedStock, error) {
+func (r *StockRepository) Get(ctx context.Context, stockID uint, userID *uint) (*domain.PopulatedStockReadModel, error) {
 
 	record := &stockRecord{}
 
@@ -52,7 +52,7 @@ func (r *StockRepository) GetAllPaginated(
 	ctx context.Context,
 	filter pkg.PaginationFilter,
 	userID *uint,
-) (*pkg.PaginationReponse[domain.PopulatedStock], error) {
+) (*pkg.PaginationReponse[domain.PopulatedStockReadModel], error) {
 
 	allowedFilters := map[string]bool{
 		"name":       true,
@@ -94,7 +94,7 @@ func (r *StockRepository) GetAllPaginated(
 		return nil, err
 	}
 
-	stocks := []domain.PopulatedStock{}
+	stocks := []domain.PopulatedStockReadModel{}
 	for _, record := range records {
 		stocks = append(stocks, *mapPopulatedStockToDomain(&record, nil))
 	}
@@ -103,7 +103,7 @@ func (r *StockRepository) GetAllPaginated(
 	if total > 0 {
 		totalPages = int(math.Ceil(float64(total) / float64(filter.Size)))
 	}
-	result := pkg.PaginationReponse[domain.PopulatedStock]{
+	result := pkg.PaginationReponse[domain.PopulatedStockReadModel]{
 		Items:      stocks,
 		Page:       filter.Page,
 		PageSize:   len(stocks),

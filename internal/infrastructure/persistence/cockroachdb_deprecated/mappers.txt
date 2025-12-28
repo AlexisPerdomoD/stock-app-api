@@ -57,9 +57,9 @@ func mapStockToDomain(record *stockRecord, target *domain.Stock) *domain.Stock {
 }
 
 /* mapPopulatedStockToDomain assumes that the record is not nil */
-func mapPopulatedStockToDomain(record *stockRecord, target *domain.PopulatedStock) *domain.PopulatedStock {
+func mapPopulatedStockToDomain(record *stockRecord, target *domain.PopulatedStockReadModel) *domain.PopulatedStockReadModel {
 	if target == nil {
-		return &domain.PopulatedStock{
+		return &domain.PopulatedStockReadModel{
 			Stock:       *mapStockToDomain(record, nil),
 			CompanyName: record.Company.Name,
 			Market:      *mapMarketToDomain(&record.Company.Market, nil),

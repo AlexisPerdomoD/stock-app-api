@@ -9,19 +9,19 @@ import (
 	"testing"
 )
 
-var stock *domain.PopulatedStock
+var stock *domain.PopulatedStockReadModel
 var stockGetAllPaginatedTests = []struct {
 	name             string
 	filter           pkg.PaginationFilter
 	userID           *uint
-	successCondition func(got *pkg.PaginationReponse[domain.PopulatedStock], t *assert.Assertions) bool
+	successCondition func(got *pkg.PaginationReponse[domain.PopulatedStockReadModel], t *assert.Assertions) bool
 	wantErr          bool
 }{
 	{
 		name:   "must resturn all stocks ordered by updated_at desc by default",
 		filter: pkg.PaginationFilter{},
 		successCondition: func(
-			got *pkg.PaginationReponse[domain.PopulatedStock],
+			got *pkg.PaginationReponse[domain.PopulatedStockReadModel],
 			a *assert.Assertions,
 		) bool {
 
@@ -58,7 +58,7 @@ var stockGetAllPaginatedTests = []struct {
 			},
 		},
 		successCondition: func(
-			got *pkg.PaginationReponse[domain.PopulatedStock],
+			got *pkg.PaginationReponse[domain.PopulatedStockReadModel],
 			t *assert.Assertions,
 		) bool {
 
@@ -149,7 +149,7 @@ func Test_stockRepository_Get(t *testing.T) {
 	tests := []struct {
 		name    string
 		id      uint
-		want    *domain.PopulatedStock
+		want    *domain.PopulatedStockReadModel
 		wantErr bool
 	}{
 		{
