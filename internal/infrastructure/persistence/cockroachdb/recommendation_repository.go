@@ -8,7 +8,9 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type RecommendationRepository struct{}
+type RecommendationRepository struct {
+	db sqlx.ExtContext
+}
 
 func (r RecommendationRepository) GetAllPaginated(
 	ctx context.Context,
@@ -18,6 +20,10 @@ func (r RecommendationRepository) GetAllPaginated(
 	return nil, pkg.InternalServerError("not implemented")
 }
 
-func NewRecommendationRepository(db *sqlx.DB) *RecommendationRepository {
-	return &RecommendationRepository{}
+func NewRecommendationRepository(db sqlx.ExtContext) *RecommendationRepository {
+	if db == nil {
+		panic("db sqlx.ExtContext is nil")
+	}
+
+	return &RecommendationRepository{db}
 }

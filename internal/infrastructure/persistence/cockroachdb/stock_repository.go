@@ -8,7 +8,9 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type StockRepository struct{}
+type StockRepository struct {
+	db sqlx.ExtContext
+}
 
 func (r StockRepository) Get(ctx context.Context, stockID uint64, userID *uint64) (*domain.Stock, error) {
 	return nil, pkg.InternalServerError("not implemented")
@@ -30,6 +32,10 @@ func (r StockRepository) Update(ctx context.Context, stock domain.StockUpdates) 
 	return pkg.InternalServerError("not implemented")
 }
 
-func NewStockRepository(db *sqlx.DB) *StockRepository {
-	return &StockRepository{}
+func NewStockRepository(db sqlx.ExtContext) *StockRepository {
+	if db == nil {
+		panic("db sqlx.ExtContext is nil")
+	}
+
+	return &StockRepository{db}
 }

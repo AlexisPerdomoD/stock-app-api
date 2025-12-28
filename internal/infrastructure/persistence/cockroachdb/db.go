@@ -8,6 +8,7 @@ import (
 )
 
 func NewDB() (*sqlx.DB, error) {
+
 	dbName := os.Getenv("CR_DB")
 	if dbName == "" {
 		return nil, fmt.Errorf("CR_DB is empty")

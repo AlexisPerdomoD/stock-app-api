@@ -8,7 +8,9 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type UserRepository struct{}
+type UserRepository struct {
+	db sqlx.ExtContext
+}
 
 func (r UserRepository) Get(ctx context.Context, id uint64, includePassword bool) (*domain.User, error) {
 	return nil, pkg.InternalServerError("not implemented")
@@ -30,6 +32,9 @@ func (r UserRepository) RemoveUserStock(ctx context.Context, userID uint, stockI
 	return pkg.InternalServerError("not implemented")
 }
 
-func NewUserRepository(db *sqlx.DB) *UserRepository {
-	return &UserRepository{}
+func NewUserRepository(db sqlx.ExtContext) *UserRepository {
+	if db == nil {
+		panic("db sqlx.ExtContext is nil")
+	}
+	return &UserRepository{db}
 }

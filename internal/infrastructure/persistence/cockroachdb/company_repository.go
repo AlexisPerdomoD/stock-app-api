@@ -6,7 +6,9 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type CompanyRepository struct{}
+type CompanyRepository struct {
+	db sqlx.ExtContext
+}
 
 func (r CompanyRepository) GetByID(id uint64) (*domain.Company, error) {
 	return nil, pkg.InternalServerError("not implemented")
@@ -16,6 +18,10 @@ func (r CompanyRepository) Save(company *domain.Company) error {
 	return pkg.InternalServerError("not implemented")
 }
 
-func NewCompanyRepository(db *sqlx.DB) *CompanyRepository {
-	return &CompanyRepository{}
+func NewCompanyRepository(db sqlx.ExtContext) *CompanyRepository {
+	if db == nil {
+		panic("db sqlx.ExtContext is nil")
+	}
+
+	return &CompanyRepository{db}
 }
