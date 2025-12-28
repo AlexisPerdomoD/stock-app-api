@@ -3,7 +3,6 @@ package handlers
 import (
 	"github.com/alexisPerdomoD/stock-app-api/internal/application/usecases"
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/mappers"
-	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/middleware"
 	"github.com/alexisPerdomoD/stock-app-api/pkg"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -56,14 +55,6 @@ func (sc *StockHandler) GetStocksHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, res)
-}
-
-func (sc *StockHandler) SetRoutes(r *gin.Engine) {
-	group := r.Group("/stocks")
-	group.Use(middleware.UserSessionMiddleware)
-
-	group.GET("", sc.GetStocksHandler)
-	group.GET("/:stockID", sc.GetStockHandler)
 }
 
 func NewStockHandler(

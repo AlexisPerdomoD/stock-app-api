@@ -3,7 +3,6 @@ package handlers
 import (
 	"github.com/alexisPerdomoD/stock-app-api/internal/application/usecases"
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/mappers"
-	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/middleware"
 	"github.com/alexisPerdomoD/stock-app-api/pkg"
 	"github.com/alexisPerdomoD/stock-app-api/pkg/auth"
 	"github.com/gin-gonic/gin"
@@ -152,16 +151,6 @@ func (uc *UserHandler) RemoveStockHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"ok": true, "message": "user stock removed"})
-}
-
-func (uc *UserHandler) SetRoutes(r *gin.Engine) {
-	group := r.Group("/users")
-
-	group.POST("", uc.RegisterUserHandler)
-	group.POST("/login", uc.LoginUserHandler)
-	group.GET("/stocks", middleware.UserSessionMiddleware, uc.GetStocksHandler)
-	group.POST("/stocks/:stockID", middleware.UserSessionMiddleware, uc.RegisterStockHandler)
-	group.DELETE("/stocks/:stockID", middleware.UserSessionMiddleware, uc.RemoveStockHandler)
 }
 
 func NewUserHandler(

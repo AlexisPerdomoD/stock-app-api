@@ -1,6 +1,20 @@
 /* All rights and lefts reserved */
 package main
 
+import (
+	"fmt"
+	"log"
+	"os"
+
+	"github.com/alexisPerdomoD/stock-app-api/internal/application/usecases"
+	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/handlers"
+	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/middleware"
+	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/persistence/cockroachdb"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+)
+
 /*
 1) Instance db
 2) Inject db on repositories implementations
@@ -11,44 +25,63 @@ package main
 7) Start server
 */
 func main() {
-	// _ = godotenv.Load()
-	//
-	// db := cockroachdb.NewDB()
-	//
-	// sr := cockroachdb.NewStockRepository(db)
-	// rr := cockroachdb.NewRecommendationRepository(db)
-	// ur := cockroachdb.NewUserRepository(db)
-	//
-	// getStocksUC := usecases.NewGetStocks(sr)
-	// getStockUC := usecases.NewGetStock(sr)
+	if err := godotenv.Load(); err != nil {
+		log.Fatalf("Error loading .env file due to %v", err)
+	}
+
+	// REPOSITORIES
+	db := cockroachdb.NewDB()
+	stockRepository := cockroachdb.NewStockRepository(db)
+	recommendationRepository := cockroachdb.NewRecommendationRepository(db)
+	userRepository := cockroachdb.NewUserRepository(db)
+
+	// USE CASES
+	getStocksUC := usecases.NewGetStocks(stockRepository)
+	getStockUC := usecases.NewGetStock(stockRepository)
 	// registerStocksUC := usecases.NewRegisterStocks(sr)
-	// getRecommendationByStockUC := usecases.NewGetRecommendationsByStock(sr, rr)
-	// loginUserUC := usecases.NewLogin(ur)
-	// registerUserUC := usecases.NewRegisterUser(ur)
-	// registerUserStockUC := usecases.NewRegisterUserStock(ur)
-	// removeUserStockUC := usecases.NewRemoveUserStock(ur)
-	//
-	// stockController := handlers.NewStockHandler(getStocksUC, getStockUC)
-	// recommendationController := handlers.NewRecommendationHandler(getRecommendationByStockUC)
-	// userController := handlers.NewUserHandler(
-	// 	getStocksUC,
-	// 	registerUserUC,
-	// 	loginUserUC,
-	// 	registerUserStockUC,
-	// 	removeUserStockUC,
-	// )
-	//
-	// router := gin.Default()
-	// // TODO: Implement cors config
-	// corsConfig := cors.DefaultConfig()
-	// corsConfig.AddAllowHeaders("Authorization")
-	// corsConfig.AllowAllOrigins = true
-	// router.Use(cors.New(corsConfig))
-	//
-	// stockController.SetRoutes(router)
-	// recommendationController.SetRoutes(router)
-	// userController.SetRoutes(router)
-	//
+	getRecommendationByStockUC := usecases.NewGetRecommendationsByStock(stockRepository, recommendationRepository)
+	loginUserUC := usecases.NewLogin(userRepository)
+	registerUserUC := usecases.NewRegisterUser(userRepository)
+	registerUserStockUC := usecases.NewRegisterUserStock(userRepository)
+	removeUserStockUC := usecases.NewRemoveUserStock(userRepository)
+
+	// HANDLERS
+	stockHandler := handlers.NewStockHandler(getStocksUC, getStockUC)
+	recommendationHandler := handlers.NewRecommendationHandler(getRecommendationByStockUC)
+	userHandler := handlers.NewUserHandler(
+		getStocksUC,
+		registerUserUC,
+		loginUserUC,
+		registerUserStockUC,
+		removeUserStockUC,
+	)
+
+	// ROUTES
+	r := gin.Default()
+	// TODO: Implement cors config
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AddAllowHeaders("Authorization")
+	corsConfig.AllowAllOrigins = true
+	r.Use(cors.New(corsConfig))
+
+	r.POST("/api/v1/login", userHandler.LoginUserHandler)
+
+	userGroup := r.Group("/api/v1/users")
+	userGroup.Use(middleware.UserSessionMiddleware)
+	userGroup.POST("", userHandler.RegisterUserHandler)
+	userGroup.GET("/stocks", userHandler.GetStocksHandler)
+	userGroup.POST("/stocks/:stockID", userHandler.RegisterStockHandler)
+	userGroup.DELETE("/stocks/:stockID", userHandler.RemoveStockHandler)
+
+	stockGroup := r.Group("/api/v1/stocks")
+	stockGroup.Use(middleware.UserSessionMiddleware)
+	stockGroup.GET("", stockHandler.GetStocksHandler)
+	stockGroup.GET("/:stockID", stockHandler.GetStockHandler)
+
+	recommendationGroup := r.Group("/api/v1/recommendations")
+	recommendationGroup.Use(middleware.UserSessionMiddleware)
+	recommendationGroup.GET("/:stockID", recommendationHandler.GetRecommendationsByStockHandler)
+
 	// scheduler := scheduler.New()
 	//
 	// mainSSource := service.NewMainSourceStockService(false)
@@ -62,9 +95,9 @@ func main() {
 	// )
 	// scheduler.StartOnBackground()
 	//
-	// PORT := fmt.Sprintf(":%v", os.Getenv("SERVER_PORT"))
-	// if err := router.Run(PORT); err != nil {
-	// 	log.Fatalln(err.Error())
-	// }
-	//
+	PORT := fmt.Sprintf(":%v", os.Getenv("SERVER_PORT"))
+	if err := r.Run(PORT); err != nil {
+		log.Fatalln(err.Error())
+	}
+
 }
