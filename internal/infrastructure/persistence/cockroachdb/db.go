@@ -1,26 +1,43 @@
 package cockroachdb
 
 import (
-	"database/sql"
 	"fmt"
 	"os"
+
+	"github.com/jmoiron/sqlx"
 )
 
-func NewDB() *sql.DB {
-	_ = fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-		os.Getenv("CR_HOST"),
-		os.Getenv("CR_PORT"),
-		os.Getenv("CR_USER"),
-		os.Getenv("CR_PASSWORD"),
-		os.Getenv("CR_DB"),
-		os.Getenv("CR_SSL"),
-	)
+func NewDB() (*sqlx.DB, error) {
+	dbName := os.Getenv("CR_DB")
+	if dbName == "" {
+		return nil, fmt.Errorf("CR_DB is empty")
+	}
 
-	return nil
-}
+	host := os.Getenv("CR_HOST")
+	if host == "" {
+		return nil, fmt.Errorf("CR_HOST is empty")
+	}
 
-func Migrate() error {
+	port := os.Getenv("CR_PORT")
+	if port == "" {
+		return nil, fmt.Errorf("CR_PORT is empty")
+	}
 
-	return nil
+	user := os.Getenv("CR_USER")
+	if user == "" {
+		return nil, fmt.Errorf("CR_USER is empty")
+	}
+
+	password := os.Getenv("CR_PASSWORD")
+	if password == "" {
+		return nil, fmt.Errorf("CR_PASSWORD is empty")
+	}
+
+	ssl := os.Getenv("CR_SSL")
+	if ssl == "" {
+		return nil, fmt.Errorf("CR_SSL is empty")
+	}
+
+	connection := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", host, port, user, password, dbName, ssl)
+	return sqlx.Open("postgres", connection)
 }

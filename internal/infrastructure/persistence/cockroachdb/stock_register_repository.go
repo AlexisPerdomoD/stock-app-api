@@ -2,11 +2,11 @@ package cockroachdb
 
 import (
 	"context"
-	"database/sql"
 	"time"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"github.com/alexisPerdomoD/stock-app-api/pkg"
+	"github.com/jmoiron/sqlx"
 )
 
 type StockRegisterRepository struct{}
@@ -27,6 +27,6 @@ func (r StockRegisterRepository) Save(ctx context.Context, stockRegister domain.
 	return pkg.InternalServerError("not implemented")
 }
 
-func NewStockRegisterRepository(db *sql.DB) *StockRegisterRepository {
+func NewStockRegisterRepository(db *sqlx.DB) *StockRegisterRepository {
 	return &StockRegisterRepository{}
 }

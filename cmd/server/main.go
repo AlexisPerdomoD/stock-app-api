@@ -25,12 +25,19 @@ import (
 7) Start server
 */
 func main() {
+	// ENV VARS
 	if err := godotenv.Load(); err != nil {
 		log.Fatalf("Error loading .env file due to %v", err)
 	}
 
+	// DATABASE
+	db, err := cockroachdb.NewDB()
+	if err != nil {
+		log.Fatalf("Error creating db due to %v", err)
+	}
+
 	// REPOSITORIES
-	db := cockroachdb.NewDB()
+
 	stockRepository := cockroachdb.NewStockRepository(db)
 	recommendationRepository := cockroachdb.NewRecommendationRepository(db)
 	userRepository := cockroachdb.NewUserRepository(db)

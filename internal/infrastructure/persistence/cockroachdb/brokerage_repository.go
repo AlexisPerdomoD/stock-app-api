@@ -1,10 +1,9 @@
 package cockroachdb
 
 import (
-	"database/sql"
-
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"github.com/alexisPerdomoD/stock-app-api/pkg"
+	"github.com/jmoiron/sqlx"
 )
 
 type BrokerageRepository struct{}
@@ -17,6 +16,6 @@ func (r BrokerageRepository) Save(brokerage *domain.Brokerage) error {
 	return pkg.InternalServerError("not implemented")
 }
 
-func NewBrokerageRepository(db *sql.DB) *BrokerageRepository {
+func NewBrokerageRepository(db *sqlx.DB) *BrokerageRepository {
 	return &BrokerageRepository{}
 }

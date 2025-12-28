@@ -2,10 +2,10 @@ package cockroachdb
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"github.com/alexisPerdomoD/stock-app-api/pkg"
+	"github.com/jmoiron/sqlx"
 )
 
 type RecommendationRepository struct{}
@@ -18,6 +18,6 @@ func (r RecommendationRepository) GetAllPaginated(
 	return nil, pkg.InternalServerError("not implemented")
 }
 
-func NewRecommendationRepository(db *sql.DB) *RecommendationRepository {
+func NewRecommendationRepository(db *sqlx.DB) *RecommendationRepository {
 	return &RecommendationRepository{}
 }

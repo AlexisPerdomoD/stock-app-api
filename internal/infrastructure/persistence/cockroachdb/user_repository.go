@@ -2,10 +2,10 @@ package cockroachdb
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"github.com/alexisPerdomoD/stock-app-api/pkg"
+	"github.com/jmoiron/sqlx"
 )
 
 type UserRepository struct{}
@@ -30,6 +30,6 @@ func (r UserRepository) RemoveUserStock(ctx context.Context, userID uint, stockI
 	return pkg.InternalServerError("not implemented")
 }
 
-func NewUserRepository(db *sql.DB) *UserRepository {
+func NewUserRepository(db *sqlx.DB) *UserRepository {
 	return &UserRepository{}
 }
