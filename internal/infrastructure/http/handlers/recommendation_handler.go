@@ -1,13 +1,15 @@
 package handlers
 
 import (
-	"github.com/alexisPerdomoD/stock-app-api/internal/application/usecases"
-	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/mappers"
-	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/middleware"
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/alexisPerdomoD/stock-app-api/internal/application/usecases"
+	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/mappers"
+	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/middleware"
+	"github.com/alexisPerdomoD/stock-app-api/pkg"
+	"github.com/gin-gonic/gin"
 )
 
 type RecommendationHandler struct {
@@ -17,25 +19,21 @@ type RecommendationHandler struct {
 func (rc *RecommendationHandler) GetRecommendationsByStockHandler(c *gin.Context) {
 	stockID, ok := c.Params.Get("stockID")
 	if !ok {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"name":    "Bad Request",
-			"message": "stockID invalid",
-		})
+		res := mappers.MapHttpErr(pkg.BadRequest("required and not provided stockID for this service"))
+		c.AbortWithStatusJSON(res.StatusCode, res)
 		return
 	}
 
-	parsedStockID, err := strconv.Atoi(stockID)
-	if err != nil || parsedStockID <= 0 {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"name":    "Bad Request",
-			"message": "stockID invalid",
-		})
+	parsedStockID, err := strconv.ParseUint(stockID, 10, 0)
+	if err != nil {
+		res := mappers.MapHttpErr(pkg.BadRequest("invalid stockID provided"))
+		c.AbortWithStatusJSON(res.StatusCode, res)
 		return
 	}
 
 	filters := mappers.MapGetRecommendationsFilter(c)
 	ctx := c.Request.Context()
-	recommendations, err := rc.getRecommendationsByStock.Execute(ctx, *filters, uint(parsedStockID))
+	recommendations, err := rc.getRecommendationsByStock.Execute(ctx, *filters, parsedStockID)
 	if err != nil {
 		res := mappers.MapHttpErr(err)
 		c.AbortWithStatusJSON(res.StatusCode, res)

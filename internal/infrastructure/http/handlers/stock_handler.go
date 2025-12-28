@@ -25,15 +25,15 @@ func (sc *StockHandler) GetStockHandler(c *gin.Context) {
 		return
 	}
 
-	parsedStockID, err := strconv.Atoi(stockID)
+	parsedStockID, err := strconv.ParseUint(stockID, 10, 0)
 	if err != nil || parsedStockID <= 0 {
 		res := mappers.MapHttpErr(pkg.BadRequest("invalid stockID provided"))
 		c.AbortWithStatusJSON(http.StatusBadRequest, res)
 		return
 	}
-	userID := c.GetUint("user_id")
+	userID := c.GetUint64("user_id")
 	ctx := c.Request.Context()
-	stock, err := sc.getStock.Execute(ctx, uint(parsedStockID), &userID)
+	stock, err := sc.getStock.Execute(ctx, parsedStockID, &userID)
 
 	if err != nil {
 		res := mappers.MapHttpErr(err)

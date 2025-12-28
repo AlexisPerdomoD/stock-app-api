@@ -21,7 +21,7 @@ type UserHandler struct {
 }
 
 func (sc *UserHandler) GetStocksHandler(c *gin.Context) {
-	userID := c.GetUint("user_id")
+	userID := c.GetUint64("user_id")
 	if userID <= 0 {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return

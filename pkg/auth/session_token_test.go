@@ -61,7 +61,7 @@ func TestValidateSessionToken(t *testing.T) {
 	tests := []struct {
 		name    string
 		token   string
-		want    uint
+		want    uint64
 		wantErr bool
 	}{
 		{

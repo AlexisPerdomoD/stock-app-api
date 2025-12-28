@@ -16,7 +16,7 @@ type GetRecommendationsByStock struct {
 func (uc *GetRecommendationsByStock) Execute(
 	ctx context.Context,
 	filters pkg.PaginationFilter,
-	stockID uint,
+	stockID uint64,
 ) (*pkg.PaginationReponse[domain.PopulatedRecommendation], error) {
 
 	stock, err := uc.sr.Get(ctx, stockID, nil)

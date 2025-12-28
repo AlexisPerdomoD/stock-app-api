@@ -11,7 +11,7 @@ import (
 )
 
 type SessionClaims struct {
-	UserID uint `json:"user_id"`
+	UserID uint64 `json:"user_id"`
 	jwt.RegisteredClaims
 }
 
@@ -42,7 +42,7 @@ func GenerateSessionToken(user *domain.User) (token string, err error) {
 	return session.SignedString([]byte(secret))
 }
 
-func ValidateSessionToken(token string) (userID uint, err error) {
+func ValidateSessionToken(token string) (userID uint64, err error) {
 	secret := os.Getenv("SESSION_SECRET")
 	session := &SessionClaims{}
 	payload, err := jwt.ParseWithClaims(token, session, func(token *jwt.Token) (any, error) {

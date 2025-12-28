@@ -15,7 +15,7 @@ type GetStocks struct {
 func (uc *GetStocks) Execute(
 	ctx context.Context,
 	filters pkg.PaginationFilter,
-	userID *uint,
+	userID *uint64,
 ) (*pkg.PaginationReponse[domain.PopulatedStock], error) {
 
 	return uc.sr.GetAllPaginated(ctx, filters, userID)
