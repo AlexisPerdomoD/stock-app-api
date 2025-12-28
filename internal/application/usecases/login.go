@@ -14,10 +14,11 @@ type Login struct {
 }
 
 func (uc *Login) Execute(ctx context.Context, credentials *models.UserLoginDTO) (*domain.User, error) {
-	password := credentials.GetPasswordByesAndClean()
+	password := credentials.GetPasswordBytesAndClean()
 	defer auth.ZeroBytes(password)
 
-	user, err := uc.ur.GetByUsername(ctx, credentials.Username)
+	includePassword := true
+	user, err := uc.ur.GetByUsername(ctx, credentials.Username, includePassword)
 	if err != nil {
 		return nil, err
 	}

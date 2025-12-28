@@ -16,9 +16,9 @@ type User struct {
 }
 
 type UserRepository interface {
-	Get(ctx context.Context, id uint) (*User, error)
+	Get(ctx context.Context, id uint64, includePassword bool) (*User, error)
 
-	GetByUsername(ctx context.Context, username string) (*User, error)
+	GetByUsername(ctx context.Context, username string, includePassword bool) (*User, error)
 
 	Create(ctx context.Context, args *User) error
 

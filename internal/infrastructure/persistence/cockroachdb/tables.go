@@ -1,8 +1,9 @@
 package cockroachdb
 
 import (
-	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"time"
+
+	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 )
 
 type userRecord struct {
@@ -94,8 +95,69 @@ func (r stockRecord) ToDomain() *domain.Stock {
 		Name:      r.Name,
 		CompanyID: r.CompanyID,
 		Ticker:    r.Ticker,
+		CreatedAt: r.CreatedAt,
+	}
+}
+
+type stockRegisterRecord struct {
+	ID        uint64          `db:"id"`
+	StockID   uint64          `db:"stock_id"`
+	Price     float64         `db:"price"`
+	Tendency  domain.Tendency `db:"tendency"`
+	CreatedAt time.Time       `db:"created_at"`
+}
+
+func (r stockRegisterRecord) ToDomain() *domain.StockRegister {
+	return &domain.StockRegister{
+		ID:        r.ID,
+		StockID:   r.StockID,
 		Price:     r.Price,
 		Tendency:  r.Tendency,
 		CreatedAt: r.CreatedAt,
 	}
+}
+
+// RELATIONSHIPS
+
+type stockUserRecord struct {
+	ID        uint64    `db:"id"`
+	StockID   uint64    `db:"stock_id"`
+	UserID    uint64    `db:"user_id"`
+	CreatedAt time.Time `db:"created_at"`
+}
+
+type stockRecommendationRecord struct {
+	id              uint64        `db:"id"`
+	brokerageID     uint64        `db:"brokerage_id"`
+	stockRegisterID uint64        `db:"stock_register_id"`
+	ratingFrom      domain.Action `db:"rating_from"`
+	ratingTo        domain.Action `db:"rating_to"`
+	targetFrom      float64       `db:"target_from"`
+	targetTo        float64       `db:"target_to"`
+	createdAt       time.Time     `db:"created_at"`
+}
+
+func (r stockRecommendationRecord) ToDomain() *domain.Recommendation {
+	return &domain.Recommendation{
+		ID:              r.id,
+		BrokerageID:     r.brokerageID,
+		StockRegisterID: r.stockRegisterID,
+		RatingFrom:      r.ratingFrom,
+		RatingTo:        r.ratingTo,
+		TargetFrom:      r.targetFrom,
+		TargetTo:        r.targetTo,
+		CreatedAt:       r.createdAt,
+	}
+}
+
+// static queries
+
+type stockTendencyStatRecord struct {
+	ID        uint64    `db:"id"`
+	StockID   uint64    `db:"stock_id"`
+	UpCount   uint64    `db:"up_count"`
+	SideCount uint64    `db:"side_count"`
+	DownCount uint64    `db:"down_count"`
+	CreatedAt time.Time `db:"created_at"`
+	UpdatedAt time.Time `db:"updated_at"`
 }
