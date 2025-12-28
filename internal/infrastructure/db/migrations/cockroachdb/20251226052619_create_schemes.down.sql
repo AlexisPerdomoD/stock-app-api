@@ -1,3 +1,7 @@
+DROP TABLE IF EXISTS stock_recommendations;
+DROP TABLE IF EXISTS stock_registers;
+DROP TABLE IF EXISTS stock_users;
+DROP TABLE IF EXISTS stock_tendency_stasts;
 DROP TABLE IF EXISTS stocks;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS brokerages;
