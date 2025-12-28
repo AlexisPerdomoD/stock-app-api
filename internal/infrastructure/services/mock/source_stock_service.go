@@ -68,7 +68,7 @@ func (m *MockSourceStockService) Get(ctx context.Context, limitDate *time.Time) 
 				TargetFrom: RandomNumber(10, 2000),
 				Brokerage:  services.BrokerageData{Name: "mock " + RandomString(10)},
 			},
-			Stock: services.StockData{
+			Stock: services.StockRegisterData{
 				Ticker:   ticker,
 				Name:     ticker,
 				Price:    RandomNumber(10, 2000),

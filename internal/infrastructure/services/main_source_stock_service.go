@@ -191,7 +191,7 @@ func (s *MainSourceStockService) Get(
 				},
 			}
 
-			args.Stock = services.StockData{
+			args.Stock = services.StockRegisterData{
 				Ticker:   ticker,
 				Price:    currentPrice,
 				Tendency: tendency,

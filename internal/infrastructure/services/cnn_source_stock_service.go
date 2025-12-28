@@ -162,7 +162,7 @@ func (s *CnnStockSourceService) Get(ctx context.Context, limitDate *time.Time) (
 			Company: services.CompanyData{
 				Name: strings.ToLower(item.CompanyName),
 			},
-			Stock: services.StockData{
+			Stock: services.StockRegisterData{
 				Ticker:   strings.ToLower(item.Ticker),
 				Price:    item.CurrentPrice,
 				Tendency: tendency,

@@ -5,7 +5,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"github.com/alexisPerdomoD/stock-app-api/pkg"
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -15,9 +14,13 @@ type SessionClaims struct {
 	jwt.RegisteredClaims
 }
 
-func GenerateSessionToken(user *domain.User) (token string, err error) {
+type UserLike interface {
+	GetID() uint64
+}
 
-	if user == nil || user.ID == 0 {
+func GenerateSessionToken(user UserLike) (token string, err error) {
+
+	if user == nil || user.GetID() == 0 {
 		return "", fmt.Errorf("[GenerateSessionToken] user is invalid or nil %+v", user)
 	}
 
@@ -28,7 +31,7 @@ func GenerateSessionToken(user *domain.User) (token string, err error) {
 	}
 
 	claims := &SessionClaims{
-		UserID: user.ID,
+		UserID: user.GetID(),
 		RegisteredClaims: jwt.RegisteredClaims{
 			ID:        fmt.Sprintf("%d", time.Now().Unix()),
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),

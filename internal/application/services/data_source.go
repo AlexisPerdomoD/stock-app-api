@@ -43,7 +43,7 @@ type RecommendationData struct {
 /*
 Represents a stock data from a data source.
 */
-type StockData struct {
+type StockRegisterData struct {
 	Ticker   string
 	Name     string
 	Price    float64
@@ -57,7 +57,7 @@ type DataSourceResponse struct {
 	Market        MarketData
 	Company       CompanyData
 	Recomendation *RecommendationData
-	Stock         StockData
+	Stock         StockRegisterData
 	Time          time.Time
 }
 
