@@ -7,6 +7,7 @@ import (
 	appmodel "github.com/alexisPerdomoD/stock-app-api/internal/application/models"
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"github.com/alexisPerdomoD/stock-app-api/pkg"
+	"github.com/alexisPerdomoD/stock-app-api/pkg/collection"
 )
 
 type GetRecommendationsByStock struct {
@@ -40,7 +41,7 @@ func (uc *GetRecommendationsByStock) Execute(
 		PageSize:   data.PageSize,
 		TotalSize:  data.TotalSize,
 		TotalPages: data.TotalPages,
-		Items:      pkg.Map(data.Items, appmodel.NewPopulatedRecommendationView),
+		Items:      collection.Map(data.Items, appmodel.NewPopulatedRecommendationView),
 	}
 	return response, nil
 

@@ -7,6 +7,7 @@ import (
 	"github.com/alexisPerdomoD/stock-app-api/internal/application/models"
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"github.com/alexisPerdomoD/stock-app-api/pkg"
+	"github.com/alexisPerdomoD/stock-app-api/pkg/collection"
 )
 
 type GetStocks struct {
@@ -29,7 +30,7 @@ func (uc *GetStocks) Execute(
 		PageSize:   data.PageSize,
 		TotalSize:  data.TotalSize,
 		TotalPages: data.TotalPages,
-		Items:      pkg.Map(data.Items, models.NewPopulatedStockView),
+		Items:      collection.Map(data.Items, models.NewPopulatedStockView),
 	}
 
 	return response, nil
