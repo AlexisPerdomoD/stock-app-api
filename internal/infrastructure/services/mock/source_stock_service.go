@@ -59,7 +59,6 @@ func (m *MockSourceStockService) Get(ctx context.Context, limitDate *time.Time) 
 			},
 			Company: services.CompanyData{
 				Name: ticker,
-				ISIN: nil,
 			},
 			Recomendation: &services.RecommendationData{
 				RatingTo:   RandomAction(),

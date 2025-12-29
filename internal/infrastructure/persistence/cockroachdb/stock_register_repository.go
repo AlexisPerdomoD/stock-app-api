@@ -25,7 +25,11 @@ func (r StockRegisterRepository) GetRangeByStockID(ctx context.Context, stockID 
 	return nil, pkg.InternalServerError("not implemented")
 }
 
-func (r StockRegisterRepository) Save(ctx context.Context, stockRegister domain.StockRegister) error {
+func (r StockRegisterRepository) Save(ctx context.Context, stockRegister *domain.StockRegister) error {
+	return pkg.InternalServerError("not implemented")
+}
+
+func (r StockRegisterRepository) SaveAll(ctx context.Context, stockRegisters []*domain.StockRegister) error {
 	return pkg.InternalServerError("not implemented")
 }
 

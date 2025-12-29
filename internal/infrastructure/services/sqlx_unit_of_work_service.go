@@ -14,12 +14,20 @@ type SqlxUnitOfWork struct {
 	tx *sqlx.Tx
 }
 
+func (u *SqlxUnitOfWork) MarketRepository() domain.MarketRepository {
+	return cockroachdb.NewMarketRepository(u.tx)
+}
+
 func (u *SqlxUnitOfWork) StockRepository() domain.StockRepository {
 	return cockroachdb.NewStockRepository(u.tx)
 }
 
 func (u *SqlxUnitOfWork) StockRegisterRepository() domain.StockRegisterRepository {
 	return cockroachdb.NewStockRegisterRepository(u.tx)
+}
+
+func (u *SqlxUnitOfWork) StockTendencyStatRepository() domain.StockTendencyStatRepository {
+	return cockroachdb.NewStockTendencyStatRepository(u.tx)
 }
 
 func (u *SqlxUnitOfWork) UserRepository() domain.UserRepository {

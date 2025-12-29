@@ -1,6 +1,7 @@
 package cockroachdb
 
 import (
+	"context"
 	"log"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
@@ -12,11 +13,19 @@ type BrokerageRepository struct {
 	db sqlx.ExtContext
 }
 
-func (r BrokerageRepository) GetByID(id uint64) (*domain.Brokerage, error) {
+func (r *BrokerageRepository) GetByID(ctx context.Context, brokerageID uint64) (*domain.Brokerage, error) {
 	return nil, pkg.InternalServerError("not implemented")
 }
 
-func (r BrokerageRepository) Save(brokerage *domain.Brokerage) error {
+func (r *BrokerageRepository) GetByNames(ctx context.Context, names []string) (map[string]*domain.Brokerage, error) {
+	return nil, pkg.InternalServerError("not implemented")
+}
+
+func (r *BrokerageRepository) Save(ctx context.Context, brokerage *domain.Brokerage) error {
+	return pkg.InternalServerError("not implemented")
+}
+
+func (r *BrokerageRepository) SaveAll(ctx context.Context, brokerages []*domain.Brokerage) error {
 	return pkg.InternalServerError("not implemented")
 }
 

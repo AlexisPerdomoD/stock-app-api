@@ -9,7 +9,9 @@ import (
 type StockView struct {
 	ID        uint64    `json:"id,string"`
 	CompanyID uint64    `json:"company_id,string"`
+	MarketID  uint64    `json:"market_id,string"`
 	Ticker    string    `json:"ticker"`
+	Isin      *string   `json:"isin,omitempty"`
 	Name      *string   `json:"name,omitempty"`
 	CreatedAt time.Time `json:"registered"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -20,8 +22,10 @@ func NewStockView(s domain.Stock) StockView {
 	return StockView{
 		ID:        s.ID,
 		CompanyID: s.CompanyID,
+		MarketID:  s.MarketID,
 		Ticker:    s.Ticker,
 		Name:      s.Name,
+		Isin:      s.Isin,
 		CreatedAt: s.CreatedAt,
 	}
 }

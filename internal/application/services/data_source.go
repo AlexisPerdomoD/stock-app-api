@@ -19,7 +19,6 @@ Represents a company data from a data source.
 */
 type CompanyData struct {
 	Name string
-	ISIN *string
 }
 
 /*
@@ -48,6 +47,7 @@ type StockRegisterData struct {
 	Name     string
 	Price    float64
 	Tendency domain.Tendency
+	ISIN     string
 }
 
 /*
@@ -56,8 +56,8 @@ Represents expected response from a data source.
 type DataSourceResponse struct {
 	Market        MarketData
 	Company       CompanyData
-	Recomendation *RecommendationData
 	Stock         StockRegisterData
+	Recomendation *RecommendationData
 	Time          time.Time
 }
 

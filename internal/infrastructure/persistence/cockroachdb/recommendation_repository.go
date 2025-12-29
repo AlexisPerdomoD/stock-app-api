@@ -12,12 +12,16 @@ type RecommendationRepository struct {
 	db sqlx.ExtContext
 }
 
-func (r RecommendationRepository) GetAllPaginated(
+func (r *RecommendationRepository) GetAllPaginated(
 	ctx context.Context,
 	filter pkg.PaginationFilter,
 	stockID uint64,
 ) (*pkg.PaginationReponse[domain.PopulatedRecommendation], error) {
 	return nil, pkg.InternalServerError("not implemented")
+}
+
+func (r *RecommendationRepository) SaveAll(ctx context.Context, recommendations []*domain.Recommendation) error {
+	return pkg.InternalServerError("not implemented")
 }
 
 func NewRecommendationRepository(db sqlx.ExtContext) *RecommendationRepository {

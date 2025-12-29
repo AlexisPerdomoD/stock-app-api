@@ -12,23 +12,31 @@ type StockRepository struct {
 	db sqlx.ExtContext
 }
 
-func (r StockRepository) Get(ctx context.Context, stockID uint64, userID *uint64) (*domain.Stock, error) {
+func (r *StockRepository) Get(ctx context.Context, stockID uint64, userID *uint64) (*domain.Stock, error) {
 	return nil, pkg.InternalServerError("not implemented")
 }
 
-func (r StockRepository) GetPopulated(ctx context.Context, stockID uint64, userID *uint64) (*domain.PopulatedStock, error) {
+func (r *StockRepository) GetPopulated(ctx context.Context, stockID uint64, userID *uint64) (*domain.PopulatedStock, error) {
 	return nil, pkg.InternalServerError("not implemented")
 }
 
-func (r StockRepository) GetAllPaginated(ctx context.Context, filter pkg.PaginationFilter, userID *uint64) (*pkg.PaginationReponse[domain.PopulatedStock], error) {
+func (r *StockRepository) GetAllPaginated(ctx context.Context, filter pkg.PaginationFilter, userID *uint64) (*pkg.PaginationReponse[domain.PopulatedStock], error) {
 	return nil, pkg.InternalServerError("not implemented")
 }
 
-func (r StockRepository) Save(ctx context.Context, stock *domain.Stock) error {
+func (r *StockRepository) GetByStockCompanySearchParams(ctx context.Context, tickers []domain.StockCompanySearchParam) (map[domain.StockCompanySearchParam]*domain.Stock, error) {
+	return nil, pkg.InternalServerError("not implemented")
+}
+
+func (r *StockRepository) Save(ctx context.Context, stock *domain.Stock) error {
 	return pkg.InternalServerError("not implemented")
 }
 
-func (r StockRepository) Update(ctx context.Context, stock domain.StockUpdates) error {
+func (r *StockRepository) SaveAll(ctx context.Context, stocks []*domain.Stock) error {
+	return pkg.InternalServerError("not implemented")
+}
+
+func (r *StockRepository) Update(ctx context.Context, stock domain.StockUpdates) error {
 	return pkg.InternalServerError("not implemented")
 }
 

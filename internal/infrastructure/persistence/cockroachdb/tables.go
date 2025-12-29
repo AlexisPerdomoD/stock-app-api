@@ -48,7 +48,6 @@ type companyRecord struct {
 	ID        uint64    `db:"id"`
 	MarketID  uint64    `db:"market_id"`
 	Name      string    `db:"name"`
-	ISIN      *string   `db:"isin"`
 	CreatedAt time.Time `db:"created_at"`
 	UpdatedAt time.Time `db:"updated_at"`
 }
@@ -58,7 +57,6 @@ func (r companyRecord) ToDomain() *domain.Company {
 		ID:        r.ID,
 		MarketID:  r.MarketID,
 		Name:      r.Name,
-		ISIN:      r.ISIN,
 		CreatedAt: r.CreatedAt,
 	}
 }
@@ -79,14 +77,14 @@ func (r brokerageRecord) ToDomain() *domain.Brokerage {
 }
 
 type stockRecord struct {
-	ID        uint64          `db:"id"`
-	CompanyID uint64          `db:"company_id"`
-	Name      *string         `db:"name"`
-	Ticker    string          `db:"ticker"`
-	Price     float64         `db:"price"`
-	Tendency  domain.Tendency `db:"tendency"`
-	CreatedAt time.Time       `db:"created_at"`
-	UpdatedAt time.Time       `db:"updated_at"`
+	ID        uint64    `db:"id"`
+	CompanyID uint64    `db:"company_id"`
+	MarketID  uint64    `db:"market_id"`
+	Ticker    string    `db:"ticker"`
+	Name      *string   `db:"name"`
+	Isin      *string   `db:"isin"`
+	CreatedAt time.Time `db:"created_at"`
+	UpdatedAt time.Time `db:"updated_at"`
 }
 
 func (r stockRecord) ToDomain() *domain.Stock {

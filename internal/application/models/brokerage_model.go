@@ -8,7 +8,7 @@ type BrokerageView struct {
 	CreatedAt string `json:"created_at"`
 }
 
-func NewBrokerageView(b *domain.Brokerage) BrokerageView {
+func NewBrokerageView(b domain.Brokerage) BrokerageView {
 	return BrokerageView{
 		ID:        b.ID,
 		Name:      b.Name,

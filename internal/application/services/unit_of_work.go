@@ -24,6 +24,11 @@ type UnitOfWork interface {
 	StockRegisterRepository() domain.StockRegisterRepository
 
 	/*
+		StockTendencyStatRepository returns a transactional StockTendencyStatRepository.
+	*/
+	StockTendencyStatRepository() domain.StockTendencyStatRepository
+
+	/*
 		UserRepository returns a transactional user repository.
 	*/
 	UserRepository() domain.UserRepository
@@ -42,6 +47,11 @@ type UnitOfWork interface {
 		CompanyRepository returns a transactional company repository.
 	*/
 	CompanyRepository() domain.CompanyRepository
+
+	/*
+		MarketRepository returns a transactional market repository.
+	*/
+	MarketRepository() domain.MarketRepository
 }
 
 /*
