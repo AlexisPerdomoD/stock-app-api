@@ -27,19 +27,40 @@ func (t Tendency) String() string {
 }
 
 type StockRegister struct {
-	ID        uint64    `json:"id,string"`
-	StockID   uint64    `json:"stock_id,string"`
-	Price     float64   `json:"price"`
-	Tendency  Tendency  `json:"tendency"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        uint64
+	StockID   uint64
+	Price     float64
+	Tendency  Tendency
+	CreatedAt time.Time
 }
 
 type StockRegisterRepository interface {
+
+	/*
+	   returns a stock register by its id
+	*/
 	GetByID(ctx context.Context, stockRegisterID uint64) (*StockRegister, error)
 
+	/*
+	   returns last stock register by its stock id
+	*/
 	GetLastByStockID(ctx context.Context, stockID uint64) (*StockRegister, error)
 
+	/*
+	   returns stock registers within a date range ordered by date desc
+	*/
 	GetRangeByStockID(ctx context.Context, stockID uint64, from, to time.Time) ([]StockRegister, error)
 
-	Save(ctx context.Context, stockRegister StockRegister) error
+	/*
+		saves a stock register in the repository
+		- returns error if nil arguments are passed
+		- returns error if conflict occurs with arguments provided
+	*/
+	Save(ctx context.Context, stockRegister *StockRegister) error
+	/*
+		saves stock registers in the repository
+		- returns error if nil arguments are passed
+		- returns error if conflict occurs with arguments provided
+	*/
+	SaveAll(ctx context.Context, stockRegister []*StockRegister) error
 }

@@ -36,25 +36,35 @@ Recommendation
 Represents a recommendation made by a brokerage team.
 */
 type Recommendation struct {
-	ID              uint64    `json:"id,string"`
-	StockRegisterID uint64    `json:"stock_register_id,string"`
-	BrokerageID     uint64    `json:"brokerage_id,string"`
-	RatingTo        Action    `json:"rating_to"`
-	RatingFrom      Action    `json:"rating_from"`
-	TargetTo        float64   `json:"target_to"`
-	TargetFrom      float64   `json:"target_from"`
-	CreatedAt       time.Time `json:"created_at"`
+	ID              uint64
+	StockRegisterID uint64
+	BrokerageID     uint64
+	RatingTo        Action
+	RatingFrom      Action
+	TargetTo        float64
+	TargetFrom      float64
+	CreatedAt       time.Time
 }
 
 type PopulatedRecommendation struct {
 	Recommendation
-	Brokerage *Brokerage `json:"brokerage"`
+	Brokerage Brokerage
 }
 
 type RecommendationRepository interface {
+	/*
+	   returns paginated recommendations based on the specified filters
+	*/
 	GetAllPaginated(
 		ctx context.Context,
 		filter pkg.PaginationFilter,
 		stockID uint64,
 	) (*pkg.PaginationReponse[PopulatedRecommendation], error)
+
+	/*
+		Saves a list of recommendations in the repository.
+		- returns error if nil arguments are passed
+		- returns error if conflict occurs with arguments provided
+	*/
+	SaveAll(ctx context.Context, recommendations []*Recommendation) error
 }

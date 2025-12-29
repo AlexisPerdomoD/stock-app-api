@@ -7,20 +7,16 @@ CREATE TABLE markets (
 
 CREATE TABLE companies (
     id          INT8 PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    market_id   INT8 NOT NULL,
+    market_id   INT8 NOT NULL REFERENCES markets(id),
     name        STRING NOT NULL,
-    isin        STRING NULL,
     created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
-
-    CONSTRAINT fk_companies_market
-        FOREIGN KEY (market_id)
-        REFERENCES markets(id)
+    UNIQUE(market_id, name)
 );
 
 CREATE TABLE brokerages (
     id          INT8 PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    name        STRING NOT NULL,
+    name        STRING NOT NULL UNIQUE,
     created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -39,10 +35,13 @@ CREATE TABLE users (
 CREATE TABLE stocks (
     id          INT8 PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     company_id  INT8 NOT NULL REFERENCES companies(id),
-    ticker      STRING NOT NULL UNIQUE,
+    market_id   INT8 NOT NULL REFERENCES markets(id),
+    ticker      STRING NOT NULL,
+    isin        STRING DEFAULT NULL UNIQUE,
     name        STRING DEFAULT NULL,
     created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+    updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE(market_id, ticker)
 );
 
 CREATE TABLE stock_registers(
@@ -78,5 +77,6 @@ CREATE TABLE stock_tendency_stats(
     side_count  INT8 NOT NULL DEFAULT 0,
     down_count  INT8 NOT NULL DEFAULT 0,
     created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+    updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE(stock_id)
 );

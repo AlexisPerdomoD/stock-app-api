@@ -1,6 +1,9 @@
 package domain
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 /*
 Brokerage
@@ -17,7 +20,28 @@ BrokerageRepository
 Repository for the Brokerage entity.
 */
 type BrokerageRepository interface {
-	GetByID(id uint64) (*Brokerage, error)
+	/*
+	   returns a brokerage by its id
+	*/
+	GetByID(ctx context.Context, brokerageID uint64) (*Brokerage, error)
 
-	Save(brokerage *Brokerage) error
+	/*
+		returns brokerages by their names, if not found any it is set to nil in the final map
+		- returns error if nil arguments are passed
+	*/
+	GetByNames(ctx context.Context, names []string) (map[string]*Brokerage, error)
+
+	/*
+		Saves a brokerage in the repository
+		- returns error if nil arguments are passed
+		- returns error if conflict occurs with arguments provided
+	*/
+	Save(ctx context.Context, brokerage *Brokerage) error
+
+	/*
+		Saves brokerages in the repository
+		- returns error if nil arguments are passed
+		- returns error if conflict occurs with arguments provided
+	*/
+	SaveAll(ctx context.Context, brokerage []*Brokerage) error
 }
