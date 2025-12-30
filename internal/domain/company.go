@@ -32,25 +32,28 @@ type CompanyRepository interface {
 	GetByID(ctx context.Context, id uint64) (*Company, error)
 
 	/*
-		Returns a Company by its MarketID and Name. If the ID does not exist, sets the value to nil.
+		Returns Companies by their MarketID and Name. If the ID does not exist, sets the value to nil.
 	*/
 	GetByMarketCompanySearch(ctx context.Context, searchParams []MarketCompanySearchParam) (map[MarketCompanySearchParam]*Company, error)
 
 	/*
 		Saves a Company in the database and map missing properties with their default values (if any) including ID.
 
-		- nil values returns an error.
-		- invalid constraints returns an error.
-		- duplicated ID returns an error.
+		- nil company is no-op and returns nil.
+
+		- any persistence constraints violated by any argument returns an error (e.g unique indexes).
 	*/
 	Save(ctx context.Context, company *Company) error
 
 	/*
 		Saves all Companies in the database and map missing properties with their default values (if any) including ID.
 
-		- nil values returns an error.
-		- invalid constraints returns an error.
-		- duplicated ID returns an error.
+		- nil companies slice is no-op and returns nil
+
+		- nil values inside companies slice returns an error.
+
+		- any persistence constraints violated by any argument returns an error (e.g unique indexes).
+
 	*/
 	SaveAll(ctx context.Context, companies []*Company) error
 }

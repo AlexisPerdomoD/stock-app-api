@@ -46,10 +46,6 @@ func (r *marketRecord) ToDomain() *domain.Market {
 }
 
 func (r *marketRecord) MapDomain(dom *domain.Market) {
-	if dom == nil {
-		return
-	}
-
 	dom.ID = r.ID
 	dom.Name = r.Name
 	dom.CreatedAt = r.CreatedAt
@@ -63,13 +59,20 @@ type companyRecord struct {
 	UpdatedAt time.Time `db:"updated_at"`
 }
 
-func (r companyRecord) ToDomain() *domain.Company {
+func (r *companyRecord) ToDomain() *domain.Company {
 	return &domain.Company{
 		ID:        r.ID,
 		MarketID:  r.MarketID,
 		Name:      r.Name,
 		CreatedAt: r.CreatedAt,
 	}
+}
+
+func (r *companyRecord) MapDomain(dom *domain.Company) {
+	dom.ID = r.ID
+	dom.MarketID = r.MarketID
+	dom.Name = r.Name
+	dom.CreatedAt = r.CreatedAt
 }
 
 type brokerageRecord struct {
@@ -88,10 +91,6 @@ func (r *brokerageRecord) ToDomain() *domain.Brokerage {
 }
 
 func (r *brokerageRecord) MapDomain(dom *domain.Brokerage) {
-	if dom == nil {
-		return
-	}
-
 	dom.ID = r.ID
 	dom.Name = r.Name
 	dom.CreatedAt = r.CreatedAt
