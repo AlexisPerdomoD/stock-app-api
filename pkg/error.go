@@ -40,6 +40,14 @@ func DataBaseErr(detail string, code int) error {
 	return &ApiErr{Detail: detail, Code: code, Name: "Database Error"}
 }
 
+func InvalidStateErr(detail string) *ApiErr {
+	return &ApiErr{
+		Detail: detail,
+		Code:   http.StatusInternalServerError,
+		Name:   "Invalid State Error",
+	}
+}
+
 func InternalServerError(detail string) error {
 	return &ApiErr{
 		Detail: detail,
