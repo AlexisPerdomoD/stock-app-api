@@ -33,18 +33,20 @@ type MarketRepository interface {
 	/*
 		Saves a Market in the database and map missing properties with their default values (if any) including ID.
 
-		- nil values returns an error.
+		- returns nil if argument is nil.
+
 		- invalid constraints returns an error.
-		- duplicated ID returns an error.
 	*/
 	Save(ctx context.Context, market *Market) error
 
 	/*
 		Saves all Markets in the database and map missing properties with their default values (if any) including ID.
 
-		- nil values returns an error.
+		- nil slice argument return nil.
+
+		- nil values inside the slice returns an error.
+
 		- invalid constraints returns an error.
-		- duplicated ID returns an error.
 	*/
 	SaveAll(ctx context.Context, markets []*Market) error
 }

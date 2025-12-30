@@ -58,22 +58,22 @@ func (uc *RegisterStocks) Execute(ctx context.Context, service string, limitDate
 			return err
 		}
 
-		markets, err := uc.getMarkets(txCtx, uow.MarketRepository(), data)
+		markets, err := uc.GetMarkets(txCtx, uow.MarketRepository(), data)
 		if err != nil {
 			return err
 		}
 
-		companies, err := uc.getCompanies(txCtx, uow.CompanyRepository(), markets, data)
+		companies, err := uc.GetCompanies(txCtx, uow.CompanyRepository(), markets, data)
 		if err != nil {
 			return err
 		}
 
-		stocks, err := uc.getStocks(txCtx, uow.StockRepository(), markets, companies, data)
+		stocks, err := uc.GetStocks(txCtx, uow.StockRepository(), markets, companies, data)
 		if err != nil {
 			return err
 		}
 
-		stockRegisters, err := uc.setStockRegisters(
+		stockRegisters, err := uc.SetStockRegisters(
 			txCtx,
 			uow.StockRegisterRepository(),
 			uow.RecommendationRepository(),
@@ -101,7 +101,7 @@ func (uc *RegisterStocks) Execute(ctx context.Context, service string, limitDate
 	return insertedCount, nil
 }
 
-func (uc *RegisterStocks) getMarkets(
+func (uc *RegisterStocks) GetMarkets(
 	ctx context.Context,
 	r domain.MarketRepository,
 	data []services.DataSourceResponse,
@@ -143,7 +143,7 @@ func (uc *RegisterStocks) getMarkets(
 	return marketMap, nil
 }
 
-func (uc *RegisterStocks) getCompanies(
+func (uc *RegisterStocks) GetCompanies(
 	ctx context.Context,
 	r domain.CompanyRepository,
 	markets map[string]*domain.Market,
@@ -191,7 +191,7 @@ func (uc *RegisterStocks) getCompanies(
 	return companyMap, nil
 }
 
-func (uc *RegisterStocks) getStocks(
+func (uc *RegisterStocks) GetStocks(
 	ctx context.Context,
 	r domain.StockRepository,
 	markets map[string]*domain.Market,
@@ -334,7 +334,7 @@ func (uc *RegisterStocks) GetBrokerages(
 	return brokerageMap, nil
 }
 
-func (uc *RegisterStocks) setStockRegisters(
+func (uc *RegisterStocks) SetStockRegisters(
 	ctx context.Context,
 	registerRepository domain.StockRegisterRepository,
 	recommendationRepository domain.RecommendationRepository,

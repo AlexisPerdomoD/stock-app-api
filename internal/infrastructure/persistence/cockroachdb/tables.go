@@ -1,6 +1,7 @@
 package cockroachdb
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
@@ -36,12 +37,22 @@ type marketRecord struct {
 	UpdatedAt time.Time `db:"updated_at"`
 }
 
-func (r marketRecord) ToDomain() *domain.Market {
+func (r *marketRecord) ToDomain() *domain.Market {
 	return &domain.Market{
 		ID:        r.ID,
 		Name:      r.Name,
 		CreatedAt: r.CreatedAt,
 	}
+}
+
+func (r *marketRecord) MapDomain(dom *domain.Market) {
+	if dom == nil {
+		return
+	}
+
+	dom.ID = r.ID
+	dom.Name = r.Name
+	dom.CreatedAt = r.CreatedAt
 }
 
 type companyRecord struct {
@@ -77,23 +88,37 @@ func (r brokerageRecord) ToDomain() *domain.Brokerage {
 }
 
 type stockRecord struct {
-	ID        uint64    `db:"id"`
-	CompanyID uint64    `db:"company_id"`
-	MarketID  uint64    `db:"market_id"`
-	Ticker    string    `db:"ticker"`
-	Name      *string   `db:"name"`
-	Isin      *string   `db:"isin"`
-	CreatedAt time.Time `db:"created_at"`
-	UpdatedAt time.Time `db:"updated_at"`
+	ID        uint64         `db:"id"`
+	CompanyID uint64         `db:"company_id"`
+	MarketID  uint64         `db:"market_id"`
+	Ticker    string         `db:"ticker"`
+	Name      sql.NullString `db:"name"`
+	Isin      sql.NullString `db:"isin"`
+	CreatedAt time.Time      `db:"created_at"`
+	UpdatedAt time.Time      `db:"updated_at"`
 }
 
 func (r stockRecord) ToDomain() *domain.Stock {
+	var name *string = nil
+	var isin *string = nil
+
+	if r.Name.Valid {
+		name = &r.Name.String
+	}
+
+	if r.Isin.Valid {
+		isin = &r.Isin.String
+	}
+
 	return &domain.Stock{
 		ID:        r.ID,
-		Name:      r.Name,
 		CompanyID: r.CompanyID,
+		MarketID:  r.MarketID,
+		Name:      name,
+		Isin:      isin,
 		Ticker:    r.Ticker,
 		CreatedAt: r.CreatedAt,
+		UpdatedAt: r.UpdatedAt,
 	}
 }
 
@@ -158,4 +183,16 @@ type stockTendencyStatRecord struct {
 	DownCount uint64    `db:"down_count"`
 	CreatedAt time.Time `db:"created_at"`
 	UpdatedAt time.Time `db:"updated_at"`
+}
+
+func (r *stockTendencyStatRecord) ToDomain() *domain.StockTendencyStat {
+	return &domain.StockTendencyStat{
+		ID:        r.ID,
+		StockID:   r.StockID,
+		UpCount:   r.UpCount,
+		SideCount: r.SideCount,
+		DownCount: r.DownCount,
+		CreatedAt: r.CreatedAt,
+		UpdatedAt: r.UpdatedAt,
+	}
 }
