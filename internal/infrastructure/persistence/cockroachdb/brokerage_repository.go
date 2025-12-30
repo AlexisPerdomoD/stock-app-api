@@ -11,7 +11,8 @@ import (
 )
 
 const GET_BROKERAGE_QUERY = `SELECT id, name, created_at FROM brokerages`
-const INSERT_BROKERAGE_QUERY = `INSERT INTO brokerages(name) VALUES (:name) RETURNING id, name, created_at`
+const INSERT_BROKERAGE_QUERY = `INSERT INTO brokerages(name) VALUES ($1) RETURNING id, name, created_at`
+const INSERT_BROKERAGE_NAMED_QUERY = `INSERT INTO brokerages(name) VALUES (:name) RETURNING id, name, created_at`
 
 type BrokerageRepository struct {
 	db sqlx.ExtContext
@@ -98,7 +99,7 @@ func (r *BrokerageRepository) SaveAll(ctx context.Context, brokerages []*domain.
 		return nil
 	}
 
-	q := INSERT_BROKERAGE_QUERY
+	q := INSERT_BROKERAGE_NAMED_QUERY
 	rows, err := sqlx.NamedQueryContext(ctx, r.db, q, args)
 	if err != nil {
 		return err

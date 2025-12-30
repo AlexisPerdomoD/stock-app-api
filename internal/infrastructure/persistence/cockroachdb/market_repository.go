@@ -10,7 +10,8 @@ import (
 )
 
 const GET_MARKET_QUERY = `SELECT id, name, created_at FROM markets`
-const INSERT_MARKET_QUERY = `INSERT INTO markets(name) VALUES (:name) RETURNING id, name, created_at`
+const INSERT_MARKET_QUERY = `INSERT INTO markets(name) VALUES ($1) RETURNING id, name, created_at`
+const INSERT_MARKET_NAMED_QUERY = `INSERT INTO markets(name) VALUES (:name) RETURNING id, name, created_at`
 
 type MarketRepository struct {
 	db sqlx.ExtContext
@@ -55,21 +56,15 @@ func (r *MarketRepository) Save(ctx context.Context, market *domain.Market) erro
 		return nil
 	}
 
-	record := marketRecord{Name: market.Name}
-	rows, err := sqlx.NamedQueryContext(ctx, r.db, INSERT_MARKET_QUERY, record)
-	if err != nil {
+	record := &marketRecord{Name: market.Name}
+	q := INSERT_MARKET_QUERY
+	if err := r.db.QueryRowxContext(ctx, q, record.Name).
+		StructScan(record); err != nil {
 		return err
-	}
-	defer func() { _ = rows.Close() }()
-
-	for rows.Next() {
-		if err := rows.StructScan(&record); err != nil {
-			return err
-		}
 	}
 
 	record.MapDomain(market)
-	return rows.Err()
+	return nil
 }
 
 func (r *MarketRepository) SaveAll(ctx context.Context, markets []*domain.Market) error {
@@ -92,7 +87,7 @@ func (r *MarketRepository) SaveAll(ctx context.Context, markets []*domain.Market
 		records = append(records, marketRecord{Name: market.Name})
 	}
 
-	rows, err := sqlx.NamedQueryContext(ctx, r.db, INSERT_MARKET_QUERY, records)
+	rows, err := sqlx.NamedQueryContext(ctx, r.db, INSERT_MARKET_NAMED_QUERY, records)
 	if err != nil {
 		return err
 	}
