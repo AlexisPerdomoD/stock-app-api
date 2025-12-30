@@ -79,12 +79,22 @@ type brokerageRecord struct {
 	UpdatedAt time.Time `db:"updated_at"`
 }
 
-func (r brokerageRecord) ToDomain() *domain.Brokerage {
+func (r *brokerageRecord) ToDomain() *domain.Brokerage {
 	return &domain.Brokerage{
 		ID:        r.ID,
 		Name:      r.Name,
 		CreatedAt: r.CreatedAt,
 	}
+}
+
+func (r *brokerageRecord) MapDomain(dom *domain.Brokerage) {
+	if dom == nil {
+		return
+	}
+
+	dom.ID = r.ID
+	dom.Name = r.Name
+	dom.CreatedAt = r.CreatedAt
 }
 
 type stockRecord struct {

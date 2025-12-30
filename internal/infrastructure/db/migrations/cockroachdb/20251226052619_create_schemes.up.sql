@@ -1,6 +1,6 @@
 CREATE TABLE markets (
     id          INT8 PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    name        STRING NOT NULL,
+    name        STRING NOT NULL UNIQUE,
     created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );

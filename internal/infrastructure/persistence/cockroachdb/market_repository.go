@@ -78,11 +78,17 @@ func (r *MarketRepository) SaveAll(ctx context.Context, markets []*domain.Market
 	}
 
 	records := make([]marketRecord, 0, len(markets))
+	marketMap := make(map[string]*domain.Market)
 	for _, market := range markets {
 		if market == nil {
-			return pkg.InternalServerError("nil arguments were provided as reference for saving markets record")
+			return pkg.InvalidStateErr("nil pointer passed on markets slice")
 		}
 
+		if _, isDuplicated := marketMap[market.Name]; isDuplicated {
+			return pkg.InvalidStateErr("invalid argument provided, duplicate unique constrain were found")
+		}
+
+		marketMap[market.Name] = market
 		records = append(records, marketRecord{Name: market.Name})
 	}
 
@@ -93,19 +99,13 @@ func (r *MarketRepository) SaveAll(ctx context.Context, markets []*domain.Market
 
 	defer func() { _ = rows.Close() }()
 
-	i := 0
 	for rows.Next() {
 		record := marketRecord{}
 		if err := rows.StructScan(&record); err != nil {
 			return err
 		}
 
-		record.MapDomain(markets[i])
-		i++
-	}
-
-	if i != len(markets) {
-		return pkg.InternalServerError("inserted rows count mismatch")
+		record.MapDomain(marketMap[record.Name])
 	}
 
 	return rows.Err()
