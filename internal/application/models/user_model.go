@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"time"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
@@ -9,14 +10,21 @@ import (
 type UserLoginDTO struct {
 	Username string `json:"email" binding:"email,required"`
 	Password string `json:"password" binding:"required"`
+
+	passwordConsumed bool
 }
 
 // GetPasswordBytesAndClean returns the password bytes and clean the password field
-// to avoid leaking it in the logs
-func (dto *UserLoginDTO) GetPasswordBytesAndClean() []byte {
+// this action can only be done once, else error is returned.
+func (dto *UserLoginDTO) GetPasswordBytesAndClean() ([]byte, error) {
+	if dto.passwordConsumed {
+		return nil, errors.New("password field already consummed, ilegal action")
+	}
+
 	pwd := []byte(dto.Password)
 	dto.Password = ""
-	return pwd
+	dto.passwordConsumed = true
+	return pwd, nil
 }
 
 type RegisterUserDTO struct {
@@ -24,6 +32,8 @@ type RegisterUserDTO struct {
 	Firstname string `json:"firstname" binding:"min=1"`
 	Lastname  string `json:"lastname" binding:"min=1"`
 	Password  string `json:"password" binding:"required,min=8,max=72"`
+
+	passwordConsumed bool
 }
 
 func (dto *RegisterUserDTO) ToDomain() *domain.User {
@@ -35,11 +45,17 @@ func (dto *RegisterUserDTO) ToDomain() *domain.User {
 	}
 }
 
-// GetPasswordBytesAndClean returns the password bytes and clean the password field
-func (dto *RegisterUserDTO) GetPasswordBytesAndClean() []byte {
+// GetPasswordBytesAndClean returns the password bytes and clean the password field.
+// this action can only be done once, else error is returned.
+func (dto *RegisterUserDTO) GetPasswordBytesAndClean() ([]byte, error) {
+	if dto.passwordConsumed {
+		return nil, errors.New("password field already consummed, ilegal action")
+	}
+
 	pwd := []byte(dto.Password)
 	dto.Password = ""
-	return pwd
+	dto.passwordConsumed = true
+	return pwd, nil
 }
 
 type UserView struct {

@@ -32,10 +32,6 @@ func VerifyPassword(password []byte, hash []byte) (bool, error) {
 		return false, errors.New("a nil hash or password was provided as argument")
 	}
 
-	if password == nil {
-		return false, nil
-	}
-
 	if len(password) >= 72 {
 		return false, nil
 	}

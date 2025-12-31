@@ -107,17 +107,17 @@ func (uc *UserHandler) RegisterStockHandler(c *gin.Context) {
 		return
 	}
 
-	parseStockID, err := strconv.Atoi(stockID)
-	if err != nil || parseStockID <= 0 {
+	parseStockID, err := strconv.ParseUint(stockID, 10, 0)
+	if err != nil {
 		res := mappers.MapHttpErr(pkg.BadRequest("stockID is invalid"))
 		c.AbortWithStatusJSON(res.StatusCode, res)
 		return
 	}
 
-	userID := c.GetUint("user_id")
+	userID := c.GetUint64("user_id")
 
 	ctx := c.Request.Context()
-	if err := uc.registerStock.Execute(ctx, userID, uint(parseStockID)); err != nil {
+	if err := uc.registerStock.Execute(ctx, userID, parseStockID); err != nil {
 		res := mappers.MapHttpErr(err)
 		c.AbortWithStatusJSON(res.StatusCode, res)
 		return
@@ -134,17 +134,17 @@ func (uc *UserHandler) RemoveStockHandler(c *gin.Context) {
 		return
 	}
 
-	parseStockID, err := strconv.Atoi(stockID)
-	if err != nil || parseStockID <= 0 {
+	parseStockID, err := strconv.ParseUint(stockID, 10, 0)
+	if err != nil {
 		res := mappers.MapHttpErr(pkg.BadRequest("stockID is invalid"))
 		c.AbortWithStatusJSON(res.StatusCode, res)
 		return
 	}
 
-	userID := c.GetUint("user_id")
+	userID := c.GetUint64("user_id")
 
 	ctx := c.Request.Context()
-	if err := uc.removeStock.Execute(ctx, userID, uint(parseStockID)); err != nil {
+	if err := uc.removeStock.Execute(ctx, userID, parseStockID); err != nil {
 		res := mappers.MapHttpErr(err)
 		c.AbortWithStatusJSON(res.StatusCode, res)
 		return

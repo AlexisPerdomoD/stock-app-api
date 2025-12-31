@@ -21,7 +21,7 @@ func (uc *GetRecommendationsByStock) Execute(
 	stockID uint64,
 ) (*pkg.PaginationReponse[appmodel.PopulatedRecommendationView], error) {
 
-	stock, err := uc.sr.Get(ctx, stockID, nil)
+	stock, err := uc.sr.Get(ctx, stockID)
 
 	if err != nil {
 		return nil, err

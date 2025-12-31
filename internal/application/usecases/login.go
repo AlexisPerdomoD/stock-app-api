@@ -2,23 +2,28 @@ package usecases
 
 import (
 	"context"
+	"log/slog"
+
 	appmodel "github.com/alexisPerdomoD/stock-app-api/internal/application/models"
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"github.com/alexisPerdomoD/stock-app-api/pkg"
 	"github.com/alexisPerdomoD/stock-app-api/pkg/auth"
-	"log"
 )
 
 type Login struct {
-	ur domain.UserRepository
+	ur  domain.UserRepository
+	log *slog.Logger
 }
 
 func (uc *Login) Execute(ctx context.Context, credentials *appmodel.UserLoginDTO) (*appmodel.UserView, error) {
-	password := credentials.GetPasswordBytesAndClean()
+	password, err := credentials.GetPasswordBytesAndClean()
+	if err != nil {
+		uc.log.Warn("InvalidStateErr found, credentials probably comsumed before usecase", "err", err)
+		return nil, pkg.InvalidStateErr(err.Error())
+	}
 	defer auth.ZeroBytes(password)
 
-	includePassword := true
-	user, err := uc.ur.GetByUsername(ctx, credentials.Username, includePassword)
+	user, err := uc.ur.GetByUsernameWithPassword(ctx, credentials.Username)
 	if err != nil {
 		return nil, err
 	}
@@ -26,26 +31,26 @@ func (uc *Login) Execute(ctx context.Context, credentials *appmodel.UserLoginDTO
 	if user == nil {
 		return nil, pkg.Unauthorized("Invalid credentials")
 	}
+
 	defer auth.ZeroBytes(user.Password)
 
-	validPassword, err := auth.VerifyPassword(password, user.Password)
-
+	isValidCredentials, err := auth.VerifyPassword(password, user.Password)
 	if err != nil {
 		return nil, err
 	}
 
-	if !validPassword {
+	if !isValidCredentials {
 		return nil, pkg.Unauthorized("Invalid credentials")
 	}
 
 	return appmodel.NewUserView(user), nil
 }
 
-func NewLogin(ur domain.UserRepository) *Login {
-
-	if ur == nil {
-		log.Fatalln("[NewLoginUseCase]: UserRepository was nil")
+func NewLogin(ur domain.UserRepository, logger *slog.Logger) *Login {
+	if ur == nil || logger == nil {
+		panic("some dependencies were provided as nil for NewLogin")
 	}
 
-	return &Login{ur}
+	log := logger.With("usercase", "Login")
+	return &Login{ur, log}
 }
