@@ -18,7 +18,7 @@ type userRecord struct {
 	UpdatedAt time.Time `db:"updated_at"`
 }
 
-func (r userRecord) ToDomain() *domain.User {
+func (r *userRecord) ToDomain() *domain.User {
 	return &domain.User{
 		ID:        r.ID,
 		Username:  r.Username,
@@ -28,6 +28,16 @@ func (r userRecord) ToDomain() *domain.User {
 		Active:    r.Active,
 		CreatedAt: r.CreatedAt,
 	}
+}
+
+func (r *userRecord) MapDomain(dom *domain.User) {
+	dom.ID = r.ID
+	dom.Username = r.Username
+	dom.Firstname = r.Firstname
+	dom.Lastname = r.Lastname
+	dom.Password = r.Password
+	dom.Active = r.Active
+	dom.CreatedAt = r.CreatedAt
 }
 
 type marketRecord struct {

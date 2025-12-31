@@ -20,13 +20,51 @@ func (u User) GetID() uint64 {
 }
 
 type UserRepository interface {
-	Get(ctx context.Context, id uint64, includePassword bool) (*User, error)
+	/*
+		Returns a user by its id, if not found, returns nil
+	*/
+	GetByID(ctx context.Context, id uint64) (*User, error)
 
-	GetByUsername(ctx context.Context, username string, includePassword bool) (*User, error)
+	/*
+		Returns a user by its id including password field, if not found, returns nil
+	*/
+	GetByIDWithPassword(ctx context.Context, id uint64) (*User, error)
 
-	Create(ctx context.Context, args *User) error
+	/*
+		Returns a user by its username, if not found, returns nil
+	*/
+	GetByUsername(ctx context.Context, username string) (*User, error)
 
-	RegisterUserStock(ctx context.Context, userID uint, stockID uint) error
+	/*
+		Returns a user by its username(incliding password field), if not found, returns nil
+	*/
+	GetByUsernameWithPassword(ctx context.Context, username string) (*User, error)
 
-	RemoveUserStock(ctx context.Context, userID uint, stockID uint) error
+	/*
+		Saves a user and maps id and CreatedAt fields, password field is remaped to nil always.
+
+		- nil args is a no-op and returns nil
+
+		- any persistence constraints violated by any argument returns an error (e.g unique indexes like username).
+	*/
+	Save(ctx context.Context, args *User) error
+
+	/*
+		returns true if the user has the stock saved, false otherwise.
+	*/
+	HasUserStock(ctx context.Context, userID uint64, stockID uint64) (bool, error)
+
+	/*
+		Registers the user stock association to save the stock as a favorite.
+
+		- any persistence constraints violated by any argument returns an error (e.g unique constraint or not existing user or stock).
+	*/
+	RegisterUserStock(ctx context.Context, userID uint64, stockID uint64) error
+
+	/*
+		Removes the user stock association to the stock as a favorite.
+
+		- If register does not exists this is no-op.
+	*/
+	RemoveUserStock(ctx context.Context, userID uint64, stockID uint64) error
 }
