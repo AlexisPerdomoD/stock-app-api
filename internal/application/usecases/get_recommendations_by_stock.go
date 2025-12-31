@@ -2,7 +2,6 @@ package usecases
 
 import (
 	"context"
-	"log"
 
 	appmodel "github.com/alexisPerdomoD/stock-app-api/internal/application/models"
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
@@ -11,8 +10,8 @@ import (
 )
 
 type GetRecommendationsByStock struct {
-	sr domain.StockRepository
-	rr domain.RecommendationRepository
+	stockRepository          domain.StockRepository
+	recommendationRepository domain.RecommendationRepository
 }
 
 func (uc *GetRecommendationsByStock) Execute(
@@ -21,17 +20,15 @@ func (uc *GetRecommendationsByStock) Execute(
 	stockID uint64,
 ) (*pkg.PaginationReponse[appmodel.PopulatedRecommendationView], error) {
 
-	stock, err := uc.sr.Get(ctx, stockID)
-
+	stock, err := uc.stockRepository.GetByID(ctx, stockID)
 	if err != nil {
 		return nil, err
 	}
-
 	if stock == nil {
 		return nil, pkg.NotFound("Stock not found")
 	}
 
-	data, err := uc.rr.GetAllPaginated(ctx, filters, stock.ID)
+	data, err := uc.recommendationRepository.GetAllPaginated(ctx, filters, stock.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -53,11 +50,11 @@ func NewGetRecommendationsByStock(
 ) *GetRecommendationsByStock {
 
 	if sr == nil {
-		log.Fatalln("[GetRecommendationsByStockUseCase]: StockRepository provided was nil")
+		panic("[GetRecommendationsByStockUseCase]: StockRepository provided was nil")
 	}
 
 	if rr == nil {
-		log.Fatalln("[GetRecommendationsByStockUseCase]: RecommendationRepository was provided as nil")
+		panic("[GetRecommendationsByStockUseCase]: RecommendationRepository was provided as nil")
 	}
 
 	return &GetRecommendationsByStock{sr, rr}

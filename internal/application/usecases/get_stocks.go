@@ -2,7 +2,7 @@ package usecases
 
 import (
 	"context"
-	"log"
+	"fmt"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/application/models"
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
@@ -11,7 +11,7 @@ import (
 )
 
 type GetStocks struct {
-	sr domain.StockRepository
+	stockRepository domain.StockRepository
 }
 
 func (uc *GetStocks) Execute(
@@ -19,8 +19,15 @@ func (uc *GetStocks) Execute(
 	filters pkg.PaginationFilter,
 	userID *uint64,
 ) (*pkg.PaginationReponse[models.PopulatedStockView], error) {
+	var data *pkg.PaginationReponse[domain.PopulatedStock]
+	var err error
 
-	data, err := uc.sr.GetAllPaginated(ctx, filters, userID)
+	if userID != nil {
+		data, err = uc.stockRepository.GetAllPaginatedByUser(ctx, filters, *userID)
+	} else {
+		data, err = uc.stockRepository.GetAllPaginated(ctx, filters)
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +46,7 @@ func (uc *GetStocks) Execute(
 func NewGetStocks(sr domain.StockRepository) *GetStocks {
 
 	if sr == nil {
-		log.Fatalln("bad impl: StockRepository was nil for NewGetStocksUseCase")
+		panic(fmt.Sprintf("nil arguments provided for NewGetStocksUseCase stockRepository=%+V", sr))
 	}
 
 	return &GetStocks{sr}

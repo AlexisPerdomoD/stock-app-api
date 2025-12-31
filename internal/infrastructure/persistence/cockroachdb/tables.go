@@ -141,6 +141,26 @@ func (r stockRecord) ToDomain() *domain.Stock {
 	}
 }
 
+func (r stockRecord) MapDomain(dom *domain.Stock) {
+	var name *string = nil
+	var isin *string = nil
+
+	if r.Name.Valid {
+		name = &r.Name.String
+	}
+
+	if r.Isin.Valid {
+		isin = &r.Isin.String
+	}
+
+	dom.ID = r.ID
+	dom.MarketID = r.MarketID
+	dom.CompanyID = r.CompanyID
+	dom.Ticker = r.Ticker
+	dom.Name = name
+	dom.Isin = isin
+}
+
 type stockRegisterRecord struct {
 	ID        uint64          `db:"id"`
 	StockID   uint64          `db:"stock_id"`

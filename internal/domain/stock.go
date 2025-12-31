@@ -24,6 +24,7 @@ type Stock struct {
 
 type StockUpdates struct {
 	Name *string
+	Isin *string
 }
 
 type PopulatedStock struct {
@@ -44,9 +45,8 @@ type StockRepository interface {
 	/*
 		Returns a Stock by its ID. If the ID does not exist, returns nil.
 
-		If userID is not nil, it will return the stock only if the user is the owner of the stock.
 	*/
-	Get(ctx context.Context, stockID uint64, userID *uint64) (*Stock, error)
+	GetByID(ctx context.Context, stockID uint64) (*Stock, error)
 
 	/*
 		Returns a map of Stocks by their tickers. If a ticker does not exist, sets the value to nil.
@@ -55,39 +55,43 @@ type StockRepository interface {
 	GetByStockCompanySearchParams(ctx context.Context, tickers []StockCompanySearchParam) (map[StockCompanySearchParam]*Stock, error)
 
 	/*
-		Returns populated stocks by provided stock ID, nil if stock does not exist.
-		If userID is not nil, it will return the stock only if the user is the owner of the stock.
+		Returns a list of stocks by provided filter.
 	*/
-	GetPopulated(ctx context.Context, stockID uint64, userID *uint64) (*PopulatedStock, error)
+	GetAllPaginated(ctx context.Context, filter pkg.PaginationFilter) (*pkg.PaginationReponse[PopulatedStock], error)
 
 	/*
-		Returns a list of stocks by provided filter.
-		If userID is not nil, it will return the stock only if the user has saved the stocks.
+		Returns a list of stocks assosiate with the userID by provided filter.
 	*/
-	GetAllPaginated(ctx context.Context, filter pkg.PaginationFilter, userID *uint64) (*pkg.PaginationReponse[PopulatedStock], error)
+	GetAllPaginatedByUser(ctx context.Context, filter pkg.PaginationFilter, userID uint64) (*pkg.PaginationReponse[PopulatedStock], error)
 
 	/*
 		Saves a Stock in the database and map missing properties with their default values (if any) including ID.
 
-		- nil values returns an error.
-		- invalid constraints returns an error.
-		- duplicated ID returns an error.
+		- nil stock argument is no-op and returns nil.
+
+		- any persistence constraints violated by any argument returns an error (e.g unique indexes).
 	*/
 	Save(ctx context.Context, stock *Stock) error
 
 	/*
 		Saves all Stocks in the database and map missing properties with their default values (if any) including ID.
 
-		- nil values returns an error.
-		- invalid constraints returns an error.
-		- duplicated ID returns an error.
+		- nil stock slice is no-op and returns nil.
+
+		- nil elements inside stocks slice returns err.
+
+		- invalid constraints returns an err.
+
+		- duplicated (MarketID, ticket) inside slice arguments  returns an err.
+
+		- any persistence constraints violated by any argument returns an error (e.g unique indexes).
 	*/
 	SaveAll(ctx context.Context, stocks []*Stock) error
 
 	/*
 		Updates a Stock in the database.
 		- if stock does not exist, returns an error.
-		- nil values returns an error.
+
 		- invalid constraints returns an error.
 	*/
 

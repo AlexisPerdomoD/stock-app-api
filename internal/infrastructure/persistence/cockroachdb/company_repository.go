@@ -108,6 +108,10 @@ func (r *CompanyRepository) Save(ctx context.Context, company *domain.Company) e
 }
 
 func (r *CompanyRepository) SaveAll(ctx context.Context, companies []*domain.Company) error {
+	if len(companies) == 0 {
+		return nil // no-op
+	}
+
 	args := make([]companyRecord, 0, len(companies))
 	companyMap := make(map[domain.MarketCompanySearchParam]*domain.Company)
 	for _, company := range companies {
@@ -130,10 +134,6 @@ func (r *CompanyRepository) SaveAll(ctx context.Context, companies []*domain.Com
 		})
 	}
 
-	if len(args) == 0 {
-		return nil
-	}
-
 	q := INSERT_COMPANY_NAMED_QUERY
 	rows, err := sqlx.NamedQueryContext(ctx, r.db, q, args)
 	if err != nil {
@@ -152,7 +152,12 @@ func (r *CompanyRepository) SaveAll(ctx context.Context, companies []*domain.Com
 			Name:     record.Name,
 		}
 
-		record.MapDomain(companyMap[key])
+		dom, ok := companyMap[key]
+		if !ok {
+			return pkg.InvalidStateErr("invalid record provided, non mapped entity")
+		}
+
+		record.MapDomain(dom)
 	}
 
 	return rows.Err()
