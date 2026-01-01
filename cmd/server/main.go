@@ -43,11 +43,9 @@ func main() {
 		Level: slog.LevelDebug,
 	}))
 
-	unitOfWorkFactory := servicesimpl.NewSqlxUnitOfWorkFactory(db)
-
 	mainDataSourceService := servicesimpl.NewMainSourceStockService(true)
 	cnnDataSourceService := servicesimpl.NewCnnStockSourceService()
-	const mainsourcekey, cnnsourcekey = "main", "cnn"
+	const mainsourcekey, cnnsourcekey string = "main", "cnn"
 	dataSources := map[string]services.DataSourceService{
 		mainsourcekey: mainDataSourceService,
 		cnnsourcekey:  cnnDataSourceService,
@@ -61,7 +59,7 @@ func main() {
 	stockRepository := cockroachdb.NewStockRepository(db)
 	stockRegisterRepository := cockroachdb.NewStockRegisterRepository(db)
 	recommendationRepository := cockroachdb.NewRecommendationRepository(db)
-
+	unitOfWorkFactory := cockroachdb.NewSqlxUnitOfWorkFactory(db)
 	// USE CASES
 	getStocksUC := usecases.NewGetStocks(stockRepository)
 	getStockUC := usecases.NewGetStock(
