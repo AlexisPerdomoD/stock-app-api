@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"github.com/alexisPerdomoD/stock-app-api/pkg"
 	"github.com/gin-gonic/gin"
 )
@@ -31,7 +32,7 @@ func MapGetStocksFilter(c *gin.Context) pkg.PaginationFilter {
 	parsedGreater, err := strconv.ParseFloat(greaterThan, 64)
 	if err == nil && parsedGreater > 0 {
 		filters.FilterBy = append(filters.FilterBy, pkg.FilterByItem{
-			Field:    "price",
+			Field:    domain.FilterByStockPrice.String(),
 			Value:    parsedGreater,
 			Operator: pkg.GreaterOrEq,
 		})
@@ -42,7 +43,7 @@ func MapGetStocksFilter(c *gin.Context) pkg.PaginationFilter {
 		parsedLower > 0 &&
 		(parsedGreater == 0 || parsedLower > parsedGreater) {
 		filters.FilterBy = append(filters.FilterBy, pkg.FilterByItem{
-			Field:    "price",
+			Field:    domain.FilterByStockPrice.String(),
 			Value:    parsedLower,
 			Operator: pkg.LessOrEq,
 		})
@@ -55,50 +56,50 @@ func MapGetStocksFilter(c *gin.Context) pkg.PaginationFilter {
 	switch orderBy {
 	case "tendency-asc":
 		filters.SortBy = append(filters.SortBy, pkg.SortByItem{
-			Field: "tendency",
+			Field: domain.SortByStockTendency.String(),
 			Order: pkg.SortOrderAsc,
 		})
 		filters.SortBy = append(filters.SortBy, pkg.SortByItem{
-			Field: "price",
+			Field: domain.SortByStockPrice.String(),
 			Order: pkg.SortOrderDesc,
 		})
 	case "tendency-desc":
 		filters.SortBy = append(filters.SortBy, pkg.SortByItem{
-			Field: "tendency",
+			Field: domain.SortByStockTendency.String(),
 			Order: pkg.SortOrderDesc,
 		})
 		filters.SortBy = append(filters.SortBy, pkg.SortByItem{
-			Field: "price",
+			Field: domain.SortByStockPrice.String(),
 			Order: pkg.SortOrderDesc,
 		})
 	case "price-asc":
 		filters.SortBy = append(filters.SortBy, pkg.SortByItem{
-			Field: "price",
+			Field: domain.SortByStockPrice.String(),
 			Order: pkg.SortOrderAsc,
 		})
 	case "price-desc":
 		filters.SortBy = append(filters.SortBy, pkg.SortByItem{
-			Field: "price",
+			Field: domain.SortByStockPrice.String(),
 			Order: pkg.SortOrderDesc,
 		})
 	case "ticker-asc":
 		filters.SortBy = append(filters.SortBy, pkg.SortByItem{
-			Field: "ticker",
+			Field: domain.SortByStockTicker.String(),
 			Order: pkg.SortOrderAsc,
 		})
 	case "ticker-desc":
 		filters.SortBy = append(filters.SortBy, pkg.SortByItem{
-			Field: "ticker",
+			Field: domain.SortByStockTicker.String(),
 			Order: pkg.SortOrderDesc,
 		})
 	case "date":
 		filters.SortBy = append(filters.SortBy, pkg.SortByItem{
-			Field: "updated_at",
+			Field: domain.SortByStockDate.String(),
 			Order: pkg.SortOrderAsc,
 		})
 	default:
 		filters.SortBy = append(filters.SortBy, pkg.SortByItem{
-			Field: "updated_at",
+			Field: domain.SortByStockDate.String(),
 			Order: pkg.SortOrderDesc,
 		})
 	}

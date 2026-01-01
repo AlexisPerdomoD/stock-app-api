@@ -145,8 +145,8 @@ const INSERT_STOCK_NAMED_QUERY = `
 type StockRepository struct {
 	db sqlx.ExtContext
 
-	filterByFieldMap map[string]string
-	orderByFieldMap  map[string]string
+	filterByFieldMap map[domain.FilterByStock]FieldValidator
+	orderByFieldMap  map[domain.SortByStock]string
 }
 
 func (r *StockRepository) GetByID(ctx context.Context, stockID uint64) (*domain.Stock, error) {
@@ -184,14 +184,24 @@ func (r *StockRepository) paginate(
 	}
 
 	for _, f := range filter.FilterBy {
-		column, ok := r.filterByFieldMap[f.Field]
-		if !ok {
-			return nil, pkg.InvalidStateErr(fmt.Sprintf("invalid filter field %s", f.Field))
-		}
-
 		op, err := newFilterOperator(f.Operator)
 		if err != nil {
 			return nil, pkg.InvalidStateErr(err.Error())
+		}
+
+		field := domain.FilterByStock(f.Field)
+		if !field.IsValid() {
+			continue
+		}
+
+		fieldValidator, ok := r.filterByFieldMap[field]
+		if !ok {
+			continue
+		}
+
+		column, ok := fieldValidator.GetColumn(f.Field, f.Value)
+		if !ok {
+			continue
 		}
 
 		if op.RequireValue() {
@@ -223,7 +233,12 @@ func (r *StockRepository) paginate(
 	} else {
 		orderCount := 0
 		for _, item := range filter.SortBy {
-			column, ok := r.orderByFieldMap[item.Field]
+			field := domain.SortByStock(item.Field)
+			if !field.IsValid() {
+				continue
+			}
+
+			column, ok := r.orderByFieldMap[field]
 			if !ok {
 				return nil, pkg.InvalidStateErr(fmt.Sprintf("invalid sort field %s", item.Field))
 			}
@@ -481,13 +496,17 @@ func NewStockRepository(db sqlx.ExtContext) *StockRepository {
 	if db == nil {
 		panic("db sqlx.ExtContext is nil")
 	}
-	filterByFieldMap := make(map[string]string)
-	filterByFieldMap["price"] = "lsr.price"
+	filterByFieldMap := make(map[domain.FilterByStock]FieldValidator)
+	filterByFieldMap[domain.FilterByStockPrice] = FieldValidator{
+		field:          domain.FilterByStockPrice.String(),
+		column:         "lsr.price",
+		valueValidator: generateCheckType[float64](),
+	}
 
-	orderByFieldMap := make(map[string]string)
-	orderByFieldMap["tendency"] = "lsr.tendency"
-	orderByFieldMap["price"] = "lsr.price"
-	orderByFieldMap["ticker"] = "s.ticker"
-	orderByFieldMap["updated_at"] = "lsr.created_at"
+	orderByFieldMap := make(map[domain.SortByStock]string)
+	orderByFieldMap[domain.SortByStockTendency] = "lsr.tendency"
+	orderByFieldMap[domain.SortByStockPrice] = "lsr.price"
+	orderByFieldMap[domain.SortByStockTicker] = "s.ticker"
+	orderByFieldMap[domain.SortByStockDate] = "lsr.created_at"
 	return &StockRepository{db, filterByFieldMap, orderByFieldMap}
 }

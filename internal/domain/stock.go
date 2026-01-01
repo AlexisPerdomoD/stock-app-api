@@ -41,6 +41,40 @@ type StockCompanySearchParam struct {
 	MarketID    uint64
 }
 
+type FilterByStock string
+
+const (
+	FilterByStockPrice FilterByStock = "filter_stock_price"
+)
+
+func (f FilterByStock) String() string {
+	return string(f)
+}
+
+func (f FilterByStock) IsValid() bool {
+	return f == FilterByStockPrice
+}
+
+type SortByStock string
+
+const (
+	SortByStockPrice    SortByStock = "sort_stock_price"
+	SortByStockTendency SortByStock = "sort_stock_tendency"
+	SortByStockTicker   SortByStock = "sort_stock_ticker"
+	SortByStockDate     SortByStock = "sort_stock_date"
+)
+
+func (s SortByStock) String() string {
+	return string(s)
+}
+
+func (s SortByStock) IsValid() bool {
+	return s == SortByStockPrice ||
+		s == SortByStockTendency ||
+		s == SortByStockTicker ||
+		s == SortByStockDate
+}
+
 type StockRepository interface {
 	/*
 		Returns a Stock by its ID. If the ID does not exist, returns nil.
@@ -56,11 +90,47 @@ type StockRepository interface {
 
 	/*
 		Returns a list of stocks by provided filter.
+
+		Allows filters are:
+
+		- FilterByStockPrice (float64) is expected.
+
+		- filter.search (string) filter by ticker, name or company name (case insensitive).
+
+		Allows sorting are:
+
+		- SortByStockPrice
+
+		- SortByStockTendency
+
+		- SortByStockTicker
+
+		- SortByStockDate
+
+		Any other filters (including not valid values) or sorting  will be ignored.
 	*/
 	GetAllPaginated(ctx context.Context, filter pkg.PaginationFilter) (*pkg.PaginationReponse[PopulatedStock], error)
 
 	/*
 		Returns a list of stocks assosiate with the userID by provided filter.
+
+		Allows filters are:
+
+		- FilterByStockPrice (float64) is expected.
+
+		- filter.search (string) filter by ticker, name or company name (case insensitive).
+
+		Allows sorting are:
+
+		- SortByStockPrice
+
+		- SortByStockTendency
+
+		- SortByStockTicker
+
+		- SortByStockDate
+
+		Any other filters (including not valid values) or sorting  will be ignored.
 	*/
 	GetAllPaginatedByUser(ctx context.Context, filter pkg.PaginationFilter, userID uint64) (*pkg.PaginationReponse[PopulatedStock], error)
 
