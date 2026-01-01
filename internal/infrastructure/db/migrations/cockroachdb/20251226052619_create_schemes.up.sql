@@ -88,6 +88,5 @@ CREATE TABLE stock_tendency_stats(
     down_count  INT8 NOT NULL DEFAULT 0,
     created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
-    batch_index INT4 NOT NULL DEFAULT 0,
-    UNIQUE(stock_id)
+    batch_index INT4 NOT NULL DEFAULT 0
 );

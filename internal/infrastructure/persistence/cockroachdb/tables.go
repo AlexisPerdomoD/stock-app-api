@@ -238,7 +238,7 @@ type stockUserRecord struct {
 	CreatedAt time.Time `db:"created_at"`
 }
 
-// static queries
+// STATIC QUERIES
 
 type stockTendencyStatRecord struct {
 	ID         uint64    `db:"id"`
