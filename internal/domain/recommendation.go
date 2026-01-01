@@ -51,20 +51,59 @@ type PopulatedRecommendation struct {
 	Brokerage Brokerage
 }
 
+type FilterByRecommendation string
+
+const (
+	FilterByRecommendationStockID FilterByRecommendation = "filter_recomendation_stock_id"
+)
+
+func (f FilterByRecommendation) String() string {
+	return string(f)
+}
+
+func (f FilterByRecommendation) IsValid() bool {
+	return f == FilterByRecommendationStockID
+}
+
+type SortByRecommendation string
+
+const (
+	SortByRecommendationCreatedAt             SortByRecommendation = "sort_recommendation_created_at"
+	SortByRecommendationStockRegisterTendency SortByRecommendation = "sort_recommendation_stock_register_tendency"
+)
+
+func (s SortByRecommendation) String() string {
+	return string(s)
+}
+
+func (s SortByRecommendation) IsValid() bool {
+	return s == SortByRecommendationCreatedAt || s == SortByRecommendationStockRegisterTendency
+}
+
 type RecommendationRepository interface {
 	/*
-	   returns paginated recommendations based on the specified filters
+		eturns paginated recommendations based on the specified filters
+
+		Allows filters are:
+		- FilterByRecommendationStockID (uint64) is expected.
+
+		Allows sorting are:
+		- SortByRecommendationCreatedAt
+		- SortByRecommendationStockRegisterTendency
+
+		Any other filters or sorting will be ignored.
 	*/
 	GetAllPaginated(
 		ctx context.Context,
 		filter pkg.PaginationFilter,
-		stockID uint64,
 	) (*pkg.PaginationReponse[PopulatedRecommendation], error)
 
 	/*
 		Saves a list of recommendations in the repository.
-		- returns error if nil arguments are passed
-		- returns error if conflict occurs with arguments provided
+
+		- returns error if nil arguments are passed.
+
+		- returns error if conflict occurs with arguments provided.
 	*/
 	SaveAll(ctx context.Context, recommendations []*Recommendation) error
 }

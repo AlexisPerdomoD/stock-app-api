@@ -7,6 +7,24 @@ import (
 	"github.com/alexisPerdomoD/stock-app-api/pkg"
 )
 
+type FieldValidator struct {
+	field          string
+	column         string
+	valueValidator func(val any) bool
+}
+
+func (f *FieldValidator) GetColumn(field string, value any) (string, bool) {
+	if f.field != field {
+		return "", false
+	}
+
+	if !f.valueValidator(value) {
+		return "", false
+	}
+
+	return f.column, true
+}
+
 type FilterOperator string
 
 const (
@@ -25,7 +43,7 @@ func (f FilterOperator) String() string {
 }
 
 func (f FilterOperator) RequireValue() bool {
-	return f != IsNull && f != IsNotNull && f != Like
+	return f != IsNull && f != IsNotNull
 }
 
 func newFilterOperator(operator pkg.FilterOperator) (FilterOperator, error) {
@@ -53,6 +71,13 @@ func newFilterOperator(operator pkg.FilterOperator) (FilterOperator, error) {
 
 	return op, nil
 
+}
+
+func generateCheckType[T any]() func(val any) bool {
+	return func(val any) bool {
+		_, ok := val.(T)
+		return ok
+	}
 }
 
 func mapILIKE(search string) string {
