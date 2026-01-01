@@ -52,6 +52,8 @@ CREATE TABLE stock_registers(
     created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+CREATE INDEX ON stock_registers (stock_id, created_at DESC);
+
 CREATE TABLE stock_recommendations (
     id                  INT8 PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     brokerage_id        INT8 NOT NULL REFERENCES brokerages(id),
