@@ -15,10 +15,6 @@ type User struct {
 	CreatedAt time.Time
 }
 
-func (u User) GetID() uint64 {
-	return u.ID
-}
-
 type UserRepository interface {
 	/*
 		Returns a user by its id, if not found, returns nil

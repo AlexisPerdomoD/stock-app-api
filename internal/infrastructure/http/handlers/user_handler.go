@@ -54,7 +54,7 @@ func (uc *UserHandler) RegisterUserHandler(c *gin.Context) {
 		return
 	}
 
-	session, err := auth.GenerateSessionToken(usr)
+	session, err := auth.GenerateSessionToken(usr.ID)
 	if err != nil {
 		res := mappers.MapHttpErr(err)
 		c.AbortWithStatusJSON(res.StatusCode, res)
@@ -84,7 +84,7 @@ func (uc *UserHandler) LoginUserHandler(c *gin.Context) {
 		return
 	}
 
-	session, err := auth.GenerateSessionToken(user)
+	session, err := auth.GenerateSessionToken(user.ID)
 	if err != nil {
 		res := mappers.MapHttpErr(err)
 		c.AbortWithStatusJSON(res.StatusCode, res)

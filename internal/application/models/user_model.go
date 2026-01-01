@@ -67,10 +67,6 @@ type UserView struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-func (u UserView) GetID() uint64 {
-	return u.ID
-}
-
 func NewUserView(user *domain.User) *UserView {
 	return &UserView{
 		ID:        user.ID,
