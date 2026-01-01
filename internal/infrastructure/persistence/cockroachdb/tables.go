@@ -254,3 +254,19 @@ func (r *stockTendencyStatRecord) ToDomain() *domain.StockTendencyStat {
 		UpdatedAt: r.UpdatedAt,
 	}
 }
+
+// POPULATED QUERIES
+
+type populatedStockRecommendationQueryRow struct {
+	ID              uint64        `db:"id"`
+	BrokerageID     uint64        `db:"brokerage_id"`
+	StockRegisterID uint64        `db:"stock_register_id"`
+	RatingFrom      domain.Action `db:"rating_from"`
+	RatingTo        domain.Action `db:"rating_to"`
+	TargetFrom      float64       `db:"target_from"`
+	TargetTo        float64       `db:"target_to"`
+	CreatedAt       time.Time     `db:"created_at"`
+
+	BrokerageName      string    `db:"brokerage_name"`
+	BrokerageCreatedAt time.Time `db:"brokerage_created_at"`
+}

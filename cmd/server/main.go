@@ -70,7 +70,7 @@ func main() {
 		stockRegisterRepository,
 	)
 	registerStocksUC := usecases.NewRegisterStocks(unitOfWorkFactory, dataSources)
-	getRecommendationByStockUC := usecases.NewGetRecommendationsByStock(stockRepository, recommendationRepository)
+	getRecommendationByStockUC := usecases.NewGetRecommendationsByStock(recommendationRepository)
 	loginUserUC := usecases.NewLogin(userRepository, mainSlogger)
 	registerUserUC := usecases.NewRegisterUser(userRepository, mainSlogger)
 	registerUserStockUC := usecases.NewRegisterUserStock(userRepository)

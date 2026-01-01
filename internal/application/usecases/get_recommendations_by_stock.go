@@ -10,25 +10,11 @@ import (
 )
 
 type GetRecommendationsByStock struct {
-	stockRepository          domain.StockRepository
 	recommendationRepository domain.RecommendationRepository
 }
 
-func (uc *GetRecommendationsByStock) Execute(
-	ctx context.Context,
-	filters pkg.PaginationFilter,
-	stockID uint64,
-) (*pkg.PaginationReponse[appmodel.PopulatedRecommendationView], error) {
-
-	stock, err := uc.stockRepository.GetByID(ctx, stockID)
-	if err != nil {
-		return nil, err
-	}
-	if stock == nil {
-		return nil, pkg.NotFound("Stock not found")
-	}
-
-	data, err := uc.recommendationRepository.GetAllPaginated(ctx, filters, stock.ID)
+func (uc *GetRecommendationsByStock) Execute(ctx context.Context, filters pkg.PaginationFilter) (*pkg.PaginationReponse[appmodel.PopulatedRecommendationView], error) {
+	data, err := uc.recommendationRepository.GetAllPaginated(ctx, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -40,22 +26,18 @@ func (uc *GetRecommendationsByStock) Execute(
 		TotalPages: data.TotalPages,
 		Items:      collection.Map(data.Items, appmodel.NewPopulatedRecommendationView),
 	}
+
 	return response, nil
 
 }
 
 func NewGetRecommendationsByStock(
-	sr domain.StockRepository,
 	rr domain.RecommendationRepository,
 ) *GetRecommendationsByStock {
-
-	if sr == nil {
-		panic("[GetRecommendationsByStockUseCase]: StockRepository provided was nil")
-	}
 
 	if rr == nil {
 		panic("[GetRecommendationsByStockUseCase]: RecommendationRepository was provided as nil")
 	}
 
-	return &GetRecommendationsByStock{sr, rr}
+	return &GetRecommendationsByStock{rr}
 }

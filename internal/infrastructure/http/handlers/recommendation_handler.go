@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/application/usecases"
+	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/mappers"
 	"github.com/alexisPerdomoD/stock-app-api/pkg"
 	"github.com/gin-gonic/gin"
@@ -31,8 +32,14 @@ func (rc *RecommendationHandler) GetRecommendationsByStockHandler(c *gin.Context
 	}
 
 	filters := mappers.MapGetRecommendationsFilter(c)
+	filters.FilterBy = []pkg.FilterByItem{{
+		Field:    domain.FilterByRecommendationStockID.String(),
+		Operator: pkg.Equals,
+		Value:    parsedStockID,
+	}}
+
 	ctx := c.Request.Context()
-	recommendations, err := rc.getRecommendationsByStock.Execute(ctx, *filters, parsedStockID)
+	recommendations, err := rc.getRecommendationsByStock.Execute(ctx, *filters)
 	if err != nil {
 		res := mappers.MapHttpErr(err)
 		c.AbortWithStatusJSON(res.StatusCode, res)

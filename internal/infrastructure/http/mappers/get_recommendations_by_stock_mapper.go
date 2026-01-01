@@ -1,10 +1,12 @@
 package mappers
 
 import (
-	"github.com/alexisPerdomoD/stock-app-api/pkg"
-	"github.com/gin-gonic/gin"
 	"strconv"
 	"strings"
+
+	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
+	"github.com/alexisPerdomoD/stock-app-api/pkg"
+	"github.com/gin-gonic/gin"
 )
 
 func MapGetRecommendationsFilter(c *gin.Context) *pkg.PaginationFilter {
@@ -21,7 +23,6 @@ func MapGetRecommendationsFilter(c *gin.Context) *pkg.PaginationFilter {
 			Size: 20,
 			Page: 1,
 		},
-		FilterBy: []pkg.FilterByItem{},
 	}
 
 	if search != "" {
@@ -29,13 +30,13 @@ func MapGetRecommendationsFilter(c *gin.Context) *pkg.PaginationFilter {
 	}
 
 	filters.SortBy = append(filters.SortBy, pkg.SortByItem{
-		Field: "updated_at",
+		Field: domain.SortByRecommendationCreatedAt.String(),
 		Order: pkg.SortOrderDesc,
 	})
 
 	if groupByRating {
 		filters.SortBy = append(filters.SortBy, pkg.SortByItem{
-			Field: "rating_to",
+			Field: domain.SortByRecommendationStockRegisterTendency.String(),
 			Order: pkg.SortOrderDesc,
 		})
 	}

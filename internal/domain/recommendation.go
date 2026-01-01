@@ -82,16 +82,19 @@ func (s SortByRecommendation) IsValid() bool {
 
 type RecommendationRepository interface {
 	/*
-		eturns paginated recommendations based on the specified filters
+		returns paginated recommendations based on the specified filters
 
 		Allows filters are:
 		- FilterByRecommendationStockID (uint64) is expected.
 
+		- filter.search (string) filter by brokerage name (case insensitive).
+
 		Allows sorting are:
 		- SortByRecommendationCreatedAt
+
 		- SortByRecommendationStockRegisterTendency
 
-		Any other filters or sorting will be ignored.
+		Any other filters (including not valid values) or sorting  will be ignored.
 	*/
 	GetAllPaginated(
 		ctx context.Context,
