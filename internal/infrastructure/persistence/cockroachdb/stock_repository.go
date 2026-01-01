@@ -169,7 +169,7 @@ func (r *StockRepository) paginate(
 	ctx context.Context,
 	filter pkg.PaginationFilter,
 	userID *uint64,
-) (*pkg.PaginationReponse[domain.PopulatedStock], error) {
+) (*pkg.PaginationResponse[domain.PopulatedStock], error) {
 
 	var q string
 	args := make([]any, 0, len(filter.FilterBy)+1)
@@ -260,7 +260,7 @@ func (r *StockRepository) paginate(
 	totalPages := int(math.Ceil(float64(totalRecords) / float64(size)))
 
 	if totalRecords == 0 {
-		return &pkg.PaginationReponse[domain.PopulatedStock]{
+		return &pkg.PaginationResponse[domain.PopulatedStock]{
 			Items:      make([]domain.PopulatedStock, 0),
 			Page:       page,
 			PageSize:   size,
@@ -330,7 +330,7 @@ func (r *StockRepository) paginate(
 		})
 	}
 
-	response := &pkg.PaginationReponse[domain.PopulatedStock]{
+	response := &pkg.PaginationResponse[domain.PopulatedStock]{
 		Items:      items,
 		Page:       page,
 		PageSize:   size,
@@ -340,11 +340,11 @@ func (r *StockRepository) paginate(
 	return response, nil
 }
 
-func (r *StockRepository) GetAllPaginated(ctx context.Context, filter pkg.PaginationFilter) (*pkg.PaginationReponse[domain.PopulatedStock], error) {
+func (r *StockRepository) GetAllPaginated(ctx context.Context, filter pkg.PaginationFilter) (*pkg.PaginationResponse[domain.PopulatedStock], error) {
 	return r.paginate(ctx, filter, nil)
 }
 
-func (r *StockRepository) GetAllPaginatedByUser(ctx context.Context, filter pkg.PaginationFilter, userID uint64) (*pkg.PaginationReponse[domain.PopulatedStock], error) {
+func (r *StockRepository) GetAllPaginatedByUser(ctx context.Context, filter pkg.PaginationFilter, userID uint64) (*pkg.PaginationResponse[domain.PopulatedStock], error) {
 	return r.paginate(ctx, filter, &userID)
 }
 

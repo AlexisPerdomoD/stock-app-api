@@ -109,7 +109,7 @@ type StockRepository interface {
 
 		Any other filters (including not valid values) or sorting  will be ignored.
 	*/
-	GetAllPaginated(ctx context.Context, filter pkg.PaginationFilter) (*pkg.PaginationReponse[PopulatedStock], error)
+	GetAllPaginated(ctx context.Context, filter pkg.PaginationFilter) (*pkg.PaginationResponse[PopulatedStock], error)
 
 	/*
 		Returns a list of stocks assosiate with the userID by provided filter.
@@ -132,7 +132,7 @@ type StockRepository interface {
 
 		Any other filters (including not valid values) or sorting  will be ignored.
 	*/
-	GetAllPaginatedByUser(ctx context.Context, filter pkg.PaginationFilter, userID uint64) (*pkg.PaginationReponse[PopulatedStock], error)
+	GetAllPaginatedByUser(ctx context.Context, filter pkg.PaginationFilter, userID uint64) (*pkg.PaginationResponse[PopulatedStock], error)
 
 	/*
 		Saves a Stock in the database and map missing properties with their default values (if any) including ID.

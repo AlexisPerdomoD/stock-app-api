@@ -18,8 +18,8 @@ func (uc *GetStocks) Execute(
 	ctx context.Context,
 	filters pkg.PaginationFilter,
 	userID *uint64,
-) (*pkg.PaginationReponse[models.PopulatedStockView], error) {
-	var data *pkg.PaginationReponse[domain.PopulatedStock]
+) (*pkg.PaginationResponse[models.PopulatedStockView], error) {
+	var data *pkg.PaginationResponse[domain.PopulatedStock]
 	var err error
 
 	if userID != nil {
@@ -32,7 +32,7 @@ func (uc *GetStocks) Execute(
 		return nil, err
 	}
 
-	response := &pkg.PaginationReponse[models.PopulatedStockView]{
+	response := &pkg.PaginationResponse[models.PopulatedStockView]{
 		Page:       data.Page,
 		PageSize:   data.PageSize,
 		TotalSize:  data.TotalSize,

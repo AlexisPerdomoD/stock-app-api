@@ -99,7 +99,7 @@ type RecommendationRepository interface {
 	GetAllPaginated(
 		ctx context.Context,
 		filter pkg.PaginationFilter,
-	) (*pkg.PaginationReponse[PopulatedRecommendation], error)
+	) (*pkg.PaginationResponse[PopulatedRecommendation], error)
 
 	/*
 		Saves a list of recommendations in the repository.

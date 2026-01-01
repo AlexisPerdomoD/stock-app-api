@@ -58,7 +58,7 @@ type PaginationFilter struct {
 	PaginationPage
 }
 
-type PaginationReponse[T interface{}] struct {
+type PaginationResponse[T interface{}] struct {
 	Items      []T `json:"items"`
 	Page       int `json:"page"`
 	PageSize   int `json:"page_size"`

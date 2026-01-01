@@ -72,7 +72,7 @@ type RecommendationRepository struct {
 func (r *RecommendationRepository) GetAllPaginated(
 	ctx context.Context,
 	filter pkg.PaginationFilter,
-) (*pkg.PaginationReponse[domain.PopulatedRecommendation], error) {
+) (*pkg.PaginationResponse[domain.PopulatedRecommendation], error) {
 	args := make([]any, 0, len(filter.FilterBy)+1)
 	statement := strings.Builder{}
 	statement.WriteString(GET_POPULATED_STOCK_RECOMMENDATION_QUERY)
@@ -120,7 +120,7 @@ func (r *RecommendationRepository) GetAllPaginated(
 	}
 
 	if totalSize == 0 {
-		return &pkg.PaginationReponse[domain.PopulatedRecommendation]{
+		return &pkg.PaginationResponse[domain.PopulatedRecommendation]{
 			Items:      make([]domain.PopulatedRecommendation, 0),
 			Page:       filter.Page,
 			PageSize:   filter.Size,
@@ -192,7 +192,7 @@ func (r *RecommendationRepository) GetAllPaginated(
 		})
 	}
 
-	response := &pkg.PaginationReponse[domain.PopulatedRecommendation]{
+	response := &pkg.PaginationResponse[domain.PopulatedRecommendation]{
 		Items:      items,
 		Page:       page,
 		PageSize:   limit,
