@@ -19,7 +19,7 @@ func MapGetStocksFilter(c *gin.Context) pkg.PaginationFilter {
 	size := c.DefaultQuery("size", "20")
 
 	filters := pkg.PaginationFilter{
-		SortBy: map[string]pkg.SortOrder{},
+		SortBy: make([]pkg.SortByItem, 0, 2),
 
 		PaginationPage: pkg.PaginationPage{
 			Size: 20,
@@ -54,23 +54,53 @@ func MapGetStocksFilter(c *gin.Context) pkg.PaginationFilter {
 
 	switch orderBy {
 	case "tendency-asc":
-		filters.SortBy["tendency"] = pkg.SortOrderAsc
-		filters.SortBy["price"] = pkg.SortOrderDesc
+		filters.SortBy = append(filters.SortBy, pkg.SortByItem{
+			Field: "tendency",
+			Order: pkg.SortOrderAsc,
+		})
+		filters.SortBy = append(filters.SortBy, pkg.SortByItem{
+			Field: "price",
+			Order: pkg.SortOrderDesc,
+		})
 	case "tendency-desc":
-		filters.SortBy["tendency"] = pkg.SortOrderDesc
-		filters.SortBy["price"] = pkg.SortOrderDesc
+		filters.SortBy = append(filters.SortBy, pkg.SortByItem{
+			Field: "tendency",
+			Order: pkg.SortOrderDesc,
+		})
+		filters.SortBy = append(filters.SortBy, pkg.SortByItem{
+			Field: "price",
+			Order: pkg.SortOrderDesc,
+		})
 	case "price-asc":
-		filters.SortBy["price"] = pkg.SortOrderAsc
+		filters.SortBy = append(filters.SortBy, pkg.SortByItem{
+			Field: "price",
+			Order: pkg.SortOrderAsc,
+		})
 	case "price-desc":
-		filters.SortBy["price"] = pkg.SortOrderDesc
+		filters.SortBy = append(filters.SortBy, pkg.SortByItem{
+			Field: "price",
+			Order: pkg.SortOrderDesc,
+		})
 	case "ticker-asc":
-		filters.SortBy["ticker"] = pkg.SortOrderAsc
+		filters.SortBy = append(filters.SortBy, pkg.SortByItem{
+			Field: "ticker",
+			Order: pkg.SortOrderAsc,
+		})
 	case "ticker-desc":
-		filters.SortBy["ticker"] = pkg.SortOrderDesc
+		filters.SortBy = append(filters.SortBy, pkg.SortByItem{
+			Field: "ticker",
+			Order: pkg.SortOrderDesc,
+		})
 	case "date":
-		filters.SortBy["updated_at"] = pkg.SortOrderAsc
+		filters.SortBy = append(filters.SortBy, pkg.SortByItem{
+			Field: "updated_at",
+			Order: pkg.SortOrderAsc,
+		})
 	default:
-		filters.SortBy["updated_at"] = pkg.SortOrderDesc
+		filters.SortBy = append(filters.SortBy, pkg.SortByItem{
+			Field: "updated_at",
+			Order: pkg.SortOrderDesc,
+		})
 	}
 
 	parsedSize, err := strconv.Atoi(size)

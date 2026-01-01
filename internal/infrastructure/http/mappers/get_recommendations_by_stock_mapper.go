@@ -15,7 +15,7 @@ func MapGetRecommendationsFilter(c *gin.Context) *pkg.PaginationFilter {
 	size := c.Query("size")
 
 	filters := &pkg.PaginationFilter{
-		SortBy: map[string]pkg.SortOrder{},
+		SortBy: make([]pkg.SortByItem, 0, 2),
 
 		PaginationPage: pkg.PaginationPage{
 			Size: 20,
@@ -28,10 +28,16 @@ func MapGetRecommendationsFilter(c *gin.Context) *pkg.PaginationFilter {
 		filters.Search = strings.ToLower(search)
 	}
 
-	filters.SortBy["updated_at"] = pkg.SortOrderDesc
+	filters.SortBy = append(filters.SortBy, pkg.SortByItem{
+		Field: "updated_at",
+		Order: pkg.SortOrderDesc,
+	})
 
 	if groupByRating {
-		filters.SortBy["rating_to"] = pkg.SortOrderDesc
+		filters.SortBy = append(filters.SortBy, pkg.SortByItem{
+			Field: "rating_to",
+			Order: pkg.SortOrderDesc,
+		})
 	}
 
 	parsedSize, err := strconv.Atoi(size)

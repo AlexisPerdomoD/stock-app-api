@@ -7,6 +7,11 @@ const (
 	SortOrderDesc SortOrder = "DESC"
 )
 
+type SortByItem struct {
+	Field string    `json:"field"`
+	Order SortOrder `json:"order"`
+}
+
 type FilterOperator string
 
 const (
@@ -32,9 +37,23 @@ type PaginationPage struct {
 	Size int `json:"size"`
 }
 
+func (p *PaginationPage) GetSafePage() int {
+	if p.Page <= 0 {
+		return 1
+	}
+	return p.Page
+}
+
+func (p *PaginationPage) GetSafeSize() int {
+	if p.Size <= 0 || p.Size > 100 {
+		return 100
+	}
+	return p.Size
+}
+
 type PaginationFilter struct {
-	SortBy   map[string]SortOrder `json:"sort_by"`
-	FilterBy []FilterByItem       `json:"filter_by"`
+	SortBy   []SortByItem   `json:"sort_by"`
+	FilterBy []FilterByItem `json:"filter_by"`
 	Search   string
 	PaginationPage
 }
