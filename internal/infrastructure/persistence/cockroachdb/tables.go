@@ -8,14 +8,15 @@ import (
 )
 
 type userRecord struct {
-	ID        uint64    `db:"id"`
-	Username  string    `db:"username"`
-	Firstname string    `db:"firstname"`
-	Lastname  string    `db:"lastname"`
-	Password  []byte    `db:"password"`
-	Active    bool      `db:"active"`
-	CreatedAt time.Time `db:"created_at"`
-	UpdatedAt time.Time `db:"updated_at"`
+	ID         uint64    `db:"id"`
+	Username   string    `db:"username"`
+	Firstname  string    `db:"firstname"`
+	Lastname   string    `db:"lastname"`
+	Password   []byte    `db:"password"`
+	Active     bool      `db:"active"`
+	CreatedAt  time.Time `db:"created_at"`
+	UpdatedAt  time.Time `db:"updated_at"`
+	BatchIndex int       `db:"batch_index"`
 }
 
 func (r *userRecord) ToDomain() *domain.User {
@@ -41,10 +42,11 @@ func (r *userRecord) MapDomain(dom *domain.User) {
 }
 
 type marketRecord struct {
-	ID        uint64    `db:"id"`
-	Name      string    `db:"name"`
-	CreatedAt time.Time `db:"created_at"`
-	UpdatedAt time.Time `db:"updated_at"`
+	ID         uint64    `db:"id"`
+	Name       string    `db:"name"`
+	CreatedAt  time.Time `db:"created_at"`
+	UpdatedAt  time.Time `db:"updated_at"`
+	BatchIndex int       `db:"batch_index"`
 }
 
 func (r *marketRecord) ToDomain() *domain.Market {
@@ -62,11 +64,12 @@ func (r *marketRecord) MapDomain(dom *domain.Market) {
 }
 
 type companyRecord struct {
-	ID        uint64    `db:"id"`
-	MarketID  uint64    `db:"market_id"`
-	Name      string    `db:"name"`
-	CreatedAt time.Time `db:"created_at"`
-	UpdatedAt time.Time `db:"updated_at"`
+	ID         uint64    `db:"id"`
+	MarketID   uint64    `db:"market_id"`
+	Name       string    `db:"name"`
+	CreatedAt  time.Time `db:"created_at"`
+	UpdatedAt  time.Time `db:"updated_at"`
+	BatchIndex int       `db:"batch_index"`
 }
 
 func (r *companyRecord) ToDomain() *domain.Company {
@@ -86,10 +89,11 @@ func (r *companyRecord) MapDomain(dom *domain.Company) {
 }
 
 type brokerageRecord struct {
-	ID        uint64    `db:"id"`
-	Name      string    `db:"name"`
-	CreatedAt time.Time `db:"created_at"`
-	UpdatedAt time.Time `db:"updated_at"`
+	ID         uint64    `db:"id"`
+	Name       string    `db:"name"`
+	CreatedAt  time.Time `db:"created_at"`
+	UpdatedAt  time.Time `db:"updated_at"`
+	BatchIndex int       `db:"batch_index"`
 }
 
 func (r *brokerageRecord) ToDomain() *domain.Brokerage {
@@ -107,14 +111,15 @@ func (r *brokerageRecord) MapDomain(dom *domain.Brokerage) {
 }
 
 type stockRecord struct {
-	ID        uint64         `db:"id"`
-	CompanyID uint64         `db:"company_id"`
-	MarketID  uint64         `db:"market_id"`
-	Ticker    string         `db:"ticker"`
-	Name      sql.NullString `db:"name"`
-	Isin      sql.NullString `db:"isin"`
-	CreatedAt time.Time      `db:"created_at"`
-	UpdatedAt time.Time      `db:"updated_at"`
+	ID         uint64         `db:"id"`
+	CompanyID  uint64         `db:"company_id"`
+	MarketID   uint64         `db:"market_id"`
+	Ticker     string         `db:"ticker"`
+	Name       sql.NullString `db:"name"`
+	Isin       sql.NullString `db:"isin"`
+	CreatedAt  time.Time      `db:"created_at"`
+	UpdatedAt  time.Time      `db:"updated_at"`
+	BatchIndex int            `db:"batch_index"`
 }
 
 func (r stockRecord) ToDomain() *domain.Stock {
@@ -162,11 +167,12 @@ func (r stockRecord) MapDomain(dom *domain.Stock) {
 }
 
 type stockRegisterRecord struct {
-	ID        uint64          `db:"id"`
-	StockID   uint64          `db:"stock_id"`
-	Price     float64         `db:"price"`
-	Tendency  domain.Tendency `db:"tendency"`
-	CreatedAt time.Time       `db:"created_at"`
+	ID         uint64          `db:"id"`
+	StockID    uint64          `db:"stock_id"`
+	Price      float64         `db:"price"`
+	Tendency   domain.Tendency `db:"tendency"`
+	CreatedAt  time.Time       `db:"created_at"`
+	BatchIndex int             `db:"batch_index"`
 }
 
 func (r stockRegisterRecord) ToDomain() *domain.StockRegister {
@@ -189,39 +195,52 @@ type stockUserRecord struct {
 }
 
 type stockRecommendationRecord struct {
-	id              uint64        `db:"id"`
-	brokerageID     uint64        `db:"brokerage_id"`
-	stockRegisterID uint64        `db:"stock_register_id"`
-	ratingFrom      domain.Action `db:"rating_from"`
-	ratingTo        domain.Action `db:"rating_to"`
-	targetFrom      float64       `db:"target_from"`
-	targetTo        float64       `db:"target_to"`
-	createdAt       time.Time     `db:"created_at"`
+	ID              uint64        `db:"id"`
+	BrokerageID     uint64        `db:"brokerage_id"`
+	StockRegisterID uint64        `db:"stock_register_id"`
+	RatingFrom      domain.Action `db:"rating_from"`
+	RatingTo        domain.Action `db:"rating_to"`
+	TargetFrom      float64       `db:"target_from"`
+	TargetTo        float64       `db:"target_to"`
+	CreatedAt       time.Time     `db:"created_at"`
+	BatchIndex      int           `db:"batch_index"`
 }
 
-func (r stockRecommendationRecord) ToDomain() *domain.Recommendation {
+func (r *stockRecommendationRecord) ToDomain() *domain.Recommendation {
 	return &domain.Recommendation{
-		ID:              r.id,
-		BrokerageID:     r.brokerageID,
-		StockRegisterID: r.stockRegisterID,
-		RatingFrom:      r.ratingFrom,
-		RatingTo:        r.ratingTo,
-		TargetFrom:      r.targetFrom,
-		TargetTo:        r.targetTo,
-		CreatedAt:       r.createdAt,
+		ID:              r.ID,
+		BrokerageID:     r.BrokerageID,
+		StockRegisterID: r.StockRegisterID,
+		RatingFrom:      r.RatingFrom,
+		RatingTo:        r.RatingTo,
+		TargetFrom:      r.TargetFrom,
+		TargetTo:        r.TargetTo,
+		CreatedAt:       r.CreatedAt,
 	}
+}
+
+func (r *stockRecommendationRecord) MapDomain(dom *domain.Recommendation) {
+	dom.ID = r.ID
+	dom.BrokerageID = r.BrokerageID
+	dom.StockRegisterID = r.StockRegisterID
+	dom.RatingFrom = r.RatingFrom
+	dom.RatingTo = r.RatingTo
+	dom.TargetFrom = r.TargetFrom
+	dom.TargetTo = r.TargetTo
+	dom.CreatedAt = r.CreatedAt
 }
 
 // static queries
 
 type stockTendencyStatRecord struct {
-	ID        uint64    `db:"id"`
-	StockID   uint64    `db:"stock_id"`
-	UpCount   uint64    `db:"up_count"`
-	SideCount uint64    `db:"side_count"`
-	DownCount uint64    `db:"down_count"`
-	CreatedAt time.Time `db:"created_at"`
-	UpdatedAt time.Time `db:"updated_at"`
+	ID         uint64    `db:"id"`
+	StockID    uint64    `db:"stock_id"`
+	UpCount    uint64    `db:"up_count"`
+	SideCount  uint64    `db:"side_count"`
+	DownCount  uint64    `db:"down_count"`
+	CreatedAt  time.Time `db:"created_at"`
+	UpdatedAt  time.Time `db:"updated_at"`
+	BatchIndex int       `db:"batch_index"`
 }
 
 func (r *stockTendencyStatRecord) ToDomain() *domain.StockTendencyStat {

@@ -23,6 +23,7 @@ const GET_STOCK_QUERY = `
 		created_at, 
 		updated_at 
 	FROM stocks`
+
 const GET_POPULATED_STOCK_QUERY = `
 	SELECT 
 		s.id									AS id,
@@ -113,14 +114,23 @@ const INSERT_STOCK_QUERY = `
 		isin,
 		created_at,
 		updated_at`
+
 const INSERT_STOCK_NAMED_QUERY = `
 	INSERT INTO stocks(
 		market_id, 
 		company_id, 
 		ticker, 
 		name, 
-		isin
-	) VALUES (:market_id, :company_id, :ticker, :name, :isin)
+		isin,
+		batch_index
+	) VALUES (
+		:market_id, 
+		:company_id, 
+		:ticker, 
+		:name, 
+		:isin, 
+		:batch_index
+	)
 	RETURNING
 		id,
 		market_id,
@@ -129,7 +139,8 @@ const INSERT_STOCK_NAMED_QUERY = `
 		name,
 		isin,
 		created_at,
-		updated_at`
+		updated_at,
+		batch_index`
 
 type StockRepository struct {
 	db sqlx.ExtContext
@@ -242,7 +253,9 @@ func (r *StockRepository) paginate(
 			TotalPages: 0,
 		}, nil
 	}
-	fmt.Fprintf(&statement, " LIMIT %d OFFSET %d", size, (page-1)*size)
+
+	limit, offset := size, (page-1)*size
+	fmt.Fprintf(&statement, " LIMIT %d OFFSET %d", limit, offset)
 	rows, err := r.db.QueryContext(ctx, q+statement.String(), args...)
 	if err != nil {
 		return nil, err
@@ -415,28 +428,18 @@ func (r *StockRepository) SaveAll(ctx context.Context, stocks []*domain.Stock) e
 	}
 
 	args := make([]stockRecord, 0, len(stocks))
-	stockMap := make(map[domain.StockCompanySearchParam]*domain.Stock)
-	for _, stock := range stocks {
+	for i, stock := range stocks {
 		if stock == nil {
 			return pkg.InvalidStateErr("nil pointer passed on stock slice")
 		}
 
-		key := domain.StockCompanySearchParam{
-			MarketID:    stock.MarketID,
-			CompanyID:   stock.CompanyID,
-			StockTicker: stock.Ticker,
-		}
-		_, isDuplicatedArg := stockMap[key]
-		if isDuplicatedArg {
-			return pkg.InvalidStateErr("invalid argument provided, duplicate unique constrain were found")
-		}
-
 		arg := stockRecord{
-			MarketID:  stock.MarketID,
-			CompanyID: stock.CompanyID,
-			Ticker:    stock.Ticker,
-			Isin:      sql.NullString{},
-			Name:      sql.NullString{},
+			MarketID:   stock.MarketID,
+			CompanyID:  stock.CompanyID,
+			Ticker:     stock.Ticker,
+			Isin:       sql.NullString{},
+			Name:       sql.NullString{},
+			BatchIndex: i,
 		}
 
 		if stock.Name != nil {
@@ -450,7 +453,6 @@ func (r *StockRepository) SaveAll(ctx context.Context, stocks []*domain.Stock) e
 		}
 
 		args = append(args, arg)
-		stockMap[key] = stock
 	}
 	q := INSERT_STOCK_NAMED_QUERY
 	rows, err := sqlx.NamedQueryContext(ctx, r.db, q, args)
@@ -465,17 +467,7 @@ func (r *StockRepository) SaveAll(ctx context.Context, stocks []*domain.Stock) e
 			return err
 		}
 
-		key := domain.StockCompanySearchParam{
-			MarketID:    record.MarketID,
-			CompanyID:   record.CompanyID,
-			StockTicker: record.Ticker,
-		}
-		dom, ok := stockMap[key]
-		if !ok {
-			return pkg.InvalidStateErr("invalid record provided, non mapped entity")
-		}
-
-		record.MapDomain(dom)
+		record.MapDomain(stocks[record.BatchIndex])
 	}
 
 	return rows.Err()

@@ -13,7 +13,22 @@ import (
 
 const GET_COMPANY_QUERY = `SELECT id, market_id, name, created_at FROM companies`
 const INSERT_COMPANY_QUERY = `INSERT INTO companies(market_id, name) VALUES ($1, $2) RETURNING id, market_id, name, created_at`
-const INSERT_COMPANY_NAMED_QUERY = `INSERT INTO companies(market_id, name) VALUES (:market_id, :name) RETURNING id, market_id, name, created_at`
+const INSERT_COMPANY_NAMED_QUERY = `
+	INSERT INTO companies(
+		market_id, 
+		name, 
+		batch_index
+	) VALUES (
+		:market_id, 
+		:name, 
+		:batch_index
+	) 
+	RETURNING 
+		id, 
+		market_id, 
+		name, 
+		created_at, 
+		batch_index`
 
 type CompanyRepository struct {
 	db sqlx.ExtContext
@@ -113,24 +128,15 @@ func (r *CompanyRepository) SaveAll(ctx context.Context, companies []*domain.Com
 	}
 
 	args := make([]companyRecord, 0, len(companies))
-	companyMap := make(map[domain.MarketCompanySearchParam]*domain.Company)
-	for _, company := range companies {
+	for i, company := range companies {
 		if company == nil {
 			return pkg.InvalidStateErr("nil pointer passed on companies slice")
 		}
 
-		key := domain.MarketCompanySearchParam{
-			MarketID: company.MarketID,
-			Name:     company.Name,
-		}
-		if _, isDuplicated := companyMap[key]; isDuplicated {
-			return pkg.InvalidStateErr("invalid argument provided, duplicate unique constrain were found")
-		}
-
-		companyMap[key] = company
 		args = append(args, companyRecord{
-			MarketID: company.MarketID,
-			Name:     company.Name,
+			MarketID:   company.MarketID,
+			Name:       company.Name,
+			BatchIndex: i,
 		})
 	}
 
@@ -147,17 +153,7 @@ func (r *CompanyRepository) SaveAll(ctx context.Context, companies []*domain.Com
 			return err
 		}
 
-		key := domain.MarketCompanySearchParam{
-			MarketID: record.MarketID,
-			Name:     record.Name,
-		}
-
-		dom, ok := companyMap[key]
-		if !ok {
-			return pkg.InvalidStateErr("invalid record provided, non mapped entity")
-		}
-
-		record.MapDomain(dom)
+		record.MapDomain(companies[record.BatchIndex])
 	}
 
 	return rows.Err()

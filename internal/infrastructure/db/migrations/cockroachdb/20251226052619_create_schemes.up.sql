@@ -2,7 +2,8 @@ CREATE TABLE markets (
     id          INT8 PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     name        STRING NOT NULL UNIQUE,
     created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+    updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    batch_index INT4 NOT NULL DEFAULT 0
 );
 
 CREATE TABLE companies (
@@ -11,6 +12,7 @@ CREATE TABLE companies (
     name        STRING NOT NULL,
     created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    batch_index INT4 NOT NULL DEFAULT 0,
     UNIQUE(market_id, name)
 );
 
@@ -18,7 +20,8 @@ CREATE TABLE brokerages (
     id          INT8 PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     name        STRING NOT NULL UNIQUE,
     created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+    updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    batch_index INT4 NOT NULL DEFAULT 0
 );
 
 CREATE TABLE users (
@@ -29,7 +32,8 @@ CREATE TABLE users (
     password    BYTES NOT NULL,
     active      BOOL NOT NULL DEFAULT true,
     created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+    updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    batch_index INT4 NOT NULL DEFAULT 0
 );
 
 CREATE TABLE stocks (
@@ -41,6 +45,7 @@ CREATE TABLE stocks (
     name        STRING DEFAULT NULL,
     created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    batch_index INT4 NOT NULL DEFAULT 0,
     UNIQUE(market_id, ticker)
 );
 
@@ -49,7 +54,8 @@ CREATE TABLE stock_registers(
     stock_id    INT8 NOT NULL REFERENCES stocks(id),
     price       FLOAT8 NOT NULL,
     tendency    INT NOT NULL,
-    created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    batch_index INT4 NOT NULL DEFAULT 0
 );
 
 CREATE INDEX ON stock_registers (stock_id, created_at DESC);
@@ -62,13 +68,15 @@ CREATE TABLE stock_recommendations (
     rating_to           INT NOT NULL,
     target_from         FLOAT8 NOT NULL,
     target_to           FLOAT8 NOT NULL,
-    created_at          TIMESTAMPTZ NOT NULL DEFAULT now()
+    created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+    batch_index INT4 NOT NULL DEFAULT 0
 );
 
 CREATE TABLE stock_users (
     user_id INT8 NOT NULL REFERENCES users(id), 
     stock_id INT8 NOT NULL REFERENCES stocks(id),
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    batch_index INT4 NOT NULL DEFAULT 0,
     UNIQUE(user_id, stock_id)
 );
 
@@ -80,5 +88,6 @@ CREATE TABLE stock_tendency_stats(
     down_count  INT8 NOT NULL DEFAULT 0,
     created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    batch_index INT4 NOT NULL DEFAULT 0,
     UNIQUE(stock_id)
 );

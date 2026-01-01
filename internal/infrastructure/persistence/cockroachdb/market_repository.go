@@ -11,7 +11,19 @@ import (
 
 const GET_MARKET_QUERY = `SELECT id, name, created_at FROM markets`
 const INSERT_MARKET_QUERY = `INSERT INTO markets(name) VALUES ($1) RETURNING id, name, created_at`
-const INSERT_MARKET_NAMED_QUERY = `INSERT INTO markets(name) VALUES (:name) RETURNING id, name, created_at`
+const INSERT_MARKET_NAMED_QUERY = `
+	INSERT INTO markets(
+		name, 
+		batch_index
+	) VALUES (
+		:name, 
+		:batch_index
+	) 
+	RETURNING 
+		id, 
+		name, 
+		created_at, 
+		batch_index`
 
 type MarketRepository struct {
 	db sqlx.ExtContext
@@ -53,7 +65,7 @@ func (r *MarketRepository) GetByNames(ctx context.Context, marketNames []string)
 
 func (r *MarketRepository) Save(ctx context.Context, market *domain.Market) error {
 	if market == nil {
-		return nil
+		return nil // no-op
 	}
 
 	record := &marketRecord{Name: market.Name}
@@ -72,22 +84,16 @@ func (r *MarketRepository) SaveAll(ctx context.Context, markets []*domain.Market
 		return nil
 	}
 
-	records := make([]marketRecord, 0, len(markets))
-	marketMap := make(map[string]*domain.Market)
-	for _, market := range markets {
+	args := make([]marketRecord, 0, len(markets))
+	for i, market := range markets {
 		if market == nil {
 			return pkg.InvalidStateErr("nil pointer passed on markets slice")
 		}
 
-		if _, isDuplicated := marketMap[market.Name]; isDuplicated {
-			return pkg.InvalidStateErr("invalid argument provided, duplicate unique constrain were found")
-		}
-
-		marketMap[market.Name] = market
-		records = append(records, marketRecord{Name: market.Name})
+		args = append(args, marketRecord{Name: market.Name, BatchIndex: i})
 	}
-
-	rows, err := sqlx.NamedQueryContext(ctx, r.db, INSERT_MARKET_NAMED_QUERY, records)
+	q := INSERT_STOCK_NAMED_QUERY
+	rows, err := sqlx.NamedQueryContext(ctx, r.db, q, args)
 	if err != nil {
 		return err
 	}
@@ -100,7 +106,7 @@ func (r *MarketRepository) SaveAll(ctx context.Context, markets []*domain.Market
 			return err
 		}
 
-		record.MapDomain(marketMap[record.Name])
+		record.MapDomain(markets[record.BatchIndex])
 	}
 
 	return rows.Err()

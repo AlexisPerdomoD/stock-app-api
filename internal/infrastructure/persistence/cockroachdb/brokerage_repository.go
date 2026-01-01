@@ -12,7 +12,18 @@ import (
 
 const GET_BROKERAGE_QUERY = `SELECT id, name, created_at FROM brokerages`
 const INSERT_BROKERAGE_QUERY = `INSERT INTO brokerages(name) VALUES ($1) RETURNING id, name, created_at`
-const INSERT_BROKERAGE_NAMED_QUERY = `INSERT INTO brokerages(name) VALUES (:name) RETURNING id, name, created_at`
+const INSERT_BROKERAGE_NAMED_QUERY = `
+	INSERT INTO brokerages(
+		name, 
+		batch_index
+	) VALUES (
+		:name, 
+		:batch_index
+	) RETURNING 
+		id, 
+		name, 
+		created_at, 
+		batch_index`
 
 type BrokerageRepository struct {
 	db sqlx.ExtContext
@@ -80,23 +91,17 @@ func (r *BrokerageRepository) Save(ctx context.Context, brokerage *domain.Broker
 }
 
 func (r *BrokerageRepository) SaveAll(ctx context.Context, brokerages []*domain.Brokerage) error {
+	if len(brokerages) == 0 {
+		return nil // no-op
+	}
+
 	args := make([]brokerageRecord, 0, len(brokerages))
-	brokerageMap := make(map[string]*domain.Brokerage)
-	for _, brokerage := range brokerages {
+	for i, brokerage := range brokerages {
 		if brokerage == nil {
 			return pkg.InvalidStateErr("nil pointer passed on brokerages slice")
 		}
 
-		if _, isDuplicated := brokerageMap[brokerage.Name]; isDuplicated {
-			return pkg.InvalidStateErr("invalid argument provided, duplicate unique constrain were found")
-		}
-
-		brokerageMap[brokerage.Name] = brokerage
-		args = append(args, brokerageRecord{Name: brokerage.Name})
-	}
-
-	if len(args) == 0 {
-		return nil
+		args = append(args, brokerageRecord{Name: brokerage.Name, BatchIndex: i})
 	}
 
 	q := INSERT_BROKERAGE_NAMED_QUERY
@@ -112,7 +117,7 @@ func (r *BrokerageRepository) SaveAll(ctx context.Context, brokerages []*domain.
 			return err
 		}
 
-		record.MapDomain(brokerageMap[record.Name])
+		record.MapDomain(brokerages[record.BatchIndex])
 	}
 
 	return rows.Err()
