@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"os"
 	"testing"
 )
@@ -17,29 +16,24 @@ func TestGenerateSessionToken(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		user    *domain.User
+		userID  uint64
 		wantErr bool
 	}{
 		{
-			name:    "fail with nil user",
-			user:    nil,
-			wantErr: true,
-		},
-		{
 			name:    "fail with invalid user id",
-			user:    &domain.User{ID: 0},
+			userID:  0,
 			wantErr: true,
 		},
 		{
 			name:    "success with valid user",
-			user:    &domain.User{ID: 1},
+			userID:  1,
 			wantErr: false,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, gotErr := GenerateSessionToken(tt.user)
+			got, gotErr := GenerateSessionToken(tt.userID)
 			if gotErr != nil {
 				if !tt.wantErr {
 					t.Errorf("GenerateSessionToken() failed: %v", gotErr)

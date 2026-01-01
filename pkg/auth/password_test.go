@@ -2,96 +2,110 @@ package auth
 
 import "testing"
 
-var VALID_PASSWORD = []byte("12345678")
-var INVALID_PASSWORD = []byte("87654321")
-var INVALID_PASSWORD_TO_LONG = []byte("123456789012345678901234567890123456789012345678901234567890123456789012") // 72 chars
-var VALID_HASH []byte
+var validPassword = []byte("12345678")
+var invalidPassword = []byte("87654321")
+var invalidPasswordToLong = []byte("1234567890123456789012345678901234567890123456789012345678901234567890123") // 73 chars
 
 func TestHashPassword(t *testing.T) {
 	tests := []struct {
 		name     string
 		password []byte
-		wantErr  bool
+		wantErr  error
 	}{
 		{
-			name:     "Password is too long",
-			password: INVALID_PASSWORD_TO_LONG,
-			wantErr:  true,
+			name:     "password too long",
+			password: invalidPasswordToLong,
+			wantErr:  ErrPasswordTooLong,
 		},
 		{
-			name:     "Hash password properly",
-			password: VALID_PASSWORD,
-			wantErr:  false,
+			name:     "valid password",
+			password: validPassword,
+			wantErr:  nil,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, gotErr := HashPassword(tt.password)
-			if gotErr != nil {
-				if !tt.wantErr {
-					t.Errorf("HashPassword() failed: %v", gotErr)
+			hash, err := HashPassword(tt.password)
+
+			if tt.wantErr != nil {
+				if err != tt.wantErr {
+					t.Fatalf("expected error %v, got %v", tt.wantErr, err)
 				}
 				return
 			}
 
-			if tt.wantErr {
-				t.Fatal("HashPassword() succeeded unexpectedly")
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
 			}
 
-			if got == nil {
-				t.Errorf("HashPassword() returned empty string")
+			if len(hash) == 0 {
+				t.Fatal("hash is empty")
 			}
-
-			VALID_HASH = got
 		})
 	}
 }
 
 func TestVerifyPassword(t *testing.T) {
+	hash, err := HashPassword(validPassword)
+	if err != nil {
+		t.Fatalf("failed to hash password: %v", err)
+	}
+
 	tests := []struct {
 		name     string
 		password []byte
 		hash     []byte
-		wantErr  bool
-		expected bool
+		wantOK   bool
+		wantErr  error
 	}{
 		{
-			name:     "Password is too long",
-			password: INVALID_PASSWORD_TO_LONG,
-			hash:     VALID_HASH,
-			wantErr:  true,
-			expected: false,
+			name:     "password too long",
+			password: invalidPasswordToLong,
+			hash:     hash,
+			wantOK:   false,
+			wantErr:  nil,
 		},
 		{
 			name:     "invalid password",
-			password: INVALID_PASSWORD,
-			hash:     VALID_HASH,
-			wantErr:  true,
-			expected: false,
+			password: invalidPassword,
+			hash:     hash,
+			wantOK:   false,
+			wantErr:  nil,
 		},
 		{
 			name:     "valid password",
-			password: VALID_PASSWORD,
-			hash:     VALID_HASH,
-			wantErr:  false,
-			expected: true,
+			password: validPassword,
+			hash:     hash,
+			wantOK:   true,
+			wantErr:  nil,
+		},
+		{
+			name:     "nil password",
+			password: nil,
+			hash:     hash,
+			wantOK:   false,
+			wantErr:  ErrNilHashOrPassword,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			validPassword, gotErr := VerifyPassword(tt.password, tt.hash)
-			if gotErr != nil {
-				if !tt.wantErr {
-					t.Errorf("VerifyPassword() failed: %v", gotErr)
+			ok, err := VerifyPassword(tt.password, tt.hash)
+
+			if tt.wantErr != nil {
+				if err != tt.wantErr {
+					t.Fatalf("expected error %v, got %v", tt.wantErr, err)
 				}
 				return
 			}
-			if tt.wantErr {
-				t.Fatal("VerifyPassword() succeeded unexpectedly")
+
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
 			}
 
-			if validPassword != tt.expected {
-				t.Errorf("VerifyPassword() returned %v, expected %v", validPassword, tt.expected)
+			if ok != tt.wantOK {
+				t.Fatalf("expected %v, got %v", tt.wantOK, ok)
 			}
 		})
 	}

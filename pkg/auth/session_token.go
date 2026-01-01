@@ -14,14 +14,10 @@ type SessionClaims struct {
 	jwt.RegisteredClaims
 }
 
-type UserLike interface {
-	GetID() uint64
-}
+func GenerateSessionToken(userID uint64) (token string, err error) {
 
-func GenerateSessionToken(user UserLike) (token string, err error) {
-
-	if user == nil || user.GetID() == 0 {
-		return "", fmt.Errorf("[GenerateSessionToken] user is invalid or nil %+v", user)
+	if userID == 0 {
+		return "", fmt.Errorf("[GenerateSessionToken] user is invalid  %d", userID)
 	}
 
 	secret := os.Getenv("SESSION_SECRET")
@@ -31,7 +27,7 @@ func GenerateSessionToken(user UserLike) (token string, err error) {
 	}
 
 	claims := &SessionClaims{
-		UserID: user.GetID(),
+		UserID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ID:        fmt.Sprintf("%d", time.Now().Unix()),
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),
