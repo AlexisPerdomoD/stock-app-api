@@ -14,7 +14,7 @@ import (
 
 type RegisterStocks struct {
 	unitOfWorkFactory  services.UnitOfWorkFactory
-	dataSourceProvider services.DataSourceServiceProvider
+	dataSourceProvider map[string]services.DataSourceService
 }
 
 // Execute runs the stock registration use case.
@@ -34,8 +34,8 @@ type RegisterStocks struct {
 // - error if any step fails
 func (uc *RegisterStocks) Execute(ctx context.Context, service string, limitDate *time.Time) (int, error) {
 
-	s := uc.dataSourceProvider.GetDataSourceService(service)
-	if s == nil {
+	s, ok := uc.dataSourceProvider[service]
+	if !ok || s == nil {
 		log.Printf("[register stocks] no data source service found for %s", service)
 		return 0, pkg.InternalServerError("dataSourceService was nil for this request")
 	}
@@ -458,11 +458,13 @@ func (uc *RegisterStocks) IncrementTendencyStats(
 	return r.IncrementAll(ctx, deltas)
 }
 
-func NewRegisterStocks(unitOfWorkFactory services.UnitOfWorkFactory, dataSourceProvider services.DataSourceServiceProvider) *RegisterStocks {
+func NewRegisterStocks(uow services.UnitOfWorkFactory, ds map[string]services.DataSourceService) *RegisterStocks {
 
-	if unitOfWorkFactory == nil || dataSourceProvider == nil {
-		log.Fatalln("bad impl: unitOfWorkFactory or dataSourceProvider was nil on registerStocksUseCase.New()")
+	if uow == nil || ds == nil {
+		panic(fmt.Sprintf(
+			"nil arguments for NewRegisterStocks, unitOfWorkFactory: %+v, dataSources: %+v", uow, ds),
+		)
 	}
 
-	return &RegisterStocks{unitOfWorkFactory, dataSourceProvider}
+	return &RegisterStocks{uow, ds}
 }

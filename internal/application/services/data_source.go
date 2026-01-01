@@ -77,19 +77,3 @@ type DataSourceService interface {
 	*/
 	Get(ctx context.Context, limitDate *time.Time) ([]DataSourceResponse, error)
 }
-
-type DataSourceServiceProvider interface {
-	/*
-		GetDataSourceService returns a DataSourceService by name.
-	*/
-	GetDataSourceService(name string) DataSourceService
-	/*
-		Exists returns true if a DataSourceService is registered by name.
-	*/
-	Exists(name string) bool
-
-	/*
-		RegisterDataSourceService registers a DataSourceService by name.
-	*/
-	RegisterDataSourceService(name string, ds DataSourceService)
-}

@@ -3,13 +3,17 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
+	"time"
 
+	"github.com/alexisPerdomoD/stock-app-api/internal/application/services"
 	"github.com/alexisPerdomoD/stock-app-api/internal/application/usecases"
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/handlers"
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/middleware"
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/persistence/cockroachdb"
+	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/scheduler"
+	servicesimpl "github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/services"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -26,29 +30,51 @@ import (
 */
 func main() {
 	// ENV VARS
-	if err := godotenv.Load(); err != nil {
-		log.Fatalf("Error loading .env file due to %v", err)
-	}
+	_ = godotenv.Load()
 
 	// DATABASE
 	db, err := cockroachdb.NewDB()
 	if err != nil {
-		log.Fatalf("Error creating db due to %v", err)
+		panic(fmt.Sprintf("Error creating db due to %v", err))
+	}
+
+	// SERVICES
+	mainSlogger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	}))
+
+	unitOfWorkFactory := servicesimpl.NewSqlxUnitOfWorkFactory(db)
+
+	mainDataSourceService := servicesimpl.NewMainSourceStockService(true)
+	cnnDataSourceService := servicesimpl.NewCnnStockSourceService()
+	const mainsourcekey, cnnsourcekey = "main", "cnn"
+	dataSources := map[string]services.DataSourceService{
+		mainsourcekey: mainDataSourceService,
+		cnnsourcekey:  cnnDataSourceService,
 	}
 
 	// REPOSITORIES
 
-	stockRepository := cockroachdb.NewStockRepository(db)
-	recommendationRepository := cockroachdb.NewRecommendationRepository(db)
 	userRepository := cockroachdb.NewUserRepository(db)
+	marketRepository := cockroachdb.NewMarketRepository(db)
+	companyRepository := cockroachdb.NewCompanyRepository(db)
+	stockRepository := cockroachdb.NewStockRepository(db)
+	stockRegisterRepository := cockroachdb.NewStockRegisterRepository(db)
+	recommendationRepository := cockroachdb.NewRecommendationRepository(db)
 
 	// USE CASES
 	getStocksUC := usecases.NewGetStocks(stockRepository)
-	getStockUC := usecases.NewGetStock(stockRepository)
-	// registerStocksUC := usecases.NewRegisterStocks(sr)
+	getStockUC := usecases.NewGetStock(
+		userRepository,
+		marketRepository,
+		companyRepository,
+		stockRepository,
+		stockRegisterRepository,
+	)
+	registerStocksUC := usecases.NewRegisterStocks(unitOfWorkFactory, dataSources)
 	getRecommendationByStockUC := usecases.NewGetRecommendationsByStock(stockRepository, recommendationRepository)
-	loginUserUC := usecases.NewLogin(userRepository)
-	registerUserUC := usecases.NewRegisterUser(userRepository)
+	loginUserUC := usecases.NewLogin(userRepository, mainSlogger)
+	registerUserUC := usecases.NewRegisterUser(userRepository, mainSlogger)
 	registerUserStockUC := usecases.NewRegisterUserStock(userRepository)
 	removeUserStockUC := usecases.NewRemoveUserStock(userRepository)
 
@@ -89,22 +115,28 @@ func main() {
 	recommendationGroup.Use(middleware.UserSessionMiddleware)
 	recommendationGroup.GET("/:stockID", recommendationHandler.GetRecommendationsByStockHandler)
 
-	// scheduler := scheduler.New()
-	//
-	// mainSSource := service.NewMainSourceStockService(false)
-	// interval := time.Hour * 24
-	// timeout := time.Minute * 3
-	// scheduler.AddStockSourceService(
-	// 	mainSSource,
-	// 	registerStocksUC,
-	// 	timeout,
-	// 	&interval,
-	// )
-	// scheduler.StartOnBackground()
-	//
+	// SCHEDULER
+	scheduler := scheduler.New()
+	interval := time.Minute * 10
+	timeout := time.Minute * 3
+	scheduler.AddStockSourceService(
+		mainsourcekey,
+		registerStocksUC,
+		timeout,
+		&interval,
+	)
+	scheduler.AddStockSourceService(
+		cnnsourcekey,
+		registerStocksUC,
+		timeout,
+		&interval,
+	)
+	scheduler.StartOnBackground()
+
 	PORT := fmt.Sprintf(":%v", os.Getenv("SERVER_PORT"))
 	if err := r.Run(PORT); err != nil {
-		log.Fatalln(err.Error())
+		slog.Error("Error running server", "err", err)
+		os.Exit(1)
 	}
 
 }
