@@ -39,7 +39,7 @@ type CompanyRepository interface {
 	/*
 		Saves a Company in the database and map missing properties with their default values (if any) including ID.
 
-		- nil company is no-op and returns nil.
+		- returns error if nil arguments are passed.
 
 		- any persistence constraints violated by any argument returns an error (e.g unique indexes).
 	*/

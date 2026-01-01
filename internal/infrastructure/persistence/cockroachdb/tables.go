@@ -185,13 +185,12 @@ func (r stockRegisterRecord) ToDomain() *domain.StockRegister {
 	}
 }
 
-// RELATIONSHIPS
-
-type stockUserRecord struct {
-	ID        uint64    `db:"id"`
-	StockID   uint64    `db:"stock_id"`
-	UserID    uint64    `db:"user_id"`
-	CreatedAt time.Time `db:"created_at"`
+func (r *stockRegisterRecord) MapDomain(stockRegister *domain.StockRegister) {
+	r.ID = stockRegister.ID
+	r.StockID = stockRegister.StockID
+	r.Price = stockRegister.Price
+	r.Tendency = stockRegister.Tendency
+	r.CreatedAt = stockRegister.CreatedAt
 }
 
 type stockRecommendationRecord struct {
@@ -228,6 +227,15 @@ func (r *stockRecommendationRecord) MapDomain(dom *domain.Recommendation) {
 	dom.TargetFrom = r.TargetFrom
 	dom.TargetTo = r.TargetTo
 	dom.CreatedAt = r.CreatedAt
+}
+
+// RELATIONSHIPS
+
+type stockUserRecord struct {
+	ID        uint64    `db:"id"`
+	StockID   uint64    `db:"stock_id"`
+	UserID    uint64    `db:"user_id"`
+	CreatedAt time.Time `db:"created_at"`
 }
 
 // static queries

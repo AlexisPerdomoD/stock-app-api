@@ -76,7 +76,7 @@ func (r *BrokerageRepository) GetByNames(ctx context.Context, names []string) (m
 
 func (r *BrokerageRepository) Save(ctx context.Context, brokerage *domain.Brokerage) error {
 	if brokerage == nil {
-		return nil
+		return pkg.InvalidStateErr("nil pointer passed on brokerage")
 	}
 
 	record := brokerageRecord{Name: brokerage.Name}

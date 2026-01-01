@@ -33,7 +33,7 @@ type MarketRepository interface {
 	/*
 		Saves a Market in the database and map missing properties with their default values (if any) including ID.
 
-		- nil market is no-op and returns nil.
+		- returns error if nil arguments are passed.
 
 		- any persistence constraints violated by any argument returns an error (e.g unique indexes).
 	*/

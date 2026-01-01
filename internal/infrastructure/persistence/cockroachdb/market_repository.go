@@ -65,7 +65,7 @@ func (r *MarketRepository) GetByNames(ctx context.Context, marketNames []string)
 
 func (r *MarketRepository) Save(ctx context.Context, market *domain.Market) error {
 	if market == nil {
-		return nil // no-op
+		return pkg.InvalidStateErr("nil pointer passed on market")
 	}
 
 	record := &marketRecord{Name: market.Name}

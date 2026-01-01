@@ -104,7 +104,7 @@ func (r *CompanyRepository) GetByMarketCompanySearch(
 
 func (r *CompanyRepository) Save(ctx context.Context, company *domain.Company) error {
 	if company == nil {
-		return nil
+		return pkg.InvalidStateErr("nil pointer passed on company")
 	}
 
 	record := &companyRecord{

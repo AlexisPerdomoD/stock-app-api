@@ -407,7 +407,7 @@ func (r *StockRepository) GetByStockCompanySearchParams(
 
 func (r *StockRepository) Save(ctx context.Context, stock *domain.Stock) error {
 	if stock == nil {
-		return nil // no-op
+		return pkg.InvalidStateErr("nil pointer passed on stock")
 	}
 
 	var isin, name sql.NullString

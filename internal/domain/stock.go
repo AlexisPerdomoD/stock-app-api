@@ -137,7 +137,7 @@ type StockRepository interface {
 	/*
 		Saves a Stock in the database and map missing properties with their default values (if any) including ID.
 
-		- nil stock argument is no-op and returns nil.
+		- returns error if nil arguments are passed.
 
 		- any persistence constraints violated by any argument returns an error (e.g unique indexes).
 	*/

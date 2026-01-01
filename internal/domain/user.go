@@ -43,7 +43,7 @@ type UserRepository interface {
 	/*
 		Saves a user and maps id and CreatedAt fields, password field is remaped to nil always.
 
-		- nil args is a no-op and returns nil
+		- returns error if nil arguments are passed.
 
 		- any persistence constraints violated by any argument returns an error (e.g unique indexes like username).
 	*/

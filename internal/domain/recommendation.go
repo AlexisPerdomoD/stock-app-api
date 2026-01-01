@@ -104,7 +104,9 @@ type RecommendationRepository interface {
 	/*
 		Saves a list of recommendations in the repository.
 
-		- returns error if nil arguments are passed.
+		- nil recommendations slice is no-op and returns nil.
+
+		- returns error if nil arguments are passed inside recommendations slice.
 
 		- returns error if conflict occurs with arguments provided.
 	*/

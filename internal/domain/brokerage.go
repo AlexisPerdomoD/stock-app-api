@@ -33,7 +33,7 @@ type BrokerageRepository interface {
 	/*
 		Saves a brokerage in the repository
 
-		- nil brokerage is no-op and returns nil.
+		- returns error if nil arguments are passed.
 
 		- any persistence constraints violated by any argument returns an error (e.g unique indexes).
 	*/

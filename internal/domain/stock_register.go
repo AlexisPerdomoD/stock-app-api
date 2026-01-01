@@ -53,13 +53,17 @@ type StockRegisterRepository interface {
 
 	/*
 		saves a stock register in the repository
+
 		- returns error if nil arguments are passed
+
 		- returns error if conflict occurs with arguments provided
 	*/
 	Save(ctx context.Context, stockRegister *StockRegister) error
 	/*
 		saves stock registers in the repository
+
 		- returns error if nil arguments are passed
+
 		- returns error if conflict occurs with arguments provided
 	*/
 	SaveAll(ctx context.Context, stockRegister []*StockRegister) error
