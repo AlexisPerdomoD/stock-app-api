@@ -17,6 +17,125 @@ definitions:
       status_code:
         type: integer
     type: object
+  models.BrokerageView:
+    properties:
+      created_at:
+        example: "2021-01-01T12:00:00Z"
+        type: string
+      id:
+        example: "1"
+        type: string
+      name:
+        example: Brokerage 1
+        type: string
+    type: object
+  models.CompanyView:
+    properties:
+      created_at:
+        example: "2021-01-01T12:00:00Z"
+        type: string
+      id:
+        example: "1"
+        type: string
+      market_id:
+        example: "1"
+        type: string
+      name:
+        example: Company 1
+        type: string
+    type: object
+  models.MarketView:
+    properties:
+      created_at:
+        example: "2021-01-01T12:00:00Z"
+        type: string
+      id:
+        example: "1"
+        type: string
+      name:
+        example: Market 1
+        type: string
+    type: object
+  models.PopulatedRecommendationView:
+    properties:
+      brokerage:
+        $ref: '#/definitions/models.BrokerageView'
+      brokerage_id:
+        example: "1"
+        type: string
+      created_at:
+        example: "2021-01-01T12:00:00Z"
+        type: string
+      id:
+        example: "1"
+        type: string
+      rating_from:
+        example: "1"
+        type: string
+      rating_to:
+        example: "1"
+        type: string
+      stock_id:
+        example: "1"
+        type: string
+      target_from:
+        example: 1
+        type: number
+      target_to:
+        example: 1
+        type: number
+    type: object
+  models.PopulatedStockView:
+    properties:
+      company:
+        $ref: '#/definitions/models.CompanyView'
+      company_id:
+        example: "1"
+        type: string
+      id:
+        example: "1"
+        type: string
+      is_saved:
+        example: true
+        type: boolean
+      isin:
+        example: US0378331005
+        type: string
+      last_register:
+        $ref: '#/definitions/models.StockRegisterView'
+      market:
+        $ref: '#/definitions/models.MarketView'
+      market_id:
+        example: "1"
+        type: string
+      name:
+        example: apple inc
+        type: string
+      registered:
+        example: "2021-01-01T12:00:00Z"
+        type: string
+      ticker:
+        example: AAPL
+        type: string
+      updated_at:
+        example: "2021-01-01T12:00:00Z"
+        type: string
+    type: object
+  models.RecommendationViewPaginated:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/models.PopulatedRecommendationView'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total_pages:
+        type: integer
+      total_size:
+        type: integer
+    type: object
   models.RegisterUserDTO:
     properties:
       email:
@@ -38,6 +157,24 @@ definitions:
     required:
     - email
     - password
+    type: object
+  models.StockRegisterView:
+    properties:
+      created_at:
+        example: "2021-01-01T12:00:00Z"
+        type: string
+      id:
+        example: "1"
+        type: string
+      price:
+        example: 100
+        type: number
+      stock_id:
+        example: "1"
+        type: string
+      tendency:
+        example: up
+        type: string
     type: object
   models.StockView:
     properties:
@@ -66,6 +203,21 @@ definitions:
         example: "2021-01-01T12:00:00Z"
         type: string
     type: object
+  models.StockViewPaginated:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/models.StockView'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total_pages:
+        type: integer
+      total_size:
+        type: integer
+    type: object
   models.UserLoginDTO:
     properties:
       email:
@@ -77,6 +229,38 @@ definitions:
     required:
     - email
     - password
+    type: object
+  models.UserLoginView:
+    properties:
+      message:
+        example: user logged in properly
+        type: string
+      session:
+        example: token-session
+        type: string
+      user:
+        $ref: '#/definitions/models.UserView'
+    type: object
+  models.UserView:
+    properties:
+      active:
+        example: true
+        type: boolean
+      created_at:
+        example: "2021-01-01T12:00:00Z"
+        type: string
+      firstname:
+        example: Alexis
+        type: string
+      id:
+        example: "1"
+        type: string
+      lastname:
+        example: Perdomo
+        type: string
+      username:
+        example: alexis@perdomo.com
+        type: string
     type: object
 info:
   contact: {}
@@ -99,8 +283,7 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/models.UserLoginView'
         "400":
           description: Bad Request
           schema:
@@ -116,59 +299,43 @@ paths:
       summary: Login de usuario
       tags:
       - auth
-  /api/v1/users:
-    post:
-      consumes:
-      - application/json
-      description: Registra un usuario nuevo y retorna un JWT
-      parameters:
-      - description: Datos de registro
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/models.RegisterUserDTO'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/mappers.HttpErrResponse'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/mappers.HttpErrResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/mappers.HttpErrResponse'
-      summary: Registro de usuario
-      tags:
-      - users
-  /api/v1/users/stocks:
+  /api/v1/recommendations/{stockID}:
     get:
-      description: Retorna la lista de stocks asociados al usuario autenticado
+      description: Obtener recomendaciones de un stock
       parameters:
-      - description: 'Esquema JWT. Usar: \'
+      - description: Esquema JWT. Usar:'Bearer {token}'
         in: header
         name: authorization
         required: true
         type: string
+      - description: ID del stock
+        in: path
+        name: stockID
+        required: true
+        type: string
+      - description: Búsqueda en las recomendaciones
+        in: query
+        name: search
+        type: string
+      - description: 'Agrupar por rating si se usa: ''rating'''
+        in: query
+        name: groupby
+        type: string
+      - description: 'Número de página. Default: 1'
+        in: query
+        name: page
+        type: integer
+      - description: 'Tamaño de página. Default: 20'
+        in: query
+        name: size
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/models.StockView'
-            type: array
+            $ref: '#/definitions/models.RecommendationViewPaginated'
         "401":
           description: Unauthorized
           schema:
@@ -179,13 +346,106 @@ paths:
             $ref: '#/definitions/mappers.HttpErrResponse'
       security:
       - BearerAuth: []
-      summary: Obtener stocks del usuario
+      summary: Obtener recomendaciones de un stock
       tags:
-      - users
-  /api/v1/users/stocks/{stockID}:
+      - recommendations
+  /api/v1/stocks:
+    get:
+      description: Retorna una lista paginada en base a los filtros aplicados
+      parameters:
+      - description: Esquema JWT. Usar:'Bearer {token}'
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: Búsqueda por ticker o nombre
+        in: query
+        name: search
+        type: string
+      - description: 'Ordenar resultados. Valores: tendency-asc, tendency-desc, price-asc,
+          price-desc, ticker-asc, ticker-desc, date'
+        in: query
+        name: orderby
+        type: string
+      - description: Precio mínimo
+        in: query
+        name: greater
+        type: number
+      - description: Precio máximo
+        in: query
+        name: lower
+        type: number
+      - description: 'Número de página. Default: 1'
+        in: query
+        name: page
+        type: integer
+      - description: 'Tamaño de página. Default: 20'
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StockViewPaginated'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/mappers.HttpErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/mappers.HttpErrResponse'
+      security:
+      - BearerAuth: []
+      summary: Obtener stocks paginados
+      tags:
+      - stocks
+  /api/v1/stocks/{stockID}:
+    get:
+      description: Obtener un stock por su ID
+      parameters:
+      - description: Esquema JWT. Usar:'Bearer {token}'
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: ID del stock
+        in: path
+        name: stockID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PopulatedStockView'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/mappers.HttpErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/mappers.HttpErrResponse'
+      security:
+      - BearerAuth: []
+      summary: Obtener stock
+      tags:
+      - stocks
+  /api/v1/stocks/{stockID}/favorites:
     delete:
       description: Remueve un stock asociado al usuario autenticado
       parameters:
+      - description: Esquema JWT. Usar:'Bearer {token}'
+        in: header
+        name: authorization
+        required: true
+        type: string
       - description: ID del stock
         in: path
         name: stockID
@@ -217,10 +477,15 @@ paths:
       - BearerAuth: []
       summary: Eliminar stock del usuario
       tags:
-      - users
+      - stocks
     post:
       description: Asocia un stock existente al usuario autenticado
       parameters:
+      - description: Esquema JWT. Usar:'Bearer {token}'
+        in: header
+        name: authorization
+        required: true
+        type: string
       - description: ID del stock
         in: path
         name: stockID
@@ -251,6 +516,94 @@ paths:
       security:
       - BearerAuth: []
       summary: Registrar stock al usuario
+      tags:
+      - stocks
+  /api/v1/stocks/favorites:
+    get:
+      description: Retorna la lista de stocks asociados al usuario autenticado
+      parameters:
+      - description: Esquema JWT. Usar:'Bearer {token}'
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: Búsqueda por ticker o nombre
+        in: query
+        name: search
+        type: string
+      - description: 'Ordenar resultados. Valores: tendency-asc, tendency-desc, price-asc,
+          price-desc, ticker-asc, ticker-desc, date'
+        in: query
+        name: orderby
+        type: string
+      - description: Precio mínimo
+        in: query
+        name: greater
+        type: number
+      - description: Precio máximo
+        in: query
+        name: lower
+        type: number
+      - description: 'Número de página. Default: 1'
+        in: query
+        name: page
+        type: integer
+      - description: 'Tamaño de página. Default: 20'
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StockViewPaginated'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/mappers.HttpErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/mappers.HttpErrResponse'
+      security:
+      - BearerAuth: []
+      summary: Obtener stocks favoritos del usuario
+      tags:
+      - stocks
+  /api/v1/users:
+    post:
+      consumes:
+      - application/json
+      description: Registra un usuario nuevo y retorna un JWT
+      parameters:
+      - description: Datos de registro
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.RegisterUserDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.UserLoginView'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/mappers.HttpErrResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/mappers.HttpErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/mappers.HttpErrResponse'
+      summary: Registro de usuario
       tags:
       - users
 swagger: "2.0"

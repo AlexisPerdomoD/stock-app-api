@@ -43,8 +43,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/models.UserLoginView"
                         }
                     },
                     "400": {
@@ -68,46 +67,70 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/users": {
-            "post": {
-                "description": "Registra un usuario nuevo y retorna un JWT",
-                "consumes": [
-                    "application/json"
+        "/api/v1/recommendations/{stockID}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
                 ],
+                "description": "Obtener recomendaciones de un stock",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "recommendations"
                 ],
-                "summary": "Registro de usuario",
+                "summary": "Obtener recomendaciones de un stock",
                 "parameters": [
                     {
-                        "description": "Datos de registro",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.RegisterUserDTO"
-                        }
+                        "type": "string",
+                        "description": "Esquema JWT. Usar:'Bearer {token}'",
+                        "name": "authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID del stock",
+                        "name": "stockID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Búsqueda en las recomendaciones",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Agrupar por rating si se usa: 'rating'",
+                        "name": "groupby",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Número de página. Default: 1",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Tamaño de página. Default: 20",
+                        "name": "size",
+                        "in": "query"
                     }
                 ],
                 "responses": {
-                    "201": {
-                        "description": "Created",
+                    "200": {
+                        "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/models.RecommendationViewPaginated"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/mappers.HttpErrResponse"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/mappers.HttpErrResponse"
                         }
@@ -121,7 +144,89 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/users/stocks": {
+        "/api/v1/stocks": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retorna una lista paginada en base a los filtros aplicados",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stocks"
+                ],
+                "summary": "Obtener stocks paginados",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Esquema JWT. Usar:'Bearer {token}'",
+                        "name": "authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Búsqueda por ticker o nombre",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Ordenar resultados. Valores: tendency-asc, tendency-desc, price-asc, price-desc, ticker-asc, ticker-desc, date",
+                        "name": "orderby",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Precio mínimo",
+                        "name": "greater",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Precio máximo",
+                        "name": "lower",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Número de página. Default: 1",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Tamaño de página. Default: 20",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StockViewPaginated"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/stocks/favorites": {
             "get": {
                 "security": [
                     {
@@ -133,26 +238,59 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "stocks"
                 ],
-                "summary": "Obtener stocks del usuario",
+                "summary": "Obtener stocks favoritos del usuario",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Esquema JWT. Usar: \\",
+                        "description": "Esquema JWT. Usar:'Bearer {token}'",
                         "name": "authorization",
                         "in": "header",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Búsqueda por ticker o nombre",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Ordenar resultados. Valores: tendency-asc, tendency-desc, price-asc, price-desc, ticker-asc, ticker-desc, date",
+                        "name": "orderby",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Precio mínimo",
+                        "name": "greater",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Precio máximo",
+                        "name": "lower",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Número de página. Default: 1",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Tamaño de página. Default: 20",
+                        "name": "size",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.StockView"
-                            }
+                            "$ref": "#/definitions/models.StockViewPaginated"
                         }
                     },
                     "401": {
@@ -170,7 +308,60 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/users/stocks/{stockID}": {
+        "/api/v1/stocks/{stockID}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Obtener un stock por su ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stocks"
+                ],
+                "summary": "Obtener stock",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Esquema JWT. Usar:'Bearer {token}'",
+                        "name": "authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID del stock",
+                        "name": "stockID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.PopulatedStockView"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/stocks/{stockID}/favorites": {
             "post": {
                 "security": [
                     {
@@ -179,10 +370,17 @@ const docTemplate = `{
                 ],
                 "description": "Asocia un stock existente al usuario autenticado",
                 "tags": [
-                    "users"
+                    "stocks"
                 ],
                 "summary": "Registrar stock al usuario",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Esquema JWT. Usar:'Bearer {token}'",
+                        "name": "authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "ID del stock",
@@ -233,10 +431,17 @@ const docTemplate = `{
                 ],
                 "description": "Remueve un stock asociado al usuario autenticado",
                 "tags": [
-                    "users"
+                    "stocks"
                 ],
                 "summary": "Eliminar stock del usuario",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Esquema JWT. Usar:'Bearer {token}'",
+                        "name": "authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "ID del stock",
@@ -279,6 +484,58 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/v1/users": {
+            "post": {
+                "description": "Registra un usuario nuevo y retorna un JWT",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Registro de usuario",
+                "parameters": [
+                    {
+                        "description": "Datos de registro",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.RegisterUserDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.UserLoginView"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -304,6 +561,174 @@ const docTemplate = `{
                     "example": "nombre especifico del error"
                 },
                 "status_code": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.BrokerageView": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2021-01-01T12:00:00Z"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "1"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Brokerage 1"
+                }
+            }
+        },
+        "models.CompanyView": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2021-01-01T12:00:00Z"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "1"
+                },
+                "market_id": {
+                    "type": "string",
+                    "example": "1"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Company 1"
+                }
+            }
+        },
+        "models.MarketView": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2021-01-01T12:00:00Z"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "1"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Market 1"
+                }
+            }
+        },
+        "models.PopulatedRecommendationView": {
+            "type": "object",
+            "properties": {
+                "brokerage": {
+                    "$ref": "#/definitions/models.BrokerageView"
+                },
+                "brokerage_id": {
+                    "type": "string",
+                    "example": "1"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2021-01-01T12:00:00Z"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "1"
+                },
+                "rating_from": {
+                    "type": "string",
+                    "example": "1"
+                },
+                "rating_to": {
+                    "type": "string",
+                    "example": "1"
+                },
+                "stock_id": {
+                    "type": "string",
+                    "example": "1"
+                },
+                "target_from": {
+                    "type": "number",
+                    "example": 1
+                },
+                "target_to": {
+                    "type": "number",
+                    "example": 1
+                }
+            }
+        },
+        "models.PopulatedStockView": {
+            "type": "object",
+            "properties": {
+                "company": {
+                    "$ref": "#/definitions/models.CompanyView"
+                },
+                "company_id": {
+                    "type": "string",
+                    "example": "1"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "1"
+                },
+                "is_saved": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "isin": {
+                    "type": "string",
+                    "example": "US0378331005"
+                },
+                "last_register": {
+                    "$ref": "#/definitions/models.StockRegisterView"
+                },
+                "market": {
+                    "$ref": "#/definitions/models.MarketView"
+                },
+                "market_id": {
+                    "type": "string",
+                    "example": "1"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "apple inc"
+                },
+                "registered": {
+                    "type": "string",
+                    "example": "2021-01-01T12:00:00Z"
+                },
+                "ticker": {
+                    "type": "string",
+                    "example": "AAPL"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2021-01-01T12:00:00Z"
+                }
+            }
+        },
+        "models.RecommendationViewPaginated": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.PopulatedRecommendationView"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "page_size": {
+                    "type": "integer"
+                },
+                "total_pages": {
+                    "type": "integer"
+                },
+                "total_size": {
                     "type": "integer"
                 }
             }
@@ -334,6 +759,31 @@ const docTemplate = `{
                     "maxLength": 72,
                     "minLength": 8,
                     "example": "123456789"
+                }
+            }
+        },
+        "models.StockRegisterView": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2021-01-01T12:00:00Z"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "1"
+                },
+                "price": {
+                    "type": "number",
+                    "example": 100
+                },
+                "stock_id": {
+                    "type": "string",
+                    "example": "1"
+                },
+                "tendency": {
+                    "type": "string",
+                    "example": "up"
                 }
             }
         },
@@ -374,6 +824,29 @@ const docTemplate = `{
                 }
             }
         },
+        "models.StockViewPaginated": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.StockView"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "page_size": {
+                    "type": "integer"
+                },
+                "total_pages": {
+                    "type": "integer"
+                },
+                "total_size": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.UserLoginDTO": {
             "type": "object",
             "required": [
@@ -388,6 +861,51 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "example": "123456789"
+                }
+            }
+        },
+        "models.UserLoginView": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "user logged in properly"
+                },
+                "session": {
+                    "type": "string",
+                    "example": "token-session"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.UserView"
+                }
+            }
+        },
+        "models.UserView": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2021-01-01T12:00:00Z"
+                },
+                "firstname": {
+                    "type": "string",
+                    "example": "Alexis"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "1"
+                },
+                "lastname": {
+                    "type": "string",
+                    "example": "Perdomo"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "alexis@perdomo.com"
                 }
             }
         }
