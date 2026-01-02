@@ -41,3 +41,13 @@ func NewPopulatedRecommendationView(r domain.PopulatedRecommendation) PopulatedR
 		Brokerage:          NewBrokerageView(r.Brokerage),
 	}
 }
+
+// RecommendationViewPaginated represents a paginated list of recommendations
+// This model only created as reference for the swagger docs
+type RecommendationViewPaginated struct {
+	Items      []PopulatedRecommendationView `json:"items"`
+	Page       int                           `json:"page"`
+	PageSize   int                           `json:"page_size"`
+	TotalSize  int                           `json:"total_size"`
+	TotalPages int                           `json:"total_pages"`
+}

@@ -17,8 +17,16 @@ type StockView struct {
 	UpdatedAt time.Time `json:"updated_at"  example:"2021-01-01T12:00:00Z"`
 }
 
-func NewStockView(s domain.Stock) StockView {
+// JUST FOR SWAGGER DOC
+type StockViewPaginated struct {
+	Items      []StockView `json:"items"`
+	Page       int         `json:"page"`
+	PageSize   int         `json:"page_size"`
+	TotalSize  int         `json:"total_size"`
+	TotalPages int         `json:"total_pages"`
+}
 
+func NewStockView(s domain.Stock) StockView {
 	return StockView{
 		ID:        s.ID,
 		CompanyID: s.CompanyID,
@@ -33,7 +41,7 @@ func NewStockView(s domain.Stock) StockView {
 type StockRegisterView struct {
 	ID        uint64    `json:"id,string" example:"1"`
 	StockID   uint64    `json:"stock_id,string" example:"1"`
-	Price     float64   `json:"price" example:"100,00"`
+	Price     float64   `json:"price" example:"100.00"`
 	Tendency  string    `json:"tendency" example:"up"`
 	CreatedAt time.Time `json:"created_at" example:"2021-01-01T12:00:00Z"`
 }
