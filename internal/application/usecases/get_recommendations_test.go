@@ -10,7 +10,7 @@ import (
 )
 
 func TestGetRecommendationsByStock_Execute_OK(t *testing.T) {
-	repo := &FakeRecommendationRepo{
+	repo := &FakeRecommendationRepository{
 		getAllFn: func(ctx context.Context, _ pkg.PaginationFilter) (*pkg.PaginationResponse[domain.PopulatedRecommendation], error) {
 			return &pkg.PaginationResponse[domain.PopulatedRecommendation]{
 				Page:       1,

@@ -372,7 +372,7 @@ func (uc *RegisterStocks) SetStockRegisters(
 		}
 		stock, ok := stocks[stockKey]
 		if !ok || stock == nil {
-			return nil, pkg.InternalServerError("stock was not properly mapped for stock register setting")
+			return nil, pkg.InternalServerError(fmt.Sprintf("stock was not properly mapped for stock register setting, stocks: %+v key %+v", stocks, stockKey))
 		}
 
 		register := &domain.StockRegister{

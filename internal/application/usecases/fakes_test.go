@@ -4,9 +4,48 @@ import (
 	"context"
 	"time"
 
+	"github.com/alexisPerdomoD/stock-app-api/internal/application/services"
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"github.com/alexisPerdomoD/stock-app-api/pkg"
 )
+
+// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ////////////////////// BROKERAGE REPOSITORY ///////////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+type FakeBrokerageRepository struct {
+	GetByIDFn    func(ctx context.Context, id uint64) (*domain.Brokerage, error)
+	GetByNamesFn func(ctx context.Context, names []string) (map[string]*domain.Brokerage, error)
+	SaveFn       func(ctx context.Context, brokerage *domain.Brokerage) error
+	SaveAllFn    func(ctx context.Context, brokerages []*domain.Brokerage) error
+}
+
+func (f *FakeBrokerageRepository) GetByID(ctx context.Context, id uint64) (*domain.Brokerage, error) {
+	if f.GetByIDFn == nil {
+		panic("FakeBrokerageRepository.GetByIDFn not set")
+	}
+	return f.GetByIDFn(ctx, id)
+}
+
+func (f *FakeBrokerageRepository) GetByNames(ctx context.Context, names []string) (map[string]*domain.Brokerage, error) {
+	if f.GetByNamesFn == nil {
+		panic("FakeBrokerageRepository.GetByNamesFn not set")
+	}
+	return f.GetByNamesFn(ctx, names)
+}
+
+func (f *FakeBrokerageRepository) Save(ctx context.Context, brokerage *domain.Brokerage) error {
+	if f.SaveFn == nil {
+		panic("FakeBrokerageRepository.SaveFn not set")
+	}
+	return f.SaveFn(ctx, brokerage)
+}
+
+func (f *FakeBrokerageRepository) SaveAll(ctx context.Context, brokerages []*domain.Brokerage) error {
+	if f.SaveAllFn == nil {
+		panic("FakeBrokerageRepository.SaveAllFn not set")
+	}
+	return f.SaveAllFn(ctx, brokerages)
+}
 
 // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ////////////////////// USER REPOSITORY ////////////////////////////////////////////////////////////////////////////////
@@ -219,20 +258,20 @@ func (f *FakeStockRepository) Update(ctx context.Context, updates domain.StockUp
 // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ////////////////////// RECOMMENDATION REPOSITORY ///////////////////////////////////////////////////////////////////////////////
 // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-type FakeRecommendationRepo struct {
+type FakeRecommendationRepository struct {
 	getAllFn func(ctx context.Context, filters pkg.PaginationFilter) (*pkg.PaginationResponse[domain.PopulatedRecommendation], error)
 
 	saveAllFn func(ctx context.Context, recommendations []*domain.Recommendation) error
 }
 
-func (f *FakeRecommendationRepo) GetAllPaginated(
+func (f *FakeRecommendationRepository) GetAllPaginated(
 	ctx context.Context,
 	filters pkg.PaginationFilter,
 ) (*pkg.PaginationResponse[domain.PopulatedRecommendation], error) {
 	return f.getAllFn(ctx, filters)
 }
 
-func (f *FakeRecommendationRepo) SaveAll(
+func (f *FakeRecommendationRepository) SaveAll(
 	ctx context.Context,
 	recommendations []*domain.Recommendation,
 ) error {
@@ -240,7 +279,7 @@ func (f *FakeRecommendationRepo) SaveAll(
 }
 
 // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// ////////////////////// STOCK TENDENCY STAT REPOSITORY //////////////////////////////////////////////////////////////////
+// ////////////////////// STOCK REGISTER REPOSITORY //////////////////////////////////////////////////////////////////
 // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 type FakeStockRegisterRepository struct {
@@ -286,3 +325,142 @@ func (f *FakeStockRegisterRepository) SaveAll(ctx context.Context, registers []*
 	return f.SaveAllFn(ctx, registers)
 }
 
+// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ////////////////////// STOCK TENDENCY STAT REPOSITORY //////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type FakeStockTendencyStatRepository struct {
+	GetByStockIDFn func(ctx context.Context, stockID uint64) (*domain.StockTendencyStat, error)
+	IncrementFn    func(ctx context.Context, stockID uint64, delta domain.StockTendencyDelta) error
+	IncrementAllFn func(ctx context.Context, deltas map[uint64]domain.StockTendencyDelta) error
+}
+
+func (f *FakeStockTendencyStatRepository) GetByStockID(ctx context.Context, stockID uint64) (*domain.StockTendencyStat, error) {
+	if f.GetByStockIDFn == nil {
+		panic("FakeStockTendencyStatRepository.GetByStockIDFn not set")
+	}
+
+	return f.GetByStockIDFn(ctx, stockID)
+}
+
+func (f *FakeStockTendencyStatRepository) Increment(ctx context.Context, stockID uint64, delta domain.StockTendencyDelta) error {
+	if f.IncrementFn == nil {
+		panic("FakeStockTendencyStatRepository.IncrementFn not set")
+	}
+
+	return f.IncrementFn(ctx, stockID, delta)
+}
+
+func (f *FakeStockTendencyStatRepository) IncrementAll(
+	ctx context.Context,
+	deltas map[uint64]domain.StockTendencyDelta,
+) error {
+	if f.IncrementAllFn == nil {
+		panic("FakeStockTendencyStatRepository.IncrementAllFn not set")
+	}
+
+	return f.IncrementAllFn(ctx, deltas)
+}
+
+// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ////////////////////// DATA SOURCE ///////////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+type FakeDataSource struct {
+	NameFn func() string
+	GetFn  func(ctx context.Context, since *time.Time) ([]services.DataSourceResponse, error)
+}
+
+func (f *FakeDataSource) Name() string {
+	if f.NameFn != nil {
+		return f.NameFn()
+	}
+	return "unknown"
+}
+
+func (f *FakeDataSource) Get(
+	ctx context.Context,
+	since *time.Time,
+) ([]services.DataSourceResponse, error) {
+	if f.GetFn == nil {
+		panic("FakeDataSource.GetFn not set")
+	}
+
+	return f.GetFn(ctx, since)
+}
+
+// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ////////////////////// UNIT OF WORK ///////////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+type FakeUnitOfWork struct {
+	StockRepo          domain.StockRepository
+	StockRegisterRepo  domain.StockRegisterRepository
+	StockTendencyRepo  domain.StockTendencyStatRepository
+	UserRepo           domain.UserRepository
+	RecommendationRepo domain.RecommendationRepository
+	BrokerageRepo      domain.BrokerageRepository
+	CompanyRepo        domain.CompanyRepository
+	MarketRepo         domain.MarketRepository
+}
+
+func (u *FakeUnitOfWork) StockRepository() domain.StockRepository {
+	return u.StockRepo
+}
+
+func (u *FakeUnitOfWork) StockRegisterRepository() domain.StockRegisterRepository {
+	return u.StockRegisterRepo
+}
+
+func (u *FakeUnitOfWork) StockTendencyStatRepository() domain.StockTendencyStatRepository {
+	return u.StockTendencyRepo
+}
+
+func (u *FakeUnitOfWork) UserRepository() domain.UserRepository {
+	return u.UserRepo
+}
+
+func (u *FakeUnitOfWork) RecommendationRepository() domain.RecommendationRepository {
+	return u.RecommendationRepo
+}
+
+func (u *FakeUnitOfWork) BrokerageRepository() domain.BrokerageRepository {
+	return u.BrokerageRepo
+}
+
+func (u *FakeUnitOfWork) CompanyRepository() domain.CompanyRepository {
+	return u.CompanyRepo
+}
+
+func (u *FakeUnitOfWork) MarketRepository() domain.MarketRepository {
+	return u.MarketRepo
+}
+
+type FakeUnitOfWorkFactory struct {
+	UOW  services.UnitOfWork
+	DoFn func(ctx context.Context, tx func(context.Context, services.UnitOfWork) error) error
+}
+
+func (f *FakeUnitOfWorkFactory) Do(
+	ctx context.Context,
+	tx func(txCtx context.Context, uow services.UnitOfWork) error,
+) error {
+
+	if f.DoFn != nil {
+		return f.DoFn(ctx, tx)
+	}
+
+	// happy path por defecto
+	return tx(ctx, f.UOW)
+}
+
+func NewHappyPathUnitOfWork() *FakeUnitOfWork {
+	return &FakeUnitOfWork{
+		StockRepo:          &FakeStockRepository{},
+		StockRegisterRepo:  &FakeStockRegisterRepository{},
+		StockTendencyRepo:  &FakeStockTendencyStatRepository{},
+		UserRepo:           &FakeUserRepository{},
+		RecommendationRepo: &FakeRecommendationRepository{},
+		BrokerageRepo:      &FakeBrokerageRepository{},
+		CompanyRepo:        &FakeCompanyRepository{},
+		MarketRepo:         &FakeMarketRepository{},
+	}
+}
