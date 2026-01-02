@@ -3,7 +3,7 @@ package handlers
 import (
 	"github.com/alexisPerdomoD/stock-app-api/internal/application/usecases"
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/mappers"
-	"github.com/alexisPerdomoD/stock-app-api/pagination"
+	"github.com/alexisPerdomoD/stock-app-api/pkg"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -32,14 +32,14 @@ func (sc *StockHandler) GetStockHandler(c *gin.Context) {
 	stockID, ok := c.Params.Get("stockID")
 	if !ok {
 
-		res := mappers.MapHttpErr(pagination.BadRequest("stockID is required"))
+		res := mappers.MapHttpErr(pkg.BadRequest("stockID is required"))
 		c.AbortWithStatusJSON(http.StatusBadRequest, res)
 		return
 	}
 
 	parsedStockID, err := strconv.ParseUint(stockID, 10, 0)
 	if err != nil || parsedStockID <= 0 {
-		res := mappers.MapHttpErr(pagination.BadRequest("invalid stockID provided"))
+		res := mappers.MapHttpErr(pkg.BadRequest("invalid stockID provided"))
 		c.AbortWithStatusJSON(http.StatusBadRequest, res)
 		return
 	}
@@ -144,14 +144,14 @@ func (sc *StockHandler) GetStocksByUserHandler(c *gin.Context) {
 func (uc *StockHandler) RegisterStockHandler(c *gin.Context) {
 	stockID, ok := c.Params.Get("stockID")
 	if !ok {
-		res := mappers.MapHttpErr(pagination.BadRequest("stockID is required"))
+		res := mappers.MapHttpErr(pkg.BadRequest("stockID is required"))
 		c.AbortWithStatusJSON(res.StatusCode, res)
 		return
 	}
 
 	parseStockID, err := strconv.ParseUint(stockID, 10, 0)
 	if err != nil {
-		res := mappers.MapHttpErr(pagination.BadRequest("stockID is invalid"))
+		res := mappers.MapHttpErr(pkg.BadRequest("stockID is invalid"))
 		c.AbortWithStatusJSON(res.StatusCode, res)
 		return
 	}
@@ -186,14 +186,14 @@ func (uc *StockHandler) RegisterStockHandler(c *gin.Context) {
 func (uc *StockHandler) RemoveStockHandler(c *gin.Context) {
 	stockID, ok := c.Params.Get("stockID")
 	if !ok {
-		res := mappers.MapHttpErr(pagination.BadRequest("stockID is required"))
+		res := mappers.MapHttpErr(pkg.BadRequest("stockID is required"))
 		c.AbortWithStatusJSON(res.StatusCode, res)
 		return
 	}
 
 	parseStockID, err := strconv.ParseUint(stockID, 10, 0)
 	if err != nil {
-		res := mappers.MapHttpErr(pagination.BadRequest("stockID is invalid"))
+		res := mappers.MapHttpErr(pkg.BadRequest("stockID is invalid"))
 		c.AbortWithStatusJSON(res.StatusCode, res)
 		return
 	}

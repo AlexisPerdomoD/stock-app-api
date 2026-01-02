@@ -13,7 +13,7 @@ func UserSessionMiddleware(c *gin.Context) {
 
 		c.AbortWithStatusJSON(
 			http.StatusUnauthorized,
-			gin.H{"message": "Session is required"})
+			gin.H{"message": "Session token is malformed or empty"})
 		return
 	}
 	token := strings.TrimPrefix(authHeader, "Bearer ")
