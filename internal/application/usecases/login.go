@@ -23,7 +23,7 @@ func (uc *Login) Execute(ctx context.Context, credentials *appmodel.UserLoginDTO
 	}
 	defer auth.ZeroBytes(password)
 
-	user, err := uc.ur.GetByUsernameWithPassword(ctx, credentials.Username)
+	user, err := uc.ur.GetByUsernameWithPassword(ctx, credentials.GetSafeUsername())
 	if err != nil {
 		return nil, err
 	}

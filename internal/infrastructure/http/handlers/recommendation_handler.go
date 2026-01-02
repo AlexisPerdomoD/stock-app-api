@@ -16,6 +16,22 @@ type RecommendationHandler struct {
 	getRecommendationsByStock *usecases.GetRecommendationsByStock
 }
 
+// GetRecommendationsByStockHandler godoc
+// @Summary Obtener recomendaciones de un stock
+// @Description Obtener recomendaciones de un stock
+// @Tags recommendations
+// @Produce json
+// @Security BearerAuth
+// @Param authorization header string true "Esquema JWT. Usar:'Bearer {token}'"
+// @Param stockID path string true "ID del stock"
+// @Param search query string false "Búsqueda en las recomendaciones"
+// @Param groupby query string false "Agrupar por rating si se usa: 'rating'"
+// @Param page query int false "Número de página. Default: 1"
+// @Param size query int false "Tamaño de página. Default: 20"
+// @Success 200 {object} models.RecommendationViewPaginated
+// @Failure 401 {object} mappers.HttpErrResponse
+// @Failure 500 {object} mappers.HttpErrResponse
+// @Router /api/v1/recommendations/{stockID} [get]
 func (rc *RecommendationHandler) GetRecommendationsByStockHandler(c *gin.Context) {
 	stockID, ok := c.Params.Get("stockID")
 	if !ok {

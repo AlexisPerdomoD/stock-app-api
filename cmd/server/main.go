@@ -48,7 +48,7 @@ func main() {
 
 	mainDataSourceService := servicesimpl.NewMainSourceStockService(true)
 	cnnDataSourceService := servicesimpl.NewCnnStockSourceService()
-	const mainsourcekey, cnnsourcekey string = "main", "cnn"
+	const mainsourcekey, cnnsourcekey string = "principal", "cnn"
 	dataSources := map[string]services.DataSourceService{
 		mainsourcekey: mainDataSourceService,
 		cnnsourcekey:  cnnDataSourceService,
@@ -80,15 +80,9 @@ func main() {
 	removeUserStockUC := usecases.NewRemoveUserStock(userRepository)
 
 	// HANDLERS
-	stockHandler := handlers.NewStockHandler(getStocksUC, getStockUC)
+	stockHandler := handlers.NewStockHandler(getStocksUC, getStockUC, registerUserStockUC, removeUserStockUC)
 	recommendationHandler := handlers.NewRecommendationHandler(getRecommendationByStockUC)
-	userHandler := handlers.NewUserHandler(
-		getStocksUC,
-		registerUserUC,
-		loginUserUC,
-		registerUserStockUC,
-		removeUserStockUC,
-	)
+	userHandler := handlers.NewUserHandler(registerUserUC, loginUserUC)
 
 	// ROUTES
 	r := gin.Default()
@@ -104,13 +98,13 @@ func main() {
 
 	userGroup := r.Group("/api/v1/users")
 	userGroup.POST("", userHandler.RegisterUserHandler)
-	userGroup.GET("/stocks", middleware.UserSessionMiddleware, userHandler.GetStocksHandler)
-	userGroup.POST("/stocks/:stockID", middleware.UserSessionMiddleware, userHandler.RegisterStockHandler)
-	userGroup.DELETE("/stocks/:stockID", middleware.UserSessionMiddleware, userHandler.RemoveStockHandler)
 
 	stockGroup := r.Group("/api/v1/stocks")
 	stockGroup.Use(middleware.UserSessionMiddleware)
 	stockGroup.GET("", stockHandler.GetStocksHandler)
+	stockGroup.GET("/favorites", stockHandler.GetStocksByUserHandler)
+	stockGroup.POST("/favorites/:stockID", stockHandler.RegisterStockHandler)
+	stockGroup.DELETE("/favorites/:stockID", stockHandler.RemoveStockHandler)
 	stockGroup.GET("/:stockID", stockHandler.GetStockHandler)
 
 	recommendationGroup := r.Group("/api/v1/recommendations")

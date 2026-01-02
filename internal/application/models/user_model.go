@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
@@ -12,6 +13,10 @@ type UserLoginDTO struct {
 	Password string `json:"password" binding:"required" example:"123456789"`
 
 	passwordConsumed bool
+}
+
+func (dto *UserLoginDTO) GetSafeUsername() string {
+	return strings.TrimSpace(strings.ToLower(dto.Username))
 }
 
 // GetPasswordBytesAndClean returns the password bytes and clean the password field
@@ -27,6 +32,12 @@ func (dto *UserLoginDTO) GetPasswordBytesAndClean() ([]byte, error) {
 	return pwd, nil
 }
 
+type UserLoginView struct {
+	Message string    `json:"message" example:"user logged in properly"`
+	Session string    `json:"session" example:"token-session"`
+	User    *UserView `json:"user"`
+}
+
 type RegisterUserDTO struct {
 	Username  string `json:"email" binding:"email,required" example:"alexis@perdomo.com"`
 	Firstname string `json:"firstname" binding:"min=1" example:"Alexis"`
@@ -38,9 +49,9 @@ type RegisterUserDTO struct {
 
 func (dto *RegisterUserDTO) ToDomain() *domain.User {
 	return &domain.User{
-		Username:  dto.Username,
-		Firstname: dto.Firstname,
-		Lastname:  dto.Lastname,
+		Username:  strings.TrimSpace(strings.ToLower(dto.Username)),
+		Firstname: strings.TrimSpace(strings.ToLower(dto.Firstname)),
+		Lastname:  strings.TrimSpace(strings.ToLower(dto.Lastname)),
 		Active:    true,
 	}
 }
