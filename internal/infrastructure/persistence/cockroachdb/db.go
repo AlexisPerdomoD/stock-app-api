@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 )
 
 func NewDB() (*sqlx.DB, error) {
@@ -30,9 +31,6 @@ func NewDB() (*sqlx.DB, error) {
 	}
 
 	password := os.Getenv("CR_PASSWORD")
-	if password == "" {
-		return nil, fmt.Errorf("CR_PASSWORD is empty")
-	}
 
 	ssl := os.Getenv("CR_SSL")
 	if ssl == "" {

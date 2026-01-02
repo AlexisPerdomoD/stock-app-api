@@ -51,6 +51,7 @@ const GET_POPULATED_STOCK_QUERY = `
 		INNER JOIN companies 					AS c ON c.id = s.company_id
 		INNER JOIN LATERAL(
 			SELECT 
+				id,
 				price, 
 				tendency, 
 				created_at 
@@ -83,11 +84,12 @@ const GET_POPULATED_STOCK_BY_USER_QUERY = `
 		lsr.created_at							AS last_stock_created_at
 
 	FROM stocks AS s
-		INNER JOIN user_stocks 					AS us ON us.stock_id = s.id AND us.user_id = $1
+		INNER JOIN stock_users 					AS su ON su.stock_id = s.id AND su.user_id = $1
 		INNER JOIN markets 						AS m ON m.id = s.market_id
 		INNER JOIN companies 					AS c ON c.id = s.company_id
 		INNER JOIN LATERAL(
 			SELECT 
+				id,
 				price, 
 				tendency, 
 				created_at 
