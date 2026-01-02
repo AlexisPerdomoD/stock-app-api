@@ -1,4 +1,3 @@
-/* All rights and lefts reserved */
 package main
 
 import (
@@ -17,6 +16,10 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+
+	_ "github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/http/docs"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 /*
@@ -95,14 +98,15 @@ func main() {
 	corsConfig.AllowAllOrigins = true
 	r.Use(cors.New(corsConfig))
 
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	r.POST("/api/v1/login", userHandler.LoginUserHandler)
 
 	userGroup := r.Group("/api/v1/users")
-	userGroup.Use(middleware.UserSessionMiddleware)
 	userGroup.POST("", userHandler.RegisterUserHandler)
-	userGroup.GET("/stocks", userHandler.GetStocksHandler)
-	userGroup.POST("/stocks/:stockID", userHandler.RegisterStockHandler)
-	userGroup.DELETE("/stocks/:stockID", userHandler.RemoveStockHandler)
+	userGroup.GET("/stocks", middleware.UserSessionMiddleware, userHandler.GetStocksHandler)
+	userGroup.POST("/stocks/:stockID", middleware.UserSessionMiddleware, userHandler.RegisterStockHandler)
+	userGroup.DELETE("/stocks/:stockID", middleware.UserSessionMiddleware, userHandler.RemoveStockHandler)
 
 	stockGroup := r.Group("/api/v1/stocks")
 	stockGroup.Use(middleware.UserSessionMiddleware)

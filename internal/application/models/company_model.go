@@ -7,10 +7,10 @@ import (
 )
 
 type CompanyView struct {
-	ID        uint64    `json:"id,string"`
-	MarketID  uint64    `json:"market_id,string"`
-	Name      string    `json:"name"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        uint64    `json:"id,string" example:"1"`
+	MarketID  uint64    `json:"market_id,string" example:"1"`
+	Name      string    `json:"name" example:"Company 1"`
+	CreatedAt time.Time `json:"created_at" example:"2021-01-01T12:00:00Z"`
 }
 
 func NewCompanyView(c domain.Company) CompanyView {

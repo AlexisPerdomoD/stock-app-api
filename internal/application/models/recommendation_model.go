@@ -7,14 +7,14 @@ import (
 )
 
 type RecommendationView struct {
-	ID          uint64    `json:"id,string"`
-	StockID     uint64    `json:"stock_id,string"`
-	BrokerageID uint64    `json:"brokerage_id,string"`
-	RatingTo    string    `json:"rating_to"`
-	RatingFrom  string    `json:"rating_from"`
-	TargetTo    float64   `json:"target_to"`
-	TargetFrom  float64   `json:"target_from"`
-	CreatedAt   time.Time `json:"created_at"`
+	ID          uint64    `json:"id,string" example:"1"`
+	StockID     uint64    `json:"stock_id,string" example:"1"`
+	BrokerageID uint64    `json:"brokerage_id,string" example:"1"`
+	RatingTo    string    `json:"rating_to" example:"1"`
+	RatingFrom  string    `json:"rating_from" example:"1"`
+	TargetTo    float64   `json:"target_to" example:"1"`
+	TargetFrom  float64   `json:"target_from" example:"1"`
+	CreatedAt   time.Time `json:"created_at" example:"2021-01-01T12:00:00Z"`
 }
 
 func NewRecommendationView(r domain.Recommendation) RecommendationView {

@@ -3,9 +3,9 @@ package models
 import "github.com/alexisPerdomoD/stock-app-api/internal/domain"
 
 type BrokerageView struct {
-	ID        uint64 `json:"id,string"`
-	Name      string `json:"name"`
-	CreatedAt string `json:"created_at"`
+	ID        uint64 `json:"id,string" example:"1"`
+	Name      string `json:"name" example:"Brokerage 1"`
+	CreatedAt string `json:"created_at" example:"2021-01-01T12:00:00Z"`
 }
 
 func NewBrokerageView(b domain.Brokerage) BrokerageView {

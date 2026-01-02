@@ -8,8 +8,8 @@ import (
 )
 
 type UserLoginDTO struct {
-	Username string `json:"email" binding:"email,required"`
-	Password string `json:"password" binding:"required"`
+	Username string `json:"email" binding:"email,required" example:"alexis@perdomo.com"`
+	Password string `json:"password" binding:"required" example:"123456789"`
 
 	passwordConsumed bool
 }
@@ -28,10 +28,10 @@ func (dto *UserLoginDTO) GetPasswordBytesAndClean() ([]byte, error) {
 }
 
 type RegisterUserDTO struct {
-	Username  string `json:"email" binding:"email,required"`
-	Firstname string `json:"firstname" binding:"min=1"`
-	Lastname  string `json:"lastname" binding:"min=1"`
-	Password  string `json:"password" binding:"required,min=8,max=72"`
+	Username  string `json:"email" binding:"email,required" example:"alexis@perdomo.com"`
+	Firstname string `json:"firstname" binding:"min=1" example:"Alexis"`
+	Lastname  string `json:"lastname" binding:"min=1" example:"Perdomo"`
+	Password  string `json:"password" binding:"required,min=8,max=72" example:"123456789"`
 
 	passwordConsumed bool
 }
@@ -59,12 +59,12 @@ func (dto *RegisterUserDTO) GetPasswordBytesAndClean() ([]byte, error) {
 }
 
 type UserView struct {
-	ID        uint64    `json:"id,string"`
-	Username  string    `json:"username"`
-	Firstname string    `json:"firstname"`
-	Lastname  string    `json:"lastname"`
-	Active    bool      `json:"active"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        uint64    `json:"id,string" example:"1"`
+	Username  string    `json:"username" example:"alexis@perdomo.com"`
+	Firstname string    `json:"firstname" example:"Alexis"`
+	Lastname  string    `json:"lastname" example:"Perdomo"`
+	Active    bool      `json:"active" example:"true"`
+	CreatedAt time.Time `json:"created_at" example:"2021-01-01T12:00:00Z"`
 }
 
 func NewUserView(user *domain.User) *UserView {

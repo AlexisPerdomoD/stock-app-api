@@ -10,9 +10,9 @@ import (
 
 type HttpErrResponse struct {
 	StatusCode int               `json:"status_code"`
-	Name       string            `json:"name"`
-	Message    string            `json:"message"`
-	Issues     map[string]string `json:"issues,omitempty"`
+	Name       string            `json:"name" example:"nombre especifico del error"`
+	Message    string            `json:"message" example:"mensaje generico de error"`
+	Issues     map[string]string `json:"issues,omitempty" example:"{\"field1\": \"error1\", \"field2\": \"error2\"}"`
 }
 
 func MapHttpErr(err error) *HttpErrResponse {

@@ -1,0 +1,384 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/api/v1/login": {
+            "post": {
+                "description": "Autentica un usuario y retorna un JWT de sesión",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Login de usuario",
+                "parameters": [
+                    {
+                        "description": "Credenciales de usuario",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UserLoginDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/users": {
+            "post": {
+                "description": "Registra un usuario nuevo y retorna un JWT",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Registro de usuario",
+                "parameters": [
+                    {
+                        "description": "Datos de registro",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.RegisterUserDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/users/stocks": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retorna la lista de stocks asociados al usuario autenticado",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Obtener stocks del usuario",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Esquema JWT. Usar: \\",
+                        "name": "authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.StockView"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/users/stocks/{stockID}": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Asocia un stock existente al usuario autenticado",
+                "tags": [
+                    "users"
+                ],
+                "summary": "Registrar stock al usuario",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID del stock",
+                        "name": "stockID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Remueve un stock asociado al usuario autenticado",
+                "tags": [
+                    "users"
+                ],
+                "summary": "Eliminar stock del usuario",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID del stock",
+                        "name": "stockID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "mappers.HttpErrResponse": {
+            "type": "object",
+            "properties": {
+                "issues": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "example": {
+                        " \"field2\"": " \"error2\"}",
+                        "{\"field1\"": " \"error1\""
+                    }
+                },
+                "message": {
+                    "type": "string",
+                    "example": "mensaje generico de error"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "nombre especifico del error"
+                },
+                "status_code": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.RegisterUserDTO": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "alexis@perdomo.com"
+                },
+                "firstname": {
+                    "type": "string",
+                    "minLength": 1,
+                    "example": "Alexis"
+                },
+                "lastname": {
+                    "type": "string",
+                    "minLength": 1,
+                    "example": "Perdomo"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 72,
+                    "minLength": 8,
+                    "example": "123456789"
+                }
+            }
+        },
+        "models.StockView": {
+            "type": "object",
+            "properties": {
+                "company_id": {
+                    "type": "string",
+                    "example": "1"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "1"
+                },
+                "isin": {
+                    "type": "string",
+                    "example": "US0378331005"
+                },
+                "market_id": {
+                    "type": "string",
+                    "example": "1"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "apple inc"
+                },
+                "registered": {
+                    "type": "string",
+                    "example": "2021-01-01T12:00:00Z"
+                },
+                "ticker": {
+                    "type": "string",
+                    "example": "AAPL"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2021-01-01T12:00:00Z"
+                }
+            }
+        },
+        "models.UserLoginDTO": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "alexis@perdomo.com"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "123456789"
+                }
+            }
+        }
+    }
+}
