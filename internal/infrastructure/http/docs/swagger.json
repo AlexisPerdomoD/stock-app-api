@@ -474,6 +474,221 @@
                 }
             }
         },
+        "/api/v1/stocks/{stockID}/registers": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns stock register history for a given stock order by date DESC.\nIf `from` and `to` are not provided, defaults to last 30 days.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stock-registers"
+                ],
+                "summary": "Get stock registers by date range",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Esquema JWT. Usar:'Bearer {token}'",
+                        "name": "authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Stock ID",
+                        "name": "stockID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "2025-01-01T00:00:00Z",
+                        "description": "From date (RFC3339)",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "example": "2025-02-01T00:00:00Z",
+                        "description": "To date (RFC3339)",
+                        "name": "to",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.StockRegisterView"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/stocks/{stockID}/registers/last": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns the last N stock registers for a given stock ordered by date DESC.\nIf `limit` is not provided, defaults to 100.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stock-registers"
+                ],
+                "summary": "Get last stock registers ordered by date DESC",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Esquema JWT. Usar:'Bearer {token}'",
+                        "name": "authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Stock ID",
+                        "name": "stockID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "maximum": 65535,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 100,
+                        "description": "Max number of registers to return",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.StockRegisterView"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/stocks/{stockID}/registers/tendency": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns the stock tendency stat for a given stock.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stock-registers"
+                ],
+                "summary": "Get stock tendency stat by stock",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Esquema JWT. Usar:'Bearer {token}'",
+                        "name": "authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Stock ID",
+                        "name": "stockID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StockTendencyStatView"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/mappers.HttpErrResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/users": {
             "post": {
                 "description": "Registra un usuario nuevo y retorna un JWT",
@@ -773,6 +988,39 @@
                 "tendency": {
                     "type": "string",
                     "example": "up"
+                }
+            }
+        },
+        "models.StockTendencyStatView": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2021-01-01T12:00:00Z"
+                },
+                "down_count": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "id": {
+                    "type": "string",
+                    "example": "1"
+                },
+                "side_count": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "stock_id": {
+                    "type": "string",
+                    "example": "1"
+                },
+                "up_count": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2021-01-01T12:00:00Z"
                 }
             }
         },

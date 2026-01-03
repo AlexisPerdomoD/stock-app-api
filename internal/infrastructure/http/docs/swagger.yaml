@@ -176,6 +176,30 @@ definitions:
         example: up
         type: string
     type: object
+  models.StockTendencyStatView:
+    properties:
+      created_at:
+        example: "2021-01-01T12:00:00Z"
+        type: string
+      down_count:
+        example: 1
+        type: integer
+      id:
+        example: "1"
+        type: string
+      side_count:
+        example: 1
+        type: integer
+      stock_id:
+        example: "1"
+        type: string
+      up_count:
+        example: 1
+        type: integer
+      updated_at:
+        example: "2021-01-01T12:00:00Z"
+        type: string
+    type: object
   models.StockView:
     properties:
       company_id:
@@ -518,6 +542,151 @@ paths:
       summary: Registrar stock al usuario
       tags:
       - stocks
+  /api/v1/stocks/{stockID}/registers:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Returns stock register history for a given stock order by date DESC.
+        If `from` and `to` are not provided, defaults to last 30 days.
+      parameters:
+      - description: Esquema JWT. Usar:'Bearer {token}'
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: Stock ID
+        in: path
+        name: stockID
+        required: true
+        type: integer
+      - description: From date (RFC3339)
+        example: "2025-01-01T00:00:00Z"
+        in: query
+        name: from
+        type: string
+      - description: To date (RFC3339)
+        example: "2025-02-01T00:00:00Z"
+        in: query
+        name: to
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.StockRegisterView'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/mappers.HttpErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/mappers.HttpErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/mappers.HttpErrResponse'
+      security:
+      - BearerAuth: []
+      summary: Get stock registers by date range
+      tags:
+      - stock-registers
+  /api/v1/stocks/{stockID}/registers/last:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Returns the last N stock registers for a given stock ordered by date DESC.
+        If `limit` is not provided, defaults to 100.
+      parameters:
+      - description: Esquema JWT. Usar:'Bearer {token}'
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: Stock ID
+        in: path
+        name: stockID
+        required: true
+        type: integer
+      - default: 100
+        description: Max number of registers to return
+        in: query
+        maximum: 65535
+        minimum: 1
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.StockRegisterView'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/mappers.HttpErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/mappers.HttpErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/mappers.HttpErrResponse'
+      security:
+      - BearerAuth: []
+      summary: Get last stock registers ordered by date DESC
+      tags:
+      - stock-registers
+  /api/v1/stocks/{stockID}/registers/tendency:
+    get:
+      consumes:
+      - application/json
+      description: Returns the stock tendency stat for a given stock.
+      parameters:
+      - description: Esquema JWT. Usar:'Bearer {token}'
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: Stock ID
+        in: path
+        name: stockID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StockTendencyStatView'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/mappers.HttpErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/mappers.HttpErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/mappers.HttpErrResponse'
+      security:
+      - BearerAuth: []
+      summary: Get stock tendency stat by stock
+      tags:
+      - stock-registers
   /api/v1/stocks/favorites:
     get:
       description: Retorna la lista de stocks asociados al usuario autenticado
