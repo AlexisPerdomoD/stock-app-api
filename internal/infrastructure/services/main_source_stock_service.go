@@ -64,6 +64,7 @@ func (s *MainSourceStockService) doRequest(
 	if err != nil {
 		return nil, err
 	}
+	defer func() { _ = res.Body.Close() }()
 
 	if err = json.NewDecoder(res.Body).Decode(payload); err != nil {
 		return nil, err
@@ -73,12 +74,6 @@ func (s *MainSourceStockService) doRequest(
 		log.Printf("[main source stock] unexpected response body: %+v", payload)
 		return nil, pkg.InternalServerError(fmt.Sprintf("unexpected status code %d", res.StatusCode))
 	}
-
-	defer func() {
-		if err := res.Body.Close(); err != nil {
-			log.Printf("[main source stock] failed to close response body: %v", err)
-		}
-	}()
 	return payload, nil
 }
 
@@ -120,7 +115,7 @@ func (s *MainSourceStockService) Get(
 	response := []services.DataSourceResponse{}
 	nextPage := ""
 
-	if doUntil != nil && doUntil.After(time.Now()) {
+	if doUntil != nil && doUntil.After(time.Now().UTC()) {
 		yesterday := time.Now().AddDate(0, 0, -1)
 		doUntil = &yesterday
 	}
@@ -133,14 +128,17 @@ func (s *MainSourceStockService) Get(
 		if s.verbose {
 			log.Printf("[main source stock]: start getting stocks from main source stock from page %s", nextPage)
 		}
+
 		payload, err := s.doRequest(ctx, nextPage)
 		if err != nil {
 			return nil, err
 		}
 
-		mkt := services.MarketData{Name: "main source stock"}
+		mkt := services.MarketData{Name: "main source"}
 
 		for i, item := range payload.Items {
+			// ensure using utc on everycase
+			item.Time = item.Time.UTC()
 
 			/* Stop if the date is before the limit date */
 			if doUntil != nil && item.Time.Before(*doUntil) {
@@ -154,7 +152,8 @@ func (s *MainSourceStockService) Get(
 
 			brokerageName := strings.ToLower(strings.TrimSpace(item.Brokerage))
 			if brokerageName == "" {
-				return nil, pkg.InternalServerError(fmt.Sprintf("brokerage is empty in payload at index %d", i))
+				brokerageName = "anonymous"
+				// return nil, pkg.InternalServerError(fmt.Sprintf("brokerage is empty in payload at index %d", i))
 			}
 
 			ticker := strings.ToLower(strings.TrimSpace(item.Ticker))
@@ -228,7 +227,7 @@ func (s *MainSourceStockService) Get(
 	return response, nil
 }
 
-func NewMainSourceStockService(verbose bool) *MainSourceStockService {
+func NewMainSourceStockService(cl *http.Client, verbose bool) *MainSourceStockService {
 	uri := os.Getenv("MAIN_SOURCE_STOCK_URI")
 	key := os.Getenv("MAIN_SOURCE_STOCK_KEY")
 
@@ -237,9 +236,10 @@ func NewMainSourceStockService(verbose bool) *MainSourceStockService {
 	}
 
 	name := "main source stock"
-
-	cl := &http.Client{
-		Timeout: time.Second * 10,
+	if cl == nil {
+		cl = &http.Client{
+			Timeout: time.Second * 10,
+		}
 	}
 
 	return &MainSourceStockService{name, cl, uri, key, verbose}

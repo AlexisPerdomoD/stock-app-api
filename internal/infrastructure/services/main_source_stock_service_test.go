@@ -60,15 +60,17 @@ func TestMainSourceStockService_Get(t *testing.T) {
 
 	serverHappyPath := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(mockResponse)
+		if err := json.NewEncoder(w).Encode(mockResponse); err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
 	}))
 	defer serverHappyPath.Close()
 
 	// Set env vars
-	os.Setenv("MAIN_SOURCE_STOCK_URI", serverHappyPath.URL)
-	os.Setenv("MAIN_SOURCE_STOCK_KEY", "test-key")
+	_ = os.Setenv("MAIN_SOURCE_STOCK_URI", serverHappyPath.URL)
+	_ = os.Setenv("MAIN_SOURCE_STOCK_KEY", "test-key")
 
-	svc := services.NewMainSourceStockService(false)
+	svc := services.NewMainSourceStockService(http.DefaultClient, false)
 
 	data, err := svc.Get(context.Background(), &twoDaysAgo)
 	assert.NoError(t, err)
@@ -100,13 +102,13 @@ func TestMainSourceStockService_Get(t *testing.T) {
 
 	serverErr := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(""))
+		_, _ = w.Write([]byte(""))
 	}))
 	defer serverErr.Close()
 
-	os.Setenv("MAIN_SOURCE_STOCK_URI", serverErr.URL)
-	os.Setenv("MAIN_SOURCE_STOCK_KEY", "test-key")
-	svc = services.NewMainSourceStockService(false)
+	_ = os.Setenv("MAIN_SOURCE_STOCK_URI", serverErr.URL)
+	_ = os.Setenv("MAIN_SOURCE_STOCK_KEY", "test-key")
+	svc = services.NewMainSourceStockService(http.DefaultClient, false)
 	data, err = svc.Get(context.Background(), &twoDaysAgo)
 	assert.Nil(t, data)
 	assert.Error(t, err)

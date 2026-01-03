@@ -26,11 +26,8 @@ import (
 	    "prev_close_price": 4472.79,
 	    "price_change_from_prev_close": 10.329999999999927,
 	    "percent_change_from_prev_close": 0.002309520455912289,
-
-"prev_close_date": "2025-04-25",
-
-a	    "sort_order_index": 0,
-
+		"prev_close_date": "2025-04-25",
+	    "sort_order_index": 0,
 	    "last_updated": "2025-04 -28T19:44:00.049000+00:00",
 	    "event_timestamp": "2025-04-28T19:44:00.049000+00:00",
 	    "pretty_symbol": "NCI.IDX"
@@ -82,10 +79,10 @@ a	    "sort_order_index": 0,
 	    "current_price": 2.29442,
 	    "prev_close_price": 2.25686,
 	    "price_change_from_prev_close": 0.03756000000000004,
-	"percent_change_from_prev_close": 0.016642591919746923,
+		"percent_change_from_prev_close": 0.016642591919746923,
 	    "prev_close_date": "2025-04-27",
 	    "sort_order_index": 4,
-	"last_updated": "2025-04-28T19:43:56.758000+00:00",
+		"last_updated": "2025-04-28T19:43:56.758000+00:00",
 	    "event_timestamp": "2025-04-28T19:43:56.758000+00:00",
 	    "pretty_symbol": "XRPUSD"
 	}
@@ -101,8 +98,7 @@ type CnnStockSourceItem struct {
 }
 
 type CnnStockSourceService struct {
-	url string
-	cl  *http.Client
+	cl *http.Client
 }
 
 func (s *CnnStockSourceService) Name() string {
@@ -111,8 +107,8 @@ func (s *CnnStockSourceService) Name() string {
 
 func (s *CnnStockSourceService) Get(ctx context.Context, limitDate *time.Time) ([]services.DataSourceResponse, error) {
 	payload := []CnnStockSourceItem{}
-
-	req, err := http.NewRequestWithContext(ctx, "GET", s.url, nil)
+	URL := "https://production.dataviz.cnn.io/markets/crypto/summary"
+	req, err := http.NewRequestWithContext(ctx, "GET", URL, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -176,21 +172,25 @@ func (s *CnnStockSourceService) Get(ctx context.Context, limitDate *time.Time) (
 		if a.Time.After(b.Time) {
 			return 1
 		}
+
 		if a.Time.Before(b.Time) {
 			return -1
 		}
+
 		return 0
 	})
+
 	log.Printf("[CnnStockSourceService]: sourced %d stocks", len(data))
 
 	return data, nil
 }
 
-func NewCnnStockSourceService() *CnnStockSourceService {
-	url := "https://production.dataviz.cnn.io/markets/crypto/summary"
-	cl := &http.Client{
-		Timeout: time.Second * 10,
+func NewCnnStockSourceService(cl *http.Client) *CnnStockSourceService {
+	if cl == nil {
+		cl = &http.Client{
+			Timeout: time.Second * 10,
+		}
 	}
 
-	return &CnnStockSourceService{url, cl}
+	return &CnnStockSourceService{cl}
 }
