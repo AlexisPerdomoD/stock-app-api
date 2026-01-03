@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"log/slog"
 	"time"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/application/services"
@@ -15,6 +16,7 @@ import (
 type RegisterStocks struct {
 	unitOfWorkFactory  services.UnitOfWorkFactory
 	dataSourceProvider map[string]services.DataSourceService
+	loger              *slog.Logger
 }
 
 // Execute runs the stock registration use case.
@@ -132,8 +134,11 @@ func (uc *RegisterStocks) GetMarkets(
 	}
 
 	if err = r.SaveAll(ctx, newMarkets); err != nil {
+		uc.loger.WarnContext(ctx, "error happen while saving records for new markets", "err", err)
 		return nil, err
 	}
+
+	uc.loger.InfoContext(ctx, "new markets saved", "count", len(newMarkets))
 
 	for i := range newMarkets {
 		m := newMarkets[i]
@@ -153,6 +158,7 @@ func (uc *RegisterStocks) GetCompanies(
 	for _, d := range data {
 		market, ok := markets[d.Market.Name]
 		if !ok || market == nil {
+			uc.loger.WarnContext(ctx, "market was nil when getting companies, invalid data state", "market", d.Market.Name)
 			return nil, pkg.InternalServerError("market was nil when getting companies, invalid data state")
 		}
 
@@ -180,8 +186,11 @@ func (uc *RegisterStocks) GetCompanies(
 	}
 
 	if err = r.SaveAll(ctx, newCompanies); err != nil {
+		uc.loger.WarnContext(ctx, "error happen while saving records for new companies", "err", err)
 		return nil, err
 	}
+
+	uc.loger.InfoContext(ctx, "new companies saved", "count", len(newCompanies))
 
 	for i := range newCompanies {
 		c := newCompanies[i]
@@ -208,16 +217,18 @@ func (uc *RegisterStocks) GetStocks(
 	for _, d := range data {
 		market, ok := markets[d.Market.Name]
 		if !ok || market == nil {
+			uc.loger.WarnContext(ctx, "market was nil when getting stocks, invalid data state", "market", d.Market.Name)
 			return nil, pkg.InternalServerError("market was nil when getting stocks, invalid data state")
 		}
 
 		company, ok := companies[domain.MarketCompanySearchParam{MarketID: market.ID, Name: d.Company.Name}]
 		if !ok || company == nil {
+			uc.loger.WarnContext(ctx, "company was nil when getting stocks, invalid data state", "company", d.Company.Name)
 			return nil, pkg.InternalServerError("company was nil when getting stocks, invalid data state")
 		}
 
 		if company.MarketID != market.ID {
-			log.Printf("[register stocks] illegal state: company market does not match stock market, company: %+v, market: %+v", company, market)
+			uc.loger.WarnContext(ctx, "illegal state: company market does not match stock market", "company", d.Company, "market", d.Market)
 			return nil, pkg.InternalServerError("illegal state: company market does not match stock market")
 		}
 
@@ -268,8 +279,11 @@ func (uc *RegisterStocks) GetStocks(
 	}
 
 	if err = r.SaveAll(ctx, newStocks); err != nil {
+		uc.loger.WarnContext(ctx, "error happen while saving records for new stocks", "err", err)
 		return nil, err
 	}
+
+	uc.loger.InfoContext(ctx, "new stocks saved", "count", len(newStocks))
 
 	for i := range newStocks {
 		s := newStocks[i]
@@ -324,8 +338,11 @@ func (uc *RegisterStocks) GetBrokerages(
 	}
 
 	if err = r.SaveAll(ctx, newBrokerages); err != nil {
+		uc.loger.WarnContext(ctx, "error happen while saving records for new brokerages", "err", err)
 		return nil, err
 	}
+
+	uc.loger.InfoContext(ctx, "new brokerages saved", "count", len(newBrokerages))
 
 	for _, brokerage := range newBrokerages {
 		brokerageMap[brokerage.Name] = brokerage
@@ -353,6 +370,7 @@ func (uc *RegisterStocks) SetStockRegisters(
 	for _, d := range data {
 		market, ok := markets[d.Market.Name]
 		if !ok || market == nil {
+			uc.loger.WarnContext(ctx, "market was not properly mapped for stock register setting", "market", d.Market.Name)
 			return nil, pkg.InternalServerError("market was not properly mapped for stock register setting")
 		}
 
@@ -362,6 +380,7 @@ func (uc *RegisterStocks) SetStockRegisters(
 		}
 		company, ok := companies[companyKey]
 		if !ok || company == nil {
+			uc.loger.WarnContext(ctx, "company was not properly mapped for stock register setting", "company", d.Company.Name)
 			return nil, pkg.InternalServerError("company was not properly mapped for stock register setting")
 		}
 
@@ -372,14 +391,16 @@ func (uc *RegisterStocks) SetStockRegisters(
 		}
 		stock, ok := stocks[stockKey]
 		if !ok || stock == nil {
+			uc.loger.WarnContext(ctx, "stock was not properly mapped for stock register setting", "stock", d.Stock, "key", stockKey)
 			return nil, pkg.InternalServerError(fmt.Sprintf("stock was not properly mapped for stock register setting, stocks: %+v key %+v", stocks, stockKey))
 		}
 
+		createdAt := d.Time.UTC()
 		register := &domain.StockRegister{
 			StockID:   stock.ID,
 			Price:     d.Stock.Price,
 			Tendency:  d.Stock.Tendency,
-			CreatedAt: d.Time.UTC(),
+			CreatedAt: createdAt,
 		}
 
 		newRegisters = append(newRegisters, register)
@@ -390,6 +411,7 @@ func (uc *RegisterStocks) SetStockRegisters(
 
 		brokerage, ok := brokerages[d.Recomendation.Brokerage.Name]
 		if !ok || brokerage == nil {
+			uc.loger.WarnContext(ctx, "brokerage was not properly mapped for stock recommendations setting", "brokerage", d.Recomendation.Brokerage.Name)
 			return nil, pkg.InternalServerError("brokerage was not properly mapped for stock recommendations setting")
 		}
 
@@ -400,7 +422,7 @@ func (uc *RegisterStocks) SetStockRegisters(
 			TargetFrom:      d.Recomendation.TargetFrom,
 			RatingTo:        d.Recomendation.RatingTo,
 			RatingFrom:      d.Recomendation.RatingFrom,
-			CreatedAt:       d.Time.UTC(),
+			CreatedAt:       createdAt,
 		}
 
 		newRecommendationArgs = append(newRecommendationArgs,
@@ -411,21 +433,35 @@ func (uc *RegisterStocks) SetStockRegisters(
 	}
 
 	if err := registerRepository.SaveAll(ctx, newRegisters); err != nil {
+		uc.loger.WarnContext(ctx, "error happen while saving records for new stock registers", "err", err)
 		return nil, err
 	}
 
+	uc.loger.InfoContext(ctx, "new stock registers saved", "count", len(newRegisters))
+
 	if len(newRecommendationArgs) > 0 {
-		newRecommendations := collection.Map(newRecommendationArgs, func(arg struct {
-			recommendation *domain.Recommendation
-			stockRegister  *domain.StockRegister
-		}) *domain.Recommendation {
+		newRecommendations := make([]*domain.Recommendation, 0, len(newRecommendationArgs))
+
+		for i, arg := range newRecommendationArgs {
+			if arg.stockRegister.ID == 0 {
+				uc.loger.WarnContext(ctx, "invalid mapping for stock recommendation, stock register id is 0",
+					"stock register", arg.stockRegister,
+					"recommendation", arg.recommendation,
+					"index", i,
+				)
+				return nil, pkg.InvalidStateErr("invalid mapping for stock recommendation, stock register id is 0")
+			}
+
 			arg.recommendation.StockRegisterID = arg.stockRegister.ID
-			return arg.recommendation
-		})
+			newRecommendations = append(newRecommendations, arg.recommendation)
+		}
 
 		if err := recommendationRepository.SaveAll(ctx, newRecommendations); err != nil {
+			uc.loger.WarnContext(ctx, "error happen while saving records for new stock recommendations", "err", err)
 			return nil, err
 		}
+
+		uc.loger.InfoContext(ctx, "new stock recommendations saved", "count", len(newRecommendations))
 	}
 
 	return newRegisters, nil
@@ -458,13 +494,12 @@ func (uc *RegisterStocks) IncrementTendencyStats(
 	return r.IncrementAll(ctx, deltas)
 }
 
-func NewRegisterStocks(uow services.UnitOfWorkFactory, ds map[string]services.DataSourceService) *RegisterStocks {
-
+func NewRegisterStocks(uow services.UnitOfWorkFactory, ds map[string]services.DataSourceService, logger *slog.Logger) *RegisterStocks {
 	if uow == nil || ds == nil {
 		panic(fmt.Sprintf(
 			"nil arguments for NewRegisterStocks, unitOfWorkFactory: %+v, dataSources: %+v", uow, ds),
 		)
 	}
 
-	return &RegisterStocks{uow, ds}
+	return &RegisterStocks{uow, ds, logger}
 }

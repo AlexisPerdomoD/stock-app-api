@@ -2,6 +2,7 @@ package usecases_test
 
 import (
 	"context"
+	"log/slog"
 	"testing"
 	"time"
 
@@ -36,7 +37,7 @@ func TestRegisterStocks_Execute_OK(t *testing.T) {
 	uow.MarketRepo = &FakeMarketRepository{
 		GetByNamesFn: func(ctx context.Context, names []string) (map[string]*domain.Market, error) {
 			return map[string]*domain.Market{
-				"NASDAQ": &domain.Market{Name: "NASDAQ", ID: 1},
+				"NASDAQ": {Name: "NASDAQ", ID: 1},
 			}, nil
 		},
 	}
@@ -58,7 +59,7 @@ func TestRegisterStocks_Execute_OK(t *testing.T) {
 			params []domain.StockCompanySearchParam,
 		) (map[domain.StockCompanySearchParam]*domain.Stock, error) {
 			return map[domain.StockCompanySearchParam]*domain.Stock{
-				{StockTicker: "AAPL", CompanyID: 1, MarketID: 1}: &domain.Stock{Ticker: "AAPL", CompanyID: 1, MarketID: 1, ID: 1},
+				{StockTicker: "AAPL", CompanyID: 1, MarketID: 1}: {Ticker: "AAPL", CompanyID: 1, MarketID: 1, ID: 1},
 			}, nil
 		},
 	}
@@ -92,7 +93,7 @@ func TestRegisterStocks_Execute_OK(t *testing.T) {
 		},
 	}
 
-	uc := usecases.NewRegisterStocks(uowFactory, ds)
+	uc := usecases.NewRegisterStocks(uowFactory, ds, slog.Default())
 
 	count, err := uc.Execute(ctx, "test", nil)
 	if err != nil {
