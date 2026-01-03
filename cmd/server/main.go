@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log/slog"
+	"net/http"
 	"os"
 	"time"
 
@@ -40,14 +41,15 @@ func main() {
 	if err != nil {
 		panic(fmt.Sprintf("Error creating db due to %v", err))
 	}
-
 	// SERVICES
+	httpServiceClient := http.Client{Timeout: time.Second * 10}
+
 	mainSlogger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 		Level: slog.LevelDebug,
 	}))
 
-	mainDataSourceService := servicesimpl.NewMainSourceStockService(true)
-	cnnDataSourceService := servicesimpl.NewCnnStockSourceService()
+	mainDataSourceService := servicesimpl.NewMainSourceStockService(&httpServiceClient, true)
+	cnnDataSourceService := servicesimpl.NewCnnStockSourceService(&httpServiceClient)
 	const mainsourcekey, cnnsourcekey string = "principal", "cnn"
 	dataSources := map[string]services.DataSourceService{
 		mainsourcekey: mainDataSourceService,
@@ -62,7 +64,7 @@ func main() {
 	stockRepository := cockroachdb.NewStockRepository(db)
 	stockRegisterRepository := cockroachdb.NewStockRegisterRepository(db)
 	recommendationRepository := cockroachdb.NewRecommendationRepository(db)
-	unitOfWorkFactory := cockroachdb.NewSqlxUnitOfWorkFactory(db)
+	unitOfWorkFactory := cockroachdb.NewUnitOfWorkFactory(db, mainSlogger.With("cockroachdb", "UnitOfWorkFactory"))
 	// USE CASES
 	getStocksUC := usecases.NewGetStocks(stockRepository)
 	getStockUC := usecases.NewGetStock(
@@ -72,7 +74,7 @@ func main() {
 		stockRepository,
 		stockRegisterRepository,
 	)
-	registerStocksUC := usecases.NewRegisterStocks(unitOfWorkFactory, dataSources)
+	registerStocksUC := usecases.NewRegisterStocks(unitOfWorkFactory, dataSources, mainSlogger.With("usecase", "RegisterStocks"))
 	getRecommendationByStockUC := usecases.NewGetRecommendations(recommendationRepository)
 	loginUserUC := usecases.NewLogin(userRepository, mainSlogger)
 	registerUserUC := usecases.NewRegisterUser(userRepository, mainSlogger)
@@ -113,7 +115,7 @@ func main() {
 
 	// SCHEDULER
 	scheduler := scheduler.New()
-	interval := time.Minute * 10
+	interval := time.Minute * 15
 	timeout := time.Minute * 3
 	scheduler.AddStockSourceService(
 		mainsourcekey,

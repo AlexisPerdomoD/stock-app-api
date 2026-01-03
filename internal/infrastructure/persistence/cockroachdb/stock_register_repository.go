@@ -86,6 +86,29 @@ func (r *StockRegisterRepository) GetLastByStockID(ctx context.Context, stockID 
 	return record.ToDomain(), nil
 }
 
+func (r *StockRegisterRepository) GetLastsByStockID(ctx context.Context, stockID uint64, limit uint16) ([]domain.StockRegister, error) {
+	results := make([]domain.StockRegister, 0, limit)
+
+	q := GET_STOCK_REGISTER_QUERY + " WHERE stock_id=$1 ORDER BY created_at DESC LIMIT $2"
+
+	rows, err := r.db.QueryxContext(ctx, q, stockID, limit)
+	if err != nil {
+		return nil, err
+	}
+	func() { _ = rows.Close() }()
+
+	for rows.Next() {
+		record := &stockRegisterRecord{}
+		if err := rows.StructScan(record); err != nil {
+			return nil, err
+		}
+
+		results = append(results, *record.ToDomain())
+	}
+
+	return results, nil
+}
+
 func (r *StockRegisterRepository) GetRangeByStockID(ctx context.Context, stockID uint64, from, to time.Time) ([]domain.StockRegister, error) {
 	results := make([]domain.StockRegister, 0)
 	if from.After(to) {

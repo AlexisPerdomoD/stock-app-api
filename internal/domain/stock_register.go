@@ -47,6 +47,11 @@ type StockRegisterRepository interface {
 	GetLastByStockID(ctx context.Context, stockID uint64) (*StockRegister, error)
 
 	/*
+	   returns lasts stock register by its stock id sorted by date desc and limited by limit count
+	*/
+	GetLastsByStockID(ctx context.Context, stockID uint64, limit uint16) ([]StockRegister, error)
+
+	/*
 	   returns stock registers within a date range ordered by date desc
 	*/
 	GetRangeByStockID(ctx context.Context, stockID uint64, from, to time.Time) ([]StockRegister, error)
