@@ -95,7 +95,7 @@ func (r *StockRegisterRepository) GetLastsByStockID(ctx context.Context, stockID
 	if err != nil {
 		return nil, err
 	}
-	func() { _ = rows.Close() }()
+	defer func() { _ = rows.Close() }()
 
 	for rows.Next() {
 		record := &stockRegisterRecord{}
@@ -106,7 +106,7 @@ func (r *StockRegisterRepository) GetLastsByStockID(ctx context.Context, stockID
 		results = append(results, *record.ToDomain())
 	}
 
-	return results, nil
+	return results, rows.Err()
 }
 
 func (r *StockRegisterRepository) GetRangeByStockID(ctx context.Context, stockID uint64, from, to time.Time) ([]domain.StockRegister, error) {
