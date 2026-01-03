@@ -3,6 +3,7 @@ package cockroachdb
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
@@ -160,6 +161,7 @@ func (r *StockRegisterRepository) SaveAll(ctx context.Context, stockRegisters []
 	}
 	defer func() { _ = rows.Close() }()
 
+	insertedCount := 0
 	for rows.Next() {
 		record := &stockRegisterRecord{}
 		if err := rows.StructScan(record); err != nil {
@@ -167,6 +169,11 @@ func (r *StockRegisterRepository) SaveAll(ctx context.Context, stockRegisters []
 		}
 
 		record.MapDomain(stockRegisters[record.BatchIndex])
+		insertedCount++
+	}
+
+	if insertedCount != len(stockRegisters) {
+		return pkg.InvalidStateErr(fmt.Sprintf("inserted count %d != len(stockRegisters) %d", insertedCount, len(stockRegisters)))
 	}
 
 	return rows.Err()

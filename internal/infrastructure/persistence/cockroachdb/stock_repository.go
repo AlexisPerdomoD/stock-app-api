@@ -478,6 +478,7 @@ func (r *StockRepository) SaveAll(ctx context.Context, stocks []*domain.Stock) e
 	}
 	defer func() { _ = rows.Close() }()
 
+	insertedCount := 0
 	for rows.Next() {
 		record := &stockRecord{}
 		if err := rows.StructScan(record); err != nil {
@@ -485,6 +486,11 @@ func (r *StockRepository) SaveAll(ctx context.Context, stocks []*domain.Stock) e
 		}
 
 		record.MapDomain(stocks[record.BatchIndex])
+		insertedCount++
+	}
+
+	if insertedCount != len(stocks) {
+		return pkg.InvalidStateErr(fmt.Sprintf("inserted count %d != len(stocks) %d", insertedCount, len(stocks)))
 	}
 
 	return rows.Err()

@@ -185,12 +185,12 @@ func (r stockRegisterRecord) ToDomain() *domain.StockRegister {
 	}
 }
 
-func (r *stockRegisterRecord) MapDomain(stockRegister *domain.StockRegister) {
-	r.ID = stockRegister.ID
-	r.StockID = stockRegister.StockID
-	r.Price = stockRegister.Price
-	r.Tendency = stockRegister.Tendency
-	r.CreatedAt = stockRegister.CreatedAt
+func (r *stockRegisterRecord) MapDomain(dom *domain.StockRegister) {
+	dom.ID = r.ID
+	dom.StockID = r.StockID
+	dom.Price = r.Price
+	dom.Tendency = r.Tendency
+	dom.CreatedAt = r.CreatedAt
 }
 
 type stockRecommendationRecord struct {

@@ -3,11 +3,13 @@ package cockroachdb
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"github.com/alexisPerdomoD/stock-app-api/pkg"
 	"github.com/jmoiron/sqlx"
+	pq "github.com/lib/pq"
 )
 
 const GET_BROKERAGE_QUERY = `SELECT id, name, created_at FROM brokerages`
@@ -55,7 +57,7 @@ func (r *BrokerageRepository) GetByNames(ctx context.Context, names []string) (m
 	}
 
 	q := GET_BROKERAGE_QUERY + " WHERE name=ANY($1) ORDER BY name"
-	rows, err := r.db.QueryxContext(ctx, q, names)
+	rows, err := r.db.QueryxContext(ctx, q, pq.Array(names))
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +112,7 @@ func (r *BrokerageRepository) SaveAll(ctx context.Context, brokerages []*domain.
 		return err
 	}
 	defer func() { _ = rows.Close() }()
-
+	insertedCount := 0
 	for rows.Next() {
 		record := &brokerageRecord{}
 		if err := rows.StructScan(record); err != nil {
@@ -118,6 +120,11 @@ func (r *BrokerageRepository) SaveAll(ctx context.Context, brokerages []*domain.
 		}
 
 		record.MapDomain(brokerages[record.BatchIndex])
+		insertedCount++
+	}
+
+	if insertedCount != len(brokerages) {
+		return pkg.InvalidStateErr(fmt.Sprintf("inserted count %d != len(brokerages) %d", insertedCount, len(brokerages)))
 	}
 
 	return rows.Err()

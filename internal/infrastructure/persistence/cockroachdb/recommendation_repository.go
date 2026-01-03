@@ -238,6 +238,7 @@ func (r *RecommendationRepository) SaveAll(
 	}
 	defer func() { _ = rows.Close() }()
 
+	insertedCount := 0
 	for rows.Next() {
 		record := &stockRecommendationRecord{}
 		if err := rows.StructScan(record); err != nil {
@@ -245,6 +246,11 @@ func (r *RecommendationRepository) SaveAll(
 		}
 
 		record.MapDomain(recommendations[record.BatchIndex])
+		insertedCount++
+	}
+
+	if insertedCount != len(recommendations) {
+		return pkg.InvalidStateErr(fmt.Sprintf("inserted count %d != len(recommendations) %d", insertedCount, len(recommendations)))
 	}
 
 	return rows.Err()

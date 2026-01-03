@@ -2,7 +2,7 @@ package cockroachdb
 
 import (
 	"context"
-	"log"
+	"log/slog"
 
 	appservices "github.com/alexisPerdomoD/stock-app-api/internal/application/services"
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
@@ -50,26 +50,32 @@ func newSqlxUnitOfWork(db *sqlx.Tx) *UnitOfWork {
 }
 
 type UnitOfWorkFactory struct {
-	db *sqlx.DB
+	db     *sqlx.DB
+	logger *slog.Logger
 }
 
 func (f *UnitOfWorkFactory) Do(ctx context.Context, cb func(txCtx context.Context, uow appservices.UnitOfWork) error) error {
 
 	tx, err := f.db.BeginTxx(ctx, nil)
 	if err != nil {
+		f.logger.WarnContext(ctx, "failed to start transaction", "err", err)
 		return err
 	}
-
 	defer func() {
-		if err = tx.Rollback(); err != nil {
-			log.Printf("[sqlx unit of work] failed to rollback transaction: %v", err)
+		if err == nil {
+			return
+		}
+
+		if rollbackerr := tx.Rollback(); rollbackerr != nil {
+			f.logger.WarnContext(ctx, "failed to rollback transaction", "err", rollbackerr)
 		}
 	}()
 
 	uow := newSqlxUnitOfWork(tx)
-
 	err = cb(ctx, uow)
+
 	if err != nil {
+		f.logger.DebugContext(ctx, "error happened while executing unit of work", "err", err)
 		return err
 	}
 
@@ -77,10 +83,10 @@ func (f *UnitOfWorkFactory) Do(ctx context.Context, cb func(txCtx context.Contex
 	return err
 }
 
-func NewSqlxUnitOfWorkFactory(db *sqlx.DB) *UnitOfWorkFactory {
-	if db == nil {
+func NewUnitOfWorkFactory(db *sqlx.DB, logger *slog.Logger) *UnitOfWorkFactory {
+	if db == nil || logger == nil {
 		panic("db *sqlx.DB is nil")
 	}
 
-	return &UnitOfWorkFactory{db}
+	return &UnitOfWorkFactory{db, logger}
 }

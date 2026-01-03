@@ -147,6 +147,7 @@ func (r *CompanyRepository) SaveAll(ctx context.Context, companies []*domain.Com
 	}
 	defer func() { _ = rows.Close() }()
 
+	insertedCount := 0
 	for rows.Next() {
 		record := &companyRecord{}
 		if err := rows.StructScan(record); err != nil {
@@ -154,6 +155,11 @@ func (r *CompanyRepository) SaveAll(ctx context.Context, companies []*domain.Com
 		}
 
 		record.MapDomain(companies[record.BatchIndex])
+		insertedCount++
+	}
+
+	if insertedCount != len(companies) {
+		return pkg.InvalidStateErr(fmt.Sprintf("inserted count %d != len(companies) %d", insertedCount, len(companies)))
 	}
 
 	return rows.Err()

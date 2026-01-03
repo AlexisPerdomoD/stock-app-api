@@ -3,6 +3,7 @@ package cockroachdb
 import (
 	"context"
 	"database/sql"
+	pg "github.com/lib/pq"
 
 	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 	"github.com/alexisPerdomoD/stock-app-api/pkg"
@@ -51,7 +52,7 @@ func (r *MarketRepository) GetByNames(ctx context.Context, marketNames []string)
 
 	rows := []marketRecord{}
 	query := GET_MARKET_QUERY + " WHERE name=ANY($1) ORDER BY name"
-	if err := sqlx.SelectContext(ctx, r.db, &rows, query, marketNames); err != nil {
+	if err := sqlx.SelectContext(ctx, r.db, &rows, query, pg.Array(marketNames)); err != nil {
 		return nil, err
 	}
 
@@ -92,12 +93,11 @@ func (r *MarketRepository) SaveAll(ctx context.Context, markets []*domain.Market
 
 		args = append(args, marketRecord{Name: market.Name, BatchIndex: i})
 	}
-	q := INSERT_STOCK_NAMED_QUERY
+	q := INSERT_MARKET_NAMED_QUERY
 	rows, err := sqlx.NamedQueryContext(ctx, r.db, q, args)
 	if err != nil {
 		return err
 	}
-
 	defer func() { _ = rows.Close() }()
 
 	for rows.Next() {
