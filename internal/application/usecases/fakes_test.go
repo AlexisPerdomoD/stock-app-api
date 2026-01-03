@@ -285,6 +285,7 @@ func (f *FakeRecommendationRepository) SaveAll(
 type FakeStockRegisterRepository struct {
 	GetByIDFn           func(ctx context.Context, id uint64) (*domain.StockRegister, error)
 	GetLastByStockIDFn  func(ctx context.Context, stockID uint64) (*domain.StockRegister, error)
+	GetLastsByStockIDFn func(ctx context.Context, stockID uint64, limit uint16) ([]domain.StockRegister, error)
 	GetRangeByStockIDFn func(ctx context.Context, stockID uint64, from, to time.Time) ([]domain.StockRegister, error)
 	SaveFn              func(ctx context.Context, register *domain.StockRegister) error
 	SaveAllFn           func(ctx context.Context, registers []*domain.StockRegister) error
@@ -302,6 +303,13 @@ func (f *FakeStockRegisterRepository) GetLastByStockID(ctx context.Context, stoc
 		panic("FakeStockRegisterRepository.GetLastByStockIDFn not set")
 	}
 	return f.GetLastByStockIDFn(ctx, stockID)
+}
+
+func (f *FakeStockRegisterRepository) GetLastsByStockID(ctx context.Context, stockID uint64, limit uint16) ([]domain.StockRegister, error) {
+	if f.GetLastsByStockIDFn == nil {
+		panic("FakeStockRegisterRepository.GetLastsByStockIDFn not set")
+	}
+	return f.GetLastsByStockIDFn(ctx, stockID, limit)
 }
 
 func (f *FakeStockRegisterRepository) GetRangeByStockID(ctx context.Context, stockID uint64, from, to time.Time) ([]domain.StockRegister, error) {
