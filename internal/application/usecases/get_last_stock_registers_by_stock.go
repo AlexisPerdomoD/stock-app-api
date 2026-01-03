@@ -16,7 +16,6 @@ func (uc *GetLastStockRegistersByStock) Execute(
 	stockID uint64,
 	limit uint16,
 ) ([]models.StockRegisterView, error) {
-
 	data, err := uc.stockRegisterRepository.GetLastsByStockID(ctx, stockID, limit)
 	if err != nil {
 		return nil, err

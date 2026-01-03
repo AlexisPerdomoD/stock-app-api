@@ -39,3 +39,17 @@ func (uc *GetStockRegistersStatsByStock) Execute(
 	response := models.NewStockTendencyStatView(*stat)
 	return &response, nil
 }
+
+func NewGetStockRegistersStatsByStock(
+	stockRepository domain.StockRepository,
+	stockStatsRepository domain.StockTendencyStatRepository,
+) *GetStockRegistersStatsByStock {
+	if stockRepository == nil || stockStatsRepository == nil {
+		panic("nil arguments for NewGetStockRegistersStatsByStock")
+	}
+
+	return &GetStockRegistersStatsByStock{
+		stockRepository,
+		stockStatsRepository,
+	}
+}

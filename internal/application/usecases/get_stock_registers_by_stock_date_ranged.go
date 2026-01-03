@@ -52,3 +52,17 @@ func (uc *GetStockRegistersByStockDateRanged) Execute(
 
 	return response, nil
 }
+
+func NewGetStockRegistersByStockDateRanged(
+	stockRegisterRepository domain.StockRegisterRepository,
+	limitDateRange time.Duration,
+) *GetStockRegistersByStockDateRanged {
+	if stockRegisterRepository == nil {
+		panic("nil argument for NewGetStockRegistersByStockDateRanged")
+	}
+
+	return &GetStockRegistersByStockDateRanged{
+		stockRegisterRepository,
+		limitDateRange,
+	}
+}
