@@ -64,6 +64,7 @@ func main() {
 	stockRepository := cockroachdb.NewStockRepository(db)
 	stockRegisterRepository := cockroachdb.NewStockRegisterRepository(db)
 	recommendationRepository := cockroachdb.NewRecommendationRepository(db)
+	stockStatsRepository := cockroachdb.NewStockTendencyStatRepository(db)
 	unitOfWorkFactory := cockroachdb.NewUnitOfWorkFactory(db, mainSlogger.With("cockroachdb", "UnitOfWorkFactory"))
 	// USE CASES
 	getStocksUC := usecases.NewGetStocks(stockRepository)
@@ -80,9 +81,14 @@ func main() {
 	registerUserUC := usecases.NewRegisterUser(userRepository, mainSlogger)
 	registerUserStockUC := usecases.NewRegisterUserStock(userRepository)
 	removeUserStockUC := usecases.NewRemoveUserStock(userRepository)
+	threeMonths := time.Hour * 24 * 30 * 3
+	getStockRegistersByStockDateRangedUC := usecases.NewGetStockRegistersByStockDateRanged(stockRegisterRepository, threeMonths)
+	getLastStockRegistersByStockUC := usecases.NewGetLastStockRegistersByStock(stockRegisterRepository)
+	getStockTendencyStatByStockUC := usecases.NewGetStockRegistersStatsByStock(stockRepository, stockStatsRepository)
 
 	// HANDLERS
 	stockHandler := handlers.NewStockHandler(getStocksUC, getStockUC, registerUserStockUC, removeUserStockUC)
+	stockRegisterHandler := handlers.NewStockRegisterHandler(getStockRegistersByStockDateRangedUC, getLastStockRegistersByStockUC, getStockTendencyStatByStockUC)
 	recommendationHandler := handlers.NewRecommendationHandler(getRecommendationByStockUC)
 	userHandler := handlers.NewUserHandler(registerUserUC, loginUserUC)
 
@@ -108,6 +114,11 @@ func main() {
 	stockGroup.POST("/favorites/:stockID", stockHandler.RegisterStockHandler)
 	stockGroup.DELETE("/favorites/:stockID", stockHandler.RemoveStockHandler)
 	stockGroup.GET("/:stockID", stockHandler.GetStockHandler)
+
+	stockRegisterGroup := stockGroup.Group("/:stockID/registers")
+	stockRegisterGroup.GET("", stockRegisterHandler.GetStockRegistersByStockDateRangedHandler)
+	stockRegisterGroup.GET("/last", stockRegisterHandler.GetLastStockRegistersByStockHandler)
+	stockRegisterGroup.GET("/tendency", stockRegisterHandler.GetStockTendencyStatByStockHandler)
 
 	recommendationGroup := r.Group("/api/v1/recommendations")
 	recommendationGroup.Use(middleware.UserSessionMiddleware)
