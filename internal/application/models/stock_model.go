@@ -74,3 +74,25 @@ func NewPopulatedStockView(s domain.PopulatedStock) PopulatedStockView {
 		IsSaved:      s.IsSaved,
 	}
 }
+
+type StockTendencyStatView struct {
+	ID        uint64    `json:"id,string" example:"1"`
+	StockID   uint64    `json:"stock_id,string" example:"1"`
+	UpCount   uint64    `json:"up_count" example:"1"`
+	SideCount uint64    `json:"side_count" example:"1"`
+	DownCount uint64    `json:"down_count" example:"1"`
+	CreatedAt time.Time `json:"created_at" example:"2021-01-01T12:00:00Z"`
+	UpdatedAt time.Time `json:"updated_at"  example:"2021-01-01T12:00:00Z"`
+}
+
+func NewStockTendencyStatView(s domain.StockTendencyStat) StockTendencyStatView {
+	return StockTendencyStatView{
+		ID:        s.ID,
+		StockID:   s.StockID,
+		UpCount:   s.UpCount,
+		SideCount: s.SideCount,
+		DownCount: s.DownCount,
+		CreatedAt: s.CreatedAt,
+		UpdatedAt: s.UpdatedAt,
+	}
+}
