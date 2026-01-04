@@ -15,42 +15,46 @@ TEST_DB_COMPOSE_FILE := docker-compose-db.test.yml
 ################################################################################
 # LOCAL COMMANDS
 ################################################################################
-
-local-up-db:
+local-up-db: check-migrate
 	$(DOCKER_COMPOSE) -f $(DB_COMPOSE_FILE) up -d
 	@sleep 1
-	@echo "👉 check if the database is ready"
+	@echo "local database ready"
 
-local-down-db:
+local-down-db: check-migrate
 	$(DOCKER_COMPOSE) -f $(DB_COMPOSE_FILE) down
 
-local-migrate-up: check-migrate local-up-db
+local-migrate-up: local-up-db
 	@migrate -path $(CR_MIGRATION_DIR) -database "cockroach://root@localhost:26257/defaultdb?sslmode=disable" up
 
-local-migrate-down: check-migrate 
+local-migrate-down: local-up-db
 	@migrate -path $(CR_MIGRATION_DIR) -database "cockroach://root@localhost:26257/defaultdb?sslmode=disable" down
 	
-local-start: local-up-db  local-migrate-up
+local-start: local-migrate-up
 	@go run ./cmd/server
+
+local-populate-db: local-migrate-up
+	@go run ./cmd/populatedb
+
 
 ################################################################################
 # TEST COMMANDS
 ################################################################################
 
-test-local-up-db:
+test-local-up-db: check-migrate
 	$(DOCKER_COMPOSE) -f $(TEST_DB_COMPOSE_FILE) up -d
 	@sleep 1
-	@echo "👉 check if the database is ready"
+	@echo "test database ready"
 
-test-local-down-db:
+test-local-down-db: check-migrate
 	$(DOCKER_COMPOSE) -f $(TEST_DB_COMPOSE_FILE) down
 
-test-local-migrate-up: check-migrate test-local-up-db
+test-local-migrate-up: test-local-up-db
 	@migrate -path $(CR_MIGRATION_DIR) -database "cockroach://root@localhost:26257/defaultdb?sslmode=disable" up
 
-test-local-migrate-down: check-migrate
+test-local-migrate-down: test-local-up-db
 	@migrate -path $(CR_MIGRATION_DIR) -database "cockroach://root@localhost:26257/defaultdb?sslmode=disable" down
-test: test-local-up-db test-local-migrate-up
+
+test-local: test-local-migrate-up
 	@clear
 	@echo "running tests"
 	go test ./... -v | grep -v "^?"
