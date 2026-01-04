@@ -2,19 +2,37 @@ package mock
 
 import (
 	"context"
-	"github.com/alexisPerdomoD/stock-app-api/internal/application/services"
-	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
+	"fmt"
 	"math/rand"
+	"slices"
 	"strings"
 	"time"
+
+	"github.com/alexisPerdomoD/stock-app-api/internal/application/services"
+	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
 )
 
-func RandomNumber(min, max float64) float64 {
+var tickers []string = []string{
+	"apple",
+	"amaz",
+	"tijua",
+	"donn",
+	"sony",
+	"nint",
+	"macd",
+	"nike",
+	"redb",
+	"expo",
+	"nasa",
+	"guns",
+}
+
+func randomNumber(min, max float64) float64 {
 	// #nosec G404 -- rand is fine in test/mock context
 	return min + rand.Float64()*(max-min)
 }
 
-func RandomString(length int) string {
+func randomString(length int) string {
 	const charset = "abcdefghijklmnopqrstuvwxyz0123456789"
 	var b strings.Builder
 	b.Grow(length)
@@ -25,57 +43,173 @@ func RandomString(length int) string {
 	return b.String()
 }
 
-func RandomTendency() domain.Tendency {
+func nextRating(
+	prev domain.Action,
+	tendency domain.Tendency,
+	price float64,
+	targetFrom float64,
+	targetTo float64,
+) domain.Action {
+
+	// 1. Reglas duras (prioridad absoluta)
+	if price >= targetTo {
+		return domain.Sell
+	}
+	if price <= targetFrom {
+		return domain.Buy
+	}
+
+	// 2. Inercia: probabilidad de mantener rating
 	// #nosec G404 -- rand is fine in test/mock context
-	return domain.Tendency(rand.Intn(3) + 1)
+	r := rand.Float64()
+
+	switch tendency {
+	case domain.Up:
+		if r < 0.6 {
+			return prev
+		}
+		if r < 0.9 {
+			return upgrade(prev)
+		}
+		return downgrade(prev)
+
+	case domain.Down:
+		if r < 0.6 {
+			return prev
+		}
+		if r < 0.9 {
+			return downgrade(prev)
+		}
+		return upgrade(prev)
+
+	default: // Side
+		if r < 0.7 {
+			return prev
+		}
+		if r < 0.85 {
+			return upgrade(prev)
+		}
+		return downgrade(prev)
+	}
 }
 
-func RandomAction() domain.Action {
-	// #nosec G404 -- rand is fine in test/mock context
-	return domain.Action(rand.Intn(4) + 1)
+func upgrade(a domain.Action) domain.Action {
+	switch a {
+	case domain.Sell:
+		return domain.Hold
+	case domain.Hold:
+		return domain.Buy
+	default:
+		return domain.Buy
+	}
 }
 
-func RandomTicker() string {
-	tickers := []string{"apple", "amaz", "tijua", "donn", "sony", "nint", "macd", "nike", "redb", "expo", "nasa", "guns"}
-	// #nosec G404 -- rand is fine in test/mock context
-	return tickers[rand.Intn(len(tickers))]
+func downgrade(a domain.Action) domain.Action {
+	switch a {
+	case domain.Buy:
+		return domain.Hold
+	case domain.Hold:
+		return domain.Sell
+	default:
+		return domain.Sell
+	}
 }
 
-// MockSourceStockService es una implementación de SourceStockService para pruebas
-type MockSourceStockService struct{}
+// mockSourceStockService es una implementación de SourceStockService para pruebas
+type mockSourceStockService struct{}
 
-func (m *MockSourceStockService) Name() string {
+func (m *mockSourceStockService) Name() string {
 	return "MockSourceStockService"
 }
 
-func (m *MockSourceStockService) Get(ctx context.Context, limitDate *time.Time) ([]services.DataSourceResponse, error) {
-	var result []services.DataSourceResponse
+func (m *mockSourceStockService) Get(ctx context.Context, limitDate *time.Time) ([]services.DataSourceResponse, error) {
+	now := time.Now()
+	result := make([]services.DataSourceResponse, 0, len(tickers)*6)
 
-	for i := range 500 {
-		ticker := RandomTicker()
-		stock := services.DataSourceResponse{
-			Market: services.MarketData{
-				Name: "mock market",
-			},
-			Company: services.CompanyData{
-				Name: ticker,
-			},
-			Recomendation: &services.RecommendationData{
-				RatingTo:   RandomAction(),
-				RatingFrom: RandomAction(),
-				TargetTo:   RandomNumber(10, 2000),
-				TargetFrom: RandomNumber(10, 2000),
-				Brokerage:  services.BrokerageData{Name: "mock " + RandomString(10)},
-			},
-			Stock: services.StockRegisterData{
-				Ticker:   ticker,
-				Name:     ticker,
-				Price:    RandomNumber(10, 2000),
-				Tendency: RandomTendency(),
-			},
-			Time: time.Now().Add(time.Duration(-i) * time.Hour * 6),
+	for _, ticker := range tickers {
+
+		var prevPrice float64
+		var prevAction domain.Action
+		// precio base por ticker (más realista)
+		basePrice := randomNumber(50, 500)
+
+		for i := range 6 {
+			stockTime := now.Add(-time.Duration(i) * time.Minute * 5)
+
+			if limitDate != nil && stockTime.After(*limitDate) {
+				break
+			}
+
+			var price, targetFrom, targetTo float64
+			var tendency domain.Tendency
+			var ratingFrom, ratingTo domain.Action
+
+			if i == 0 {
+				price = basePrice
+				tendency = domain.Side
+				targetFrom = price
+				targetTo = price * randomNumber(1.0, 1.10)
+				ratingFrom = domain.Neutral
+
+			} else {
+				// variación pequeña respecto al precio anterior
+				delta := randomNumber(-5, 5)
+				price = prevPrice + delta
+				targetFrom = prevPrice
+				targetTo = price * randomNumber(1.0, 1.10)
+				ratingFrom = prevAction
+
+				switch {
+				case price > prevPrice:
+					tendency = domain.Up
+				case price < prevPrice:
+					tendency = domain.Down
+				default:
+					tendency = domain.Side
+				}
+			}
+
+			ratingTo = nextRating(ratingFrom, tendency, price, targetFrom, targetTo)
+
+			stock := services.DataSourceResponse{
+				Market: services.MarketData{
+					Name: "mock market",
+				},
+				Company: services.CompanyData{
+					Name: fmt.Sprintf("mock-company-%s", ticker),
+				},
+
+				Recomendation: &services.RecommendationData{
+					RatingFrom: ratingFrom,
+					RatingTo:   ratingTo,
+					TargetFrom: targetFrom,
+					TargetTo:   targetTo,
+					Brokerage: services.BrokerageData{
+						Name: "mock-brokerage-" + randomString(8),
+					},
+				},
+				Stock: services.StockRegisterData{
+					Ticker:   ticker,
+					Name:     ticker,
+					Price:    price,
+					Tendency: tendency,
+				},
+				Time: stockTime,
+			}
+
+			result = append(result, stock)
+			prevPrice = price
+			prevAction = ratingTo
 		}
-		result = append(result, stock)
 	}
+
+	slices.SortFunc(result, func(a, b services.DataSourceResponse) int {
+		return b.Time.Compare(a.Time)
+	})
+
 	return result, nil
+}
+
+func NewMockSourceStockService() services.DataSourceService {
+	return &mockSourceStockService{}
 }
