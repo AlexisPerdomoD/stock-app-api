@@ -323,6 +323,39 @@ paths:
       summary: Login de usuario
       tags:
       - auth
+  /api/v1/markets:
+    get:
+      consumes:
+      - application/json
+      description: Obtiene todos los mercados (fuentes de datos) disponibles
+      parameters:
+      - description: Authorization Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.MarketView'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/mappers.HttpErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/mappers.HttpErrResponse'
+      security:
+      - BearerAuth: []
+      summary: Obtener los mercados (fuentes de datos)
+      tags:
+      - markets
   /api/v1/recommendations/{stockID}:
     get:
       description: Obtener recomendaciones de un stock

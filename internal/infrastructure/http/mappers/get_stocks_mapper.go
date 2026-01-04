@@ -16,6 +16,7 @@ func MapGetStocksFilter(c *gin.Context) pkg.PaginationFilter {
 
 	greaterThan := c.Query("greater")
 	lowerThan := c.Query("lower")
+	marketID := c.Query("market")
 	page := c.DefaultQuery("page", "1")
 	size := c.DefaultQuery("size", "20")
 
@@ -27,6 +28,15 @@ func MapGetStocksFilter(c *gin.Context) pkg.PaginationFilter {
 			Page: 1,
 		},
 		FilterBy: []pkg.FilterByItem{},
+	}
+
+	parsedMarketID, err := strconv.ParseUint(marketID, 10, 64)
+	if err == nil && parsedMarketID > 0 {
+		filters.FilterBy = append(filters.FilterBy, pkg.FilterByItem{
+			Field:    domain.FilterByStockMarketID.String(),
+			Value:    parsedMarketID,
+			Operator: pkg.Equals,
+		})
 	}
 
 	parsedGreater, err := strconv.ParseFloat(greaterThan, 64)

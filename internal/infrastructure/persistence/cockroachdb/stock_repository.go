@@ -250,6 +250,7 @@ func (r *StockRepository) paginate(
 			}
 
 			fmt.Fprintf(&statement, "%s %s", column, item.Order)
+			orderCount++
 		}
 	}
 
@@ -508,6 +509,12 @@ func NewStockRepository(db sqlx.ExtContext) *StockRepository {
 	filterByFieldMap[domain.FilterByStockPrice] = FieldValidator{
 		field:          domain.FilterByStockPrice.String(),
 		column:         "lsr.price",
+		valueValidator: generateCheckType[float64](),
+	}
+
+	filterByFieldMap[domain.FilterByStockPrice] = FieldValidator{
+		field:          domain.FilterByStockPrice.String(),
+		column:         "s.market_id",
 		valueValidator: generateCheckType[float64](),
 	}
 

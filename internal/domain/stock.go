@@ -44,7 +44,8 @@ type StockCompanySearchParam struct {
 type FilterByStock string
 
 const (
-	FilterByStockPrice FilterByStock = "filter_stock_price"
+	FilterByStockPrice    FilterByStock = "filter_stock_price"
+	FilterByStockMarketID FilterByStock = "filter_stock_market_id"
 )
 
 func (f FilterByStock) String() string {
@@ -52,7 +53,7 @@ func (f FilterByStock) String() string {
 }
 
 func (f FilterByStock) IsValid() bool {
-	return f == FilterByStockPrice
+	return f == FilterByStockPrice || f == FilterByStockMarketID
 }
 
 type SortByStock string
@@ -94,6 +95,8 @@ type StockRepository interface {
 		Allows filters are:
 
 		- FilterByStockPrice (float64) is expected.
+
+		- FilterByStockMarketID (uint64) is expected.
 
 		- filter.search (string) filter by ticker, name or company name (case insensitive).
 

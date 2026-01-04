@@ -21,6 +21,11 @@ Repository for the Market entity.
 */
 type MarketRepository interface {
 	/*
+		Returns all Markets in the database ordered by name ASC.
+	*/
+	GetAll(ctx context.Context) ([]Market, error)
+
+	/*
 		Returns a Market by its ID. If the ID does not exist, returns nil.
 	*/
 	GetByID(ctx context.Context, id uint64) (*Market, error)

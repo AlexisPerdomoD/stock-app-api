@@ -121,10 +121,18 @@ func (f *FakeUserRepository) RemoveUserStock(ctx context.Context, userID, stockI
 // ////////////////////// MARKET REPOSITORY ///////////////////////////////////////////////////////////////////////////////
 // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 type FakeMarketRepository struct {
+	GetAllFn     func(ctx context.Context) ([]domain.Market, error)
 	GetByIDFn    func(ctx context.Context, id uint64) (*domain.Market, error)
 	GetByNamesFn func(ctx context.Context, names []string) (map[string]*domain.Market, error)
 	SaveFn       func(ctx context.Context, market *domain.Market) error
 	SaveAllFn    func(ctx context.Context, markets []*domain.Market) error
+}
+
+func (f *FakeMarketRepository) GetAll(ctx context.Context) ([]domain.Market, error) {
+	if f.GetAllFn == nil {
+		panic("FakeMarketRepository.GetAllFn not set")
+	}
+	return f.GetAllFn(ctx)
 }
 
 func (f *FakeMarketRepository) GetByID(ctx context.Context, id uint64) (*domain.Market, error) {

@@ -67,6 +67,7 @@ func (sc *StockHandler) GetStockHandler(c *gin.Context) {
 // @Param orderby query string false "Ordenar resultados. Valores: tendency-asc, tendency-desc, price-asc, price-desc, ticker-asc, ticker-desc, date"
 // @Param greater query number false "Precio mínimo"
 // @Param lower query number false "Precio máximo"
+// @Param market query number false "ID de mercado fuente de datos"
 // @Param page query int false "Número de página. Default: 1"
 // @Param size query int false "Tamaño de página. Default: 20"
 // @Success 200 {object} models.StockViewPaginated
@@ -98,6 +99,7 @@ func (sc *StockHandler) GetStocksHandler(c *gin.Context) {
 // @Param orderby query string false "Ordenar resultados. Valores: tendency-asc, tendency-desc, price-asc, price-desc, ticker-asc, ticker-desc, date"
 // @Param greater query number false "Precio mínimo"
 // @Param lower query number false "Precio máximo"
+// @Param market query number false "ID de mercado fuente de datos"
 // @Param page query int false "Número de página. Default: 1"
 // @Param size query int false "Tamaño de página. Default: 20"
 // @in header

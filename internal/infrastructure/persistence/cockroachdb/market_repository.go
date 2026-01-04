@@ -30,6 +30,27 @@ type MarketRepository struct {
 	db sqlx.ExtContext
 }
 
+func (r *MarketRepository) GetAll(ctx context.Context) ([]domain.Market, error) {
+	q := GET_MARKET_QUERY + " ORDER BY name"
+	rows, err := r.db.QueryxContext(ctx, q)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+	markets := make([]domain.Market, 0)
+
+	for rows.Next() {
+		record := &marketRecord{}
+		if err := rows.StructScan(record); err != nil {
+			return nil, err
+		}
+
+		markets = append(markets, *record.ToDomain())
+	}
+
+	return markets, rows.Err()
+}
+
 func (r *MarketRepository) GetByID(ctx context.Context, marketID uint64) (*domain.Market, error) {
 	row := marketRecord{}
 	query := GET_MARKET_QUERY + " WHERE id=$1"
