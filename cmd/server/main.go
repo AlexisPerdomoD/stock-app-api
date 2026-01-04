@@ -50,7 +50,7 @@ func main() {
 
 	mainDataSourceService := servicesimpl.NewMainSourceStockService(&httpServiceClient, true)
 	cnnDataSourceService := servicesimpl.NewCnnStockSourceService(&httpServiceClient)
-	const mainsourcekey, cnnsourcekey string = "principal", "cnn"
+	const mainsourcekey, cnnsourcekey, mocksourcekey string = "principal", "cnn", "mock"
 	dataSources := map[string]services.DataSourceService{
 		mainsourcekey: mainDataSourceService,
 		cnnsourcekey:  cnnDataSourceService,
@@ -67,6 +67,7 @@ func main() {
 	stockStatsRepository := cockroachdb.NewStockTendencyStatRepository(db)
 	unitOfWorkFactory := cockroachdb.NewUnitOfWorkFactory(db, mainSlogger.With("cockroachdb", "UnitOfWorkFactory"))
 	// USE CASES
+	getMarketsUC := usecases.NewGetMarkets(marketRepository)
 	getStocksUC := usecases.NewGetStocks(stockRepository)
 	getStockUC := usecases.NewGetStock(
 		userRepository,
@@ -87,6 +88,7 @@ func main() {
 	getStockTendencyStatByStockUC := usecases.NewGetStockRegistersStatsByStock(stockRepository, stockStatsRepository)
 
 	// HANDLERS
+	marketHandler := handlers.NewMarketHandler(getMarketsUC)
 	stockHandler := handlers.NewStockHandler(getStocksUC, getStockUC, registerUserStockUC, removeUserStockUC)
 	stockRegisterHandler := handlers.NewStockRegisterHandler(getStockRegistersByStockDateRangedUC, getLastStockRegistersByStockUC, getStockTendencyStatByStockUC)
 	recommendationHandler := handlers.NewRecommendationHandler(getRecommendationByStockUC)
@@ -107,6 +109,10 @@ func main() {
 	userGroup := r.Group("/api/v1/users")
 	userGroup.POST("", userHandler.RegisterUserHandler)
 
+	marketGroup := r.Group("/api/v1/markets")
+	marketGroup.Use(middleware.UserSessionMiddleware)
+	marketGroup.GET("", marketHandler.GetMarketsHandler)
+
 	stockGroup := r.Group("/api/v1/stocks")
 	stockGroup.Use(middleware.UserSessionMiddleware)
 	stockGroup.GET("", stockHandler.GetStocksHandler)
@@ -126,19 +132,27 @@ func main() {
 
 	// SCHEDULER
 	scheduler := scheduler.New()
-	interval := time.Minute * 15
+	mainInterval := time.Hour * 24
+	cnnInterval := time.Hour
+	mockInterval := time.Minute * 30
 	timeout := time.Minute * 3
 	scheduler.AddStockSourceService(
 		mainsourcekey,
 		registerStocksUC,
 		timeout,
-		&interval,
+		&mainInterval,
 	)
 	scheduler.AddStockSourceService(
 		cnnsourcekey,
 		registerStocksUC,
 		timeout,
-		&interval,
+		&cnnInterval,
+	)
+	scheduler.AddStockSourceService(
+		mocksourcekey,
+		registerStocksUC,
+		timeout,
+		&mockInterval,
 	)
 	scheduler.StartOnBackground()
 
