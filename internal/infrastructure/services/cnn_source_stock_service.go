@@ -142,12 +142,14 @@ func (s *CnnStockSourceService) Get(ctx context.Context, limitDate *time.Time) (
 			continue
 		}
 
-		tendency := domain.Side
+		var tendency domain.Tendency
 
 		if item.PrevClosePrice > item.CurrentPrice {
 			tendency = domain.Down
 		} else if item.PrevClosePrice < item.CurrentPrice {
 			tendency = domain.Up
+		} else {
+			tendency = domain.Side
 		}
 
 		dataItem := services.DataSourceResponse{

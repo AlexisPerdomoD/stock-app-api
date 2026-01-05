@@ -35,6 +35,7 @@ func NewStockView(s domain.Stock) StockView {
 		Name:      s.Name,
 		Isin:      s.Isin,
 		CreatedAt: s.CreatedAt,
+		UpdatedAt: s.UpdatedAt,
 	}
 }
 

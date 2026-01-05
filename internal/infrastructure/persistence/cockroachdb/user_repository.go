@@ -17,6 +17,8 @@ const GET_USER_QUERY = `
 		active, 
 		created_at
 	FROM users`
+
+// nolint:gosec
 const GET_USER_PASSWORD_INCLUDED_QUERY = `
 	SELECT 
 		id, 

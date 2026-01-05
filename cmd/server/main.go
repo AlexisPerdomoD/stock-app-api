@@ -14,6 +14,7 @@ import (
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/persistence/cockroachdb"
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/scheduler"
 	servicesimpl "github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/services"
+	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/services/mock"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -50,10 +51,12 @@ func main() {
 
 	mainDataSourceService := servicesimpl.NewMainSourceStockService(&httpServiceClient, true)
 	cnnDataSourceService := servicesimpl.NewCnnStockSourceService(&httpServiceClient)
+	mockDataSourceService := mock.NewMockSourceStockService()
 	const mainsourcekey, cnnsourcekey, mocksourcekey string = "principal", "cnn", "mock"
 	dataSources := map[string]services.DataSourceService{
 		mainsourcekey: mainDataSourceService,
 		cnnsourcekey:  cnnDataSourceService,
+		mocksourcekey: mockDataSourceService,
 	}
 
 	// REPOSITORIES

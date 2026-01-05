@@ -1,6 +1,7 @@
 package mappers
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -124,5 +125,6 @@ func MapGetStocksFilter(c *gin.Context) pkg.PaginationFilter {
 		filters.Page = parsedPage
 	}
 
+	println(fmt.Sprintf("filters: %+v", filters))
 	return filters
 }

@@ -17,7 +17,6 @@ func (f *FieldValidator) GetColumn(field string, value any) (string, bool) {
 	if f.field != field {
 		return "", false
 	}
-
 	if !f.valueValidator(value) {
 		return "", false
 	}

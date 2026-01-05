@@ -274,7 +274,8 @@ func (r *StockRepository) paginate(
 
 	limit, offset := size, (page-1)*size
 	fmt.Fprintf(&statement, " LIMIT %d OFFSET %d", limit, offset)
-	rows, err := r.db.QueryContext(ctx, q+statement.String(), args...)
+	q = q + statement.String()
+	rows, err := r.db.QueryContext(ctx, q, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -288,8 +289,8 @@ func (r *StockRepository) paginate(
 
 		if err := rows.Scan(
 			&stockRecord.ID,
-			&marketRecord.ID,
-			&companyRecord.ID,
+			&stockRecord.MarketID,
+			&stockRecord.CompanyID,
 			&stockRecord.Ticker,
 			&stockRecord.Name,
 			&stockRecord.Isin,
@@ -343,11 +344,18 @@ func (r *StockRepository) paginate(
 	return response, nil
 }
 
-func (r *StockRepository) GetAllPaginated(ctx context.Context, filter pkg.PaginationFilter) (*pkg.PaginationResponse[domain.PopulatedStock], error) {
+func (r *StockRepository) GetAllPaginated(
+	ctx context.Context,
+	filter pkg.PaginationFilter,
+) (*pkg.PaginationResponse[domain.PopulatedStock], error) {
 	return r.paginate(ctx, filter, nil)
 }
 
-func (r *StockRepository) GetAllPaginatedByUser(ctx context.Context, filter pkg.PaginationFilter, userID uint64) (*pkg.PaginationResponse[domain.PopulatedStock], error) {
+func (r *StockRepository) GetAllPaginatedByUser(
+	ctx context.Context,
+	filter pkg.PaginationFilter,
+	userID uint64,
+) (*pkg.PaginationResponse[domain.PopulatedStock], error) {
 	return r.paginate(ctx, filter, &userID)
 }
 
@@ -511,11 +519,10 @@ func NewStockRepository(db sqlx.ExtContext) *StockRepository {
 		column:         "lsr.price",
 		valueValidator: generateCheckType[float64](),
 	}
-
-	filterByFieldMap[domain.FilterByStockPrice] = FieldValidator{
-		field:          domain.FilterByStockPrice.String(),
+	filterByFieldMap[domain.FilterByStockMarketID] = FieldValidator{
+		field:          domain.FilterByStockMarketID.String(),
 		column:         "s.market_id",
-		valueValidator: generateCheckType[float64](),
+		valueValidator: generateCheckType[uint64](),
 	}
 
 	orderByFieldMap := make(map[domain.SortByStock]string)
