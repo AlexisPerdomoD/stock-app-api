@@ -21,7 +21,7 @@ func (sc *Scheduler) AddStockSourceService(
 	serviceName string,
 	uc *usecases.RegisterStocks,
 	timeout time.Duration,
-	itv *time.Duration,
+	intervalDuration *time.Duration,
 ) {
 
 	if uc == nil {
@@ -34,10 +34,8 @@ func (sc *Scheduler) AddStockSourceService(
 	}
 
 	interval := "@every 24h"
-	limitDate := time.Now().AddDate(0, 0, 1)
-	if itv != nil {
-		interval = fmt.Sprintf("@every %s", itv.String())
-		limitDate = time.Now().Add(-*itv)
+	if intervalDuration != nil {
+		interval = fmt.Sprintf("@every %s", intervalDuration.String())
 	}
 
 	id, err := sc.intance.AddFunc(interval, func() {
@@ -45,6 +43,11 @@ func (sc *Scheduler) AddStockSourceService(
 		defer cancel()
 
 		log.Println("[CRON] starting stock source service ", serviceName)
+
+		limitDate := time.Now().AddDate(0, 0, 1)
+		if intervalDuration != nil {
+			limitDate = time.Now().Add(*intervalDuration)
+		}
 
 		inserts, err := uc.Execute(ctx, serviceName, &limitDate)
 		if err != nil {
