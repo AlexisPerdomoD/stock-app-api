@@ -33,7 +33,7 @@ local-start: local-migrate-up
 	@go run ./cmd/server
 
 local-populate-db: local-migrate-up
-	@go run ./cmd/populatedb
+	@go run ./cmd/populatedb main
 
 
 ################################################################################
