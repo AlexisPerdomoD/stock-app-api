@@ -123,7 +123,7 @@ func (m *mockSourceStockService) Name() string {
 }
 
 func (m *mockSourceStockService) Get(ctx context.Context, limitDate *time.Time) ([]services.DataSourceResponse, error) {
-	now := time.Now()
+	thirtyMinutesArgo := time.Now().Add(-30 * time.Minute).UTC()
 	result := make([]services.DataSourceResponse, 0, len(tickers)*6)
 
 	for _, ticker := range tickers {
@@ -134,9 +134,9 @@ func (m *mockSourceStockService) Get(ctx context.Context, limitDate *time.Time) 
 		basePrice := randomNumber(50, 500)
 
 		for i := range 6 {
-			stockTime := now.Add(-time.Duration(i) * time.Minute * 5)
+			stockTime := thirtyMinutesArgo.Add(time.Duration(i) * time.Minute * 5).UTC()
 
-			if limitDate != nil && stockTime.After(*limitDate) {
+			if limitDate != nil && stockTime.After((*limitDate).UTC()) {
 				break
 			}
 

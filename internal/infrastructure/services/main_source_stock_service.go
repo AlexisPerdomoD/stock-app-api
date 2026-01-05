@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"slices"
@@ -35,11 +35,11 @@ type MainStockSourcePayload struct {
 }
 
 type MainSourceStockService struct {
-	name    string
-	cl      *http.Client
-	uri     string
-	key     string
-	verbose bool
+	name   string
+	cl     *http.Client
+	uri    string
+	key    string
+	logger *slog.Logger
 }
 
 func (s *MainSourceStockService) Name() string {
@@ -71,7 +71,7 @@ func (s *MainSourceStockService) doRequest(
 	}
 
 	if res.StatusCode != http.StatusOK {
-		log.Printf("[main source stock] unexpected response body: %+v", payload)
+		s.logger.WarnContext(ctx, "unexpected response body", "payload", payload)
 		return nil, pkg.InternalServerError(fmt.Sprintf("unexpected status code %d", res.StatusCode))
 	}
 	return payload, nil
@@ -120,14 +120,12 @@ func (s *MainSourceStockService) Get(
 		doUntil = &yesterday
 	}
 
-	if doUntil == nil && s.verbose {
-		log.Printf("[main source stock] no limit date provided")
+	if doUntil == nil {
+		s.logger.DebugContext(ctx, "no limit date provided")
 	}
 
 	for {
-		if s.verbose {
-			log.Printf("[main source stock]: start getting stocks from main source stock from page %s", nextPage)
-		}
+		s.logger.DebugContext(ctx, "start getting stocks from main source stock from page", "page", nextPage)
 
 		payload, err := s.doRequest(ctx, nextPage)
 		if err != nil {
@@ -199,19 +197,14 @@ func (s *MainSourceStockService) Get(
 		}
 
 		if payload.NextPage == nil || *payload.NextPage == "" {
-			if s.verbose {
-				log.Printf("[main source stock] no next page")
-				log.Printf("[main source stock] got %v stocks total", len(response))
-			}
+			s.logger.DebugContext(ctx, "no next page", "count", len(response))
 
 			break
 		}
 
 		nextPage = *payload.NextPage
 
-		if s.verbose {
-			log.Printf("[main source stock] next page: %s", nextPage)
-		}
+		s.logger.DebugContext(ctx, "next page", "page", nextPage)
 	}
 
 	slices.SortFunc(response, func(a, b services.DataSourceResponse) int {
@@ -227,12 +220,12 @@ func (s *MainSourceStockService) Get(
 	return response, nil
 }
 
-func NewMainSourceStockService(cl *http.Client, verbose bool) *MainSourceStockService {
+func NewMainSourceStockService(cl *http.Client, logger *slog.Logger) *MainSourceStockService {
 	uri := os.Getenv("MAIN_SOURCE_STOCK_URI")
 	key := os.Getenv("MAIN_SOURCE_STOCK_KEY")
 
 	if uri == "" || key == "" {
-		log.Fatalln("please set MAIN_SOURCE_STOCK_URI and MAIN_SOURCE_STOCK_KEY environment variables")
+		panic("please set MAIN_SOURCE_STOCK_URI and MAIN_SOURCE_STOCK_KEY environment variables")
 	}
 
 	name := "main source stock"
@@ -242,5 +235,9 @@ func NewMainSourceStockService(cl *http.Client, verbose bool) *MainSourceStockSe
 		}
 	}
 
-	return &MainSourceStockService{name, cl, uri, key, verbose}
+	if logger == nil {
+		logger = slog.Default()
+	}
+
+	return &MainSourceStockService{name, cl, uri, key, logger}
 }

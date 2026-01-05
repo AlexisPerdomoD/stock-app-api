@@ -4,14 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/alexisPerdomoD/stock-app-api/internal/application/services"
-	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
-	"github.com/alexisPerdomoD/stock-app-api/pkg"
-	"log"
+	"log/slog"
 	"net/http"
 	"slices"
 	"strings"
 	"time"
+
+	"github.com/alexisPerdomoD/stock-app-api/internal/application/services"
+	"github.com/alexisPerdomoD/stock-app-api/internal/domain"
+	"github.com/alexisPerdomoD/stock-app-api/pkg"
 )
 
 /*
@@ -94,11 +95,14 @@ type CnnStockSourceItem struct {
 	Ticker         string    `json:"symbol"`
 	CurrentPrice   float64   `json:"current_price"`
 	PrevClosePrice float64   `json:"prev_close_price"`
+	PercentChange  float64   `json:"percent_change_from_prev_close"`
+	PriceChange    float64   `json:"price_change_from_prev_close"`
 	LastUpdated    time.Time `json:"last_updated"`
 }
 
 type CnnStockSourceService struct {
-	cl *http.Client
+	cl     *http.Client
+	logger *slog.Logger
 }
 
 func (s *CnnStockSourceService) Name() string {
@@ -123,7 +127,7 @@ func (s *CnnStockSourceService) Get(ctx context.Context, limitDate *time.Time) (
 	}
 	defer func() {
 		if err := res.Body.Close(); err != nil {
-			log.Printf("[cnn source] failed to close response body: %v", err)
+			s.logger.WarnContext(ctx, "failed to close response body", "err", err)
 		}
 	}()
 
@@ -136,7 +140,7 @@ func (s *CnnStockSourceService) Get(ctx context.Context, limitDate *time.Time) (
 	}
 
 	data := make([]services.DataSourceResponse, 0)
-	log.Printf("[CnnStockSourceService]: service started and sorcing %d stocks", len(payload))
+	s.logger.InfoContext(ctx, "service started and sorcing stocks", "count", len(payload))
 	for _, item := range payload {
 		if limitDate != nil && limitDate.After(item.LastUpdated) {
 			continue
@@ -151,6 +155,15 @@ func (s *CnnStockSourceService) Get(ctx context.Context, limitDate *time.Time) (
 		} else {
 			tendency = domain.Side
 		}
+
+		s.logger.InfoContext(ctx, "stock tendency",
+			"ticker", item.Ticker,
+			"tendency", tendency,
+			"current price", item.CurrentPrice,
+			"prev close price", item.PrevClosePrice,
+			"percent change", item.PercentChange,
+			"price change", item.PriceChange,
+		)
 
 		dataItem := services.DataSourceResponse{
 			Time: item.LastUpdated,
@@ -167,6 +180,8 @@ func (s *CnnStockSourceService) Get(ctx context.Context, limitDate *time.Time) (
 			},
 		}
 
+		s.logger.InfoContext(ctx, "stock added", "stock", dataItem)
+
 		data = append(data, dataItem)
 	}
 
@@ -182,17 +197,21 @@ func (s *CnnStockSourceService) Get(ctx context.Context, limitDate *time.Time) (
 		return 0
 	})
 
-	log.Printf("[CnnStockSourceService]: sourced %d stocks", len(data))
+	s.logger.InfoContext(ctx, "sourced stocks", "count", len(data))
 
 	return data, nil
 }
 
-func NewCnnStockSourceService(cl *http.Client) *CnnStockSourceService {
+func NewCnnStockSourceService(cl *http.Client, logger *slog.Logger) *CnnStockSourceService {
 	if cl == nil {
 		cl = &http.Client{
 			Timeout: time.Second * 10,
 		}
 	}
 
-	return &CnnStockSourceService{cl}
+	if logger == nil {
+		logger = slog.Default()
+	}
+
+	return &CnnStockSourceService{cl, logger}
 }

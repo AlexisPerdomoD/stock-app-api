@@ -70,7 +70,7 @@ func TestMainSourceStockService_Get(t *testing.T) {
 	_ = os.Setenv("MAIN_SOURCE_STOCK_URI", serverHappyPath.URL)
 	_ = os.Setenv("MAIN_SOURCE_STOCK_KEY", "test-key")
 
-	svc := services.NewMainSourceStockService(http.DefaultClient, false)
+	svc := services.NewMainSourceStockService(http.DefaultClient, nil)
 
 	data, err := svc.Get(context.Background(), &twoDaysAgo)
 	assert.NoError(t, err)
@@ -108,7 +108,7 @@ func TestMainSourceStockService_Get(t *testing.T) {
 
 	_ = os.Setenv("MAIN_SOURCE_STOCK_URI", serverErr.URL)
 	_ = os.Setenv("MAIN_SOURCE_STOCK_KEY", "test-key")
-	svc = services.NewMainSourceStockService(http.DefaultClient, false)
+	svc = services.NewMainSourceStockService(http.DefaultClient, nil)
 	data, err = svc.Get(context.Background(), &twoDaysAgo)
 	assert.Nil(t, data)
 	assert.Error(t, err)

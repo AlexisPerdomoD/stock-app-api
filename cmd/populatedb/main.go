@@ -13,17 +13,19 @@ import (
 	"github.com/alexisPerdomoD/stock-app-api/internal/application/usecases"
 	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/persistence/cockroachdb"
 	servicesimpl "github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/services"
+	"github.com/alexisPerdomoD/stock-app-api/internal/infrastructure/services/mock"
 	"github.com/joho/godotenv"
 )
 
 func main() {
 	flag.Parse()
 	servicename := flag.Arg(0)
-	const mainServiceName, cnnServiceName = "main", "cnn"
+	const mainServiceName, cnnServiceName, mockServiceName = "main", "cnn", "mock"
 
 	switch servicename {
 	case mainServiceName:
 	case cnnServiceName:
+	case mockServiceName:
 	default:
 		panic(fmt.Sprintf("invalid service name %s", servicename))
 	}
@@ -39,12 +41,14 @@ func main() {
 	}
 
 	httpServiceClient := http.Client{Timeout: time.Second * 10}
-	mainService := servicesimpl.NewMainSourceStockService(&httpServiceClient, true)
-	cnnService := servicesimpl.NewCnnStockSourceService(&httpServiceClient)
+	mainService := servicesimpl.NewMainSourceStockService(&httpServiceClient, slog.Default().With("main", "source"))
+	cnnService := servicesimpl.NewCnnStockSourceService(&httpServiceClient, slog.Default().With("cnn", "source"))
+	mockService := mock.NewMockSourceStockService()
 
 	serviceProvider := make(map[string]services.DataSourceService)
 	serviceProvider[mainServiceName] = mainService
 	serviceProvider[cnnServiceName] = cnnService
+	serviceProvider[mockServiceName] = mockService
 
 	unitOfWorkFactory := cockroachdb.NewUnitOfWorkFactory(db, slog.Default().With("cockroachdb", "UnitOfWorkFactory"))
 

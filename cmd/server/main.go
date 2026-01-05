@@ -49,8 +49,8 @@ func main() {
 		Level: slog.LevelDebug,
 	}))
 
-	mainDataSourceService := servicesimpl.NewMainSourceStockService(&httpServiceClient, true)
-	cnnDataSourceService := servicesimpl.NewCnnStockSourceService(&httpServiceClient)
+	mainDataSourceService := servicesimpl.NewMainSourceStockService(&httpServiceClient, mainSlogger.With("main", "source"))
+	cnnDataSourceService := servicesimpl.NewCnnStockSourceService(&httpServiceClient, mainSlogger.With("cnn", "source"))
 	mockDataSourceService := mock.NewMockSourceStockService()
 	const mainsourcekey, cnnsourcekey, mocksourcekey string = "principal", "cnn", "mock"
 	dataSources := map[string]services.DataSourceService{
@@ -137,7 +137,7 @@ func main() {
 	scheduler := scheduler.New()
 	mainInterval := time.Hour * 24
 	cnnInterval := time.Hour
-	mockInterval := time.Minute * 30
+	mockInterval := time.Minute * 45
 	timeout := time.Minute * 3
 	scheduler.AddStockSourceService(
 		mainsourcekey,
@@ -145,6 +145,7 @@ func main() {
 		timeout,
 		&mainInterval,
 	)
+
 	scheduler.AddStockSourceService(
 		cnnsourcekey,
 		registerStocksUC,
