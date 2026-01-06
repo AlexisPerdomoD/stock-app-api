@@ -1,5 +1,3 @@
-include .env
-export
 # COMMANDS
 DOCKER_COMPOSE := docker compose
 DOCKER := docker
