@@ -40,8 +40,13 @@ func main() {
 	// DATABASE
 	db, err := cockroachdb.NewDB()
 	if err != nil {
-		panic(fmt.Sprintf("Error creating db due to %v", err))
+		panic(fmt.Sprintf("Error creating db due to %+v", err))
 	}
+
+	if err = cockroachdb.MigrateUp(db.DB); err != nil {
+		panic(fmt.Sprintf("Error migrating db up due to %+v", err))
+	}
+
 	// SERVICES
 	httpServiceClient := http.Client{Timeout: time.Second * 10}
 

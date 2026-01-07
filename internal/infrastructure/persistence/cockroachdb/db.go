@@ -1,9 +1,14 @@
 package cockroachdb
 
 import (
+	"database/sql"
 	"fmt"
 	"os"
+	"path/filepath"
 
+	"github.com/golang-migrate/migrate/v4"
+	migratecockroachdb "github.com/golang-migrate/migrate/v4/database/cockroachdb"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
@@ -37,6 +42,43 @@ func NewDB() (*sqlx.DB, error) {
 		return nil, fmt.Errorf("CR_SSL is empty")
 	}
 
-	connection := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", host, port, user, password, dbName, ssl)
+	connection := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		host,
+		port,
+		user,
+		password,
+		dbName,
+		ssl)
+
 	return sqlx.Open("postgres", connection)
+}
+
+func MigrateUp(db *sql.DB) error {
+	driver, err := migratecockroachdb.WithInstance(db, &migratecockroachdb.Config{})
+	if err != nil {
+		return err
+	}
+
+	wd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	path := "file://" + filepath.Join(
+		wd,
+		"internal/infrastructure/db/migrations/cockroachdb",
+	)
+
+	m, err := migrate.NewWithDatabaseInstance(path, "postgres", driver)
+	if err != nil {
+		return err
+	}
+
+	err = m.Up()
+
+	if err != nil && err != migrate.ErrNoChange {
+		return err
+	}
+
+	return nil
 }

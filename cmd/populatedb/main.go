@@ -40,6 +40,11 @@ func main() {
 		os.Exit(1)
 	}
 
+	if err = cockroachdb.MigrateUp(db.DB); err != nil {
+		slog.Log(ctx, slog.LevelError, "error migrating db up", "err", err)
+		os.Exit(1)
+	}
+
 	httpServiceClient := http.Client{Timeout: time.Second * 10}
 	mainService := servicesimpl.NewMainSourceStockService(&httpServiceClient, slog.Default().With("main", "source"))
 	cnnService := servicesimpl.NewCnnStockSourceService(&httpServiceClient, slog.Default().With("cnn", "source"))
